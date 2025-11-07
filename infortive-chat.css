@@ -133,3 +133,46 @@
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog__container::-webkit-scrollbar-track{ background:transparent; }
+
+
+/***** PATCH bulles & encadrés (restauration visible) — 07/11 *****/
+
+/* ====== ASSISTANT : bulle grise + encadré ====== */
+.vfrc-system-response .vfrc-message,
+.vfrc-system-response .vfrc-message .markdown {
+  display: inline-block !important;
+  background: var(--bubble-bg) !important;      /* rgba(217,217,217,.2) */
+  color: var(--text) !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  max-width: 90% !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* marge interne des paragraphes */
+.vfrc-system-response .vfrc-message .markdown p { margin: 0 0 8px; }
+.vfrc-system-response .vfrc-message .markdown p:last-child { margin-bottom: 0; }
+
+/* ====== UTILISATEUR : bulle bleu nuit + texte blanc ====== */
+/* ton DOM : .vfrc-user-response > div._15emaa41 */
+.vfrc-user-response > div,
+.vfrc-user-response .vfrc-message,
+.vfrc-user-response ._15emaa41 {
+  display: inline-block !important;
+  background: var(--brand-navy) !important;     /* bleu nuit */
+  color: #fff !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  max-width: 90% !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* forcer le texte blanc à l’intérieur de la bulle user */
+.vfrc-user-response > div *,
+.vfrc-user-response .vfrc-message * { color: #fff !important; }
+
+/* ====== Espacements globaux entre messages ====== */
+.vfrc-message { margin: 12px 0 !important; }
+
