@@ -1,99 +1,13 @@
-/* ==========================================================
-   🎨 Infortive Chat Theme — Voiceflow Widget (v2, DOM 2025)
-   ========================================================== */
+/***** PATCH FOCUSED — 07/11/2025 *****/
 
-/* Import polices (Inter / Roboto par défaut) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
-
-/* ---------- Variables globales ---------- */
-:root {
-  --brand-primary: #F08300;
-  --brand-navy: #051740;
-  --brand-deep: #1B203D;
-  --divider: rgba(27, 32, 61, 0.5);
-  --bubble-bg: rgba(217, 217, 217, 0.2);
-  --text: #051740;
-  --text-muted: rgba(0, 0, 0, 0.6);
-  --bg: #FFFFFF;
-
-  --font-sans: "Inter", "Roboto", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-  --font-ui: "Roboto", "Inter", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-
-  --fs-body: 22px;
-  --lh-body: 35px;
-  --fs-title: 22px;
-  --lh-title: 26px;
-
-  --radius-panel: 21.625px;
-  --radius-bubble: 10.8125px;
-  --shadow-panel: 0 4.325px 5.406px rgba(0,0,0,.14),
-                  0 1.081px 10.812px rgba(0,0,0,.12),
-                  0 2.162px 4.325px rgba(0,0,0,.20);
-}
-
-/* ---------- Conteneur global ---------- */
-#voiceflow-chat-container {
-  font-family: var(--font-sans);
-}
-
-/* ---------- Panneau principal ---------- */
-.vfrc-widget, .voiceflow-chat {
-  background: var(--bg);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-panel);
-}
-
-/* ---------- Header (titre "Prise de brief") ---------- */
-.vfrc-header--title {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: var(--fs-title);
-  line-height: var(--lh-title);
-  letter-spacing: .16px;
-  color: #fff !important;
-}
-
-/* ---------- Messages et bulles ---------- */
-
-/* Texte et interlignes */
-.vfrc-message {
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  color: var(--text);
-  margin: 10px 0 !important;
-}
-
-/* Bulle assistant */
-.vfrc-system-response .vfrc-message {
-  background: var(--bubble-bg) !important;
-  color: var(--text) !important;
-  border-radius: var(--radius-bubble) !important;
-  padding: 14px 16px !important;
-}
-
-/* Bulle utilisateur */
-.vfrc-user-response > div {
-  background: var(--brand-primary) !important;
-  color: #fff !important;
-  border-radius: var(--radius-bubble) !important;
-  padding: 10px 14px !important;
-}
-
-/* ---------- Input & placeholder ---------- */
-.vfrc-chat-input,
-.vfrc-chat-input__container-inner textarea {
-  font-family: var(--font-ui);
-  color: var(--text);
-}
-::placeholder {
-  color: var(--text-muted);
-}
-
-/* ---------- Bouton "Envoyer" ---------- */
+/* 1) Bouton “Envoyer” => orange, icône blanche (même désactivé) */
+.vfrc-chat-input__actions #vfrc-send-message,
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: var(--brand-primary) !important;
   color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
   border-radius: 12px !important;
   width: 42px !important;
   height: 42px !important;
@@ -106,21 +20,49 @@
 #vfrc-send-message[disabled],
 .vfrc-chat-input__send[disabled] {
   background: color-mix(in srgb, var(--brand-primary) 55%, #ffffff) !important;
-  opacity: .85 !important;
+  color: #fff !important;
+  opacity: .9 !important;
 }
 
-/* ---------- Scrollbar zone de messages ---------- */
+/* 2) Bulle UTILISATEUR (ton DOM: .vfrc-user-response > div._15emaa41) */
+.vfrc-user-response > div {
+  display: inline-block !important;
+  background: var(--brand-primary) !important;
+  color: #fff !important;
+  border-radius: 10.8125px !important;
+  padding: 10px 14px !important;
+  line-height: 1.45 !important;
+}
+
+/* 3) Bulle ASSISTANT (encadré gris autour du texte) */
+.vfrc-system-response .vfrc-message,
+.vfrc-system-response .markdown {
+  display: inline-block !important;
+  background: var(--bubble-bg) !important;  /* rgba(217,217,217,.2) */
+  color: var(--text) !important;
+  border-radius: 10.8125px !important;
+  padding: 14px 16px !important;
+  line-height: 1.6 !important;
+}
+
+/* 4) Interlignes / marges entre messages */
+.vfrc-message { 
+  margin: 10px 0 !important;
+  font-size: var(--fs-body) !important;
+  line-height: var(--lh-body) !important;
+}
+
+/* 5) Zone qui SCROLLE + scrollbar orange (et on force bien l’overflow) */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
-  scrollbar-width: thin;
+  overflow-y: auto !important;                 /* <- important pour faire apparaître la barre */
+  scrollbar-width: thin;                       /* Firefox */
   scrollbar-color: var(--brand-primary) transparent;
 }
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 10px;
-}
+.vfrc-chat-dialog__container::-webkit-scrollbar { width: 10px; }
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
@@ -129,46 +71,4 @@
 }
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* ---------- Boutons d’options / quick replies ---------- */
-.vfrc-button,
-.vfrc-quick-replies button,
-button.vfrc-button {
-  font-family: var(--font-ui);
-  font-weight: 500;
-  letter-spacing: 1.25px;
-  text-transform: uppercase;
-  border-radius: 4.325px;
-  color: var(--brand-primary);
-  border: 1px solid var(--brand-primary);
-  background: #fff;
-}
-.vfrc-button:hover {
-  background: var(--brand-primary);
-  color: #fff;
-}
-
-/* ---------- Divider ---------- */
-.vfrc-divider, hr {
-  background: var(--divider);
-  opacity: .5;
-  height: 1.08px;
-  border: none;
-}
-
-/* ---------- Scroll-to-bottom icon ---------- */
-.vfrc-footer__content-scroll-to-bottom-button svg {
-  color: var(--brand-primary) !important;
-  fill: var(--brand-primary) !important;
-}
-
-/* ---------- Test visuel temporaire ---------- */
-/* (facultatif — supprime après validation) */
-/*
-.vfrc-chat * {
-  outline: 1px dashed rgba(255,0,0,.25) !important;
-}
-*/
+.vfrc-chat-dialog__container::-webkit-scrollbar-track { background: transparent; }
