@@ -1,17 +1,17 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème minimal stable (v5)
-   Base = ton bouton "Envoyer" + correctifs bulles/espacements
+   Infortive × Voiceflow — Thème complet stable (v6)
+   Auteur : Corentin Hualpa x ChatGPT | 07/11/2025
    ========================================================== */
 
-/* ---------- Bouton "Envoyer" (TON BLOC, inchangé dans la logique) ---------- */
+/* ---------- Bouton "Envoyer" ---------- */
 
-/* 1️⃣ Cache complètement l’icône SVG */
+/* Cache complètement l’icône SVG */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
   display: none !important;
 }
 
-/* 2️⃣ Ajoute le texte “Envoyer” à la place */
+/* Ajoute le texte “Envoyer” à la place */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
@@ -21,7 +21,7 @@
   letter-spacing: 0.4px;
 }
 
-/* 3️⃣ Style général du bouton */
+/* Style général du bouton */
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: none !important;
@@ -32,31 +32,48 @@
   color: rgba(240, 131, 0, 0.7) !important; /* gris-orangé par défaut */
   transition: all 0.2s ease-in-out;
   cursor: default;
-  display: block;            /* centre le bouton sans toucher au layout */
-  margin: 0 auto;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 100px !important;
+  max-width: none !important;
+  white-space: nowrap !important;
   text-align: center;
 }
 
-/* 4️⃣ Quand l’utilisateur a saisi du texte (bouton activé) */
+/* Bouton actif : texte orange vif */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  color: #F08300 !important; /* orange vif */
+  color: #F08300 !important;
   cursor: pointer;
 }
 
-/* 5️⃣ État “hover” */
+/* État hover */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
   color: #d46f00 !important;
   text-decoration: underline;
 }
 
-/* ---------- BULLes & espacement (minimal, sans casser la mise en page) ---------- */
+/* Conteneur de l’input — pour éviter le clipping */
+.vfrc-chat-input__actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  padding-right: 8px !important;
+  overflow: visible !important;
+}
 
-/* Assistant : bulle grise + encadré */
+/* ==========================================================
+   Bulles & Espacement
+   ========================================================== */
+
+/* Assistant : bulle grise */
 .vfrc-system-response .vfrc-message {
   display: inline-block !important;
-  background: rgba(217,217,217,0.2) !important;
+  background: rgba(217, 217, 217, 0.2) !important;
   color: #1E293B !important;
   border-radius: 12px !important;
   padding: 14px 16px !important;
@@ -64,14 +81,20 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-.vfrc-system-response .vfrc-message .markdown p { margin: 0 0 8px; }
-.vfrc-system-response .vfrc-message .markdown p:last-child { margin-bottom: 0; }
 
-/* Utilisateur : bulle bleu nuit + texte blanc (selon ton DOM: .vfrc-user-response > div) */
+/* Texte assistant */
+.vfrc-system-response .vfrc-message .markdown p {
+  margin: 0 0 8px;
+}
+.vfrc-system-response .vfrc-message .markdown p:last-child {
+  margin-bottom: 0;
+}
+
+/* Utilisateur : bulle bleu nuit + texte blanc */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message {
   display: inline-block !important;
-  background: #073A59 !important;  /* bleu nuit Infortive */
+  background: #073A59 !important;
   color: #ffffff !important;
   border-radius: 12px !important;
   padding: 10px 14px !important;
@@ -79,13 +102,19 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-/* forcé à blanc pour tout le contenu de la bulle user */
-.vfrc-user-response > div *, .vfrc-user-response .vfrc-message * { color: #ffffff !important; }
+.vfrc-user-response > div *,
+.vfrc-user-response .vfrc-message * {
+  color: #ffffff !important;
+}
 
 /* Espacement global entre messages */
-.vfrc-message { margin: 12px 0 !important; }
+.vfrc-message {
+  margin: 12px 0 !important;
+}
 
-/* ---------- Scrollbar orange (sur la zone qui scrolle) ---------- */
+/* ==========================================================
+   Scrollbar orange
+   ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
@@ -94,7 +123,9 @@
 }
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar { width: 10px; }
+.vfrc-chat-dialog__container::-webkit-scrollbar {
+  width: 10px;
+}
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
@@ -103,7 +134,14 @@
 }
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track { background: transparent; }
+.vfrc-chat-dialog__container::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/* ---------- Détail header : garde l’icône blanche ---------- */
-.vfrc-header--button .vfrc-icon svg { color:#fff !important; fill:#fff !important; }
+/* ==========================================================
+   Header — garde l’icône blanche
+   ========================================================== */
+.vfrc-header--button .vfrc-icon svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
