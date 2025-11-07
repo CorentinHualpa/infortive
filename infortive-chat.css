@@ -95,3 +95,50 @@
   background: #E55A2B !important;
   border-color: #E55A2B !important;
 }
+
+/* ==========================================================
+   REMPLACEMENT DU BOUTON D'ENVOI — TEXTE "Envoyer"
+   ========================================================== */
+
+/* 1️⃣ Cache complètement l’icône SVG */
+#vfrc-send-message svg,
+.vfrc-chat-input__send svg {
+  display: none !important;
+}
+
+/* 2️⃣ Ajoute le texte “Envoyer” à la place */
+#vfrc-send-message::after,
+.vfrc-chat-input__send::after {
+  content: "Envoyer";
+  font-family: "Inter", "Roboto", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.4px;
+}
+
+/* 3️⃣ Style général du bouton */
+#vfrc-send-message,
+.vfrc-chat-input__send {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+  padding: 8px 14px !important;
+  color: rgba(240, 131, 0, 0.7) !important; /* gris-orangé par défaut */
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+/* 4️⃣ Quand l’utilisateur a saisi du texte (bouton activé) */
+#vfrc-send-message:not([disabled]),
+.vfrc-chat-input__send:not([disabled]) {
+  color: #F08300 !important; /* orange vif */
+  cursor: pointer;
+}
+
+/* 5️⃣ État “hover” */
+#vfrc-send-message:not([disabled]):hover,
+.vfrc-chat-input__send:not([disabled]):hover {
+  color: #d46f00 !important;
+  text-decoration: underline;
+}
