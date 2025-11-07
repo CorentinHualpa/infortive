@@ -1,63 +1,83 @@
-/***** PATCH FOCUSED — 07/11/2025 *****/
+/***** PATCH  — force accent + styles visibles (07/11) *****/
 
-/* 1) Bouton “Envoyer” => orange, icône blanche (même désactivé) */
-.vfrc-chat-input__actions #vfrc-send-message,
-#vfrc-send-message,
-.vfrc-chat-input__send {
-  background: var(--brand-primary) !important;
+/* 0) Forcer les variables d’accent du thème interne (vu dans ton DOM: .vfrc-chat__container-inner
+      avec des --_1bof89n*). On écrase pour aligner tous les composants. */
+.vfrc-chat__container-inner {
+  --_1bof89n5: var(--brand-primary) !important;   /* accent principal */
+  --_1bof89n6: var(--brand-primary) !important;
+  --_1bof89n7: var(--brand-primary) !important;
+  --_1bof89n8: var(--brand-primary) !important;
+}
+
+/* 1) BOUTON ENVOYER — ultra spécifique (id + classe + type) */
+div.vfrc-chat-input__actions > button#vfrc-send-message.vfrc-chat-input__send {
+  background-color: var(--brand-primary) !important;
   color: #fff !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 12px !important;
-  width: 42px !important;
-  height: 42px !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
 }
-#vfrc-send-message svg,
-.vfrc-chat-input__send svg {
+
+/* Icône du bouton (le path utilise currentColor) */
+#vfrc-send-message .vfrc-chat-input__send-icon,
+#vfrc-send-message .vfrc-chat-input__send-icon path {
+  color: #fff !important;
   fill: #fff !important;
   stroke: #fff !important;
 }
-#vfrc-send-message[disabled],
-.vfrc-chat-input__send[disabled] {
-  background: color-mix(in srgb, var(--brand-primary) 55%, #ffffff) !important;
+
+/* État disabled – garder une teinte orange claire */
+button#vfrc-send-message[disabled].vfrc-chat-input__send {
+  background-color: color-mix(in srgb, var(--brand-primary) 60%, white) !important;
   color: #fff !important;
-  opacity: .9 !important;
+  opacity: .95 !important;
 }
 
-/* 2) Bulle UTILISATEUR (ton DOM: .vfrc-user-response > div._15emaa41) */
-.vfrc-user-response > div {
+/* 2) BULLE UTILISATEUR — ta structure: .vfrc-user-response > div._15emaa41 */
+.vfrc-user-response > div,
+.vfrc-user-response > div._15emaa41 {
   display: inline-block !important;
   background: var(--brand-primary) !important;
   color: #fff !important;
   border-radius: 10.8125px !important;
   padding: 10px 14px !important;
   line-height: 1.45 !important;
+  max-width: 90% !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
 }
 
-/* 3) Bulle ASSISTANT (encadré gris autour du texte) */
-.vfrc-system-response .vfrc-message,
-.vfrc-system-response .markdown {
+/* 3) BULLE ASSISTANT — encadré gris autour du texte */
+.vfrc-system-response .vfrc-message .markdown,
+.vfrc-system-response .vfrc-message {
   display: inline-block !important;
-  background: var(--bubble-bg) !important;  /* rgba(217,217,217,.2) */
+  background: var(--bubble-bg) !important;   /* rgba(217,217,217,.2) */
   color: var(--text) !important;
   border-radius: 10.8125px !important;
   padding: 14px 16px !important;
   line-height: 1.6 !important;
+  max-width: 90% !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
 }
 
-/* 4) Interlignes / marges entre messages */
+/* 4) Interlignes / marges entre messages (pour l’aération) */
 .vfrc-message { 
-  margin: 10px 0 !important;
+  margin: 12px 0 !important;
   font-size: var(--fs-body) !important;
   line-height: var(--lh-body) !important;
 }
 
-/* 5) Zone qui SCROLLE + scrollbar orange (et on force bien l’overflow) */
+/* 5) Scrollbar — tu as déjà la couleur, on force l’overflow sur la zone correcte */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
-  overflow-y: auto !important;                 /* <- important pour faire apparaître la barre */
-  scrollbar-width: thin;                       /* Firefox */
+  overflow-y: auto !important;
+  scrollbar-width: thin;
   scrollbar-color: var(--brand-primary) transparent;
 }
 .vfrc-chat--dialog::-webkit-scrollbar,
