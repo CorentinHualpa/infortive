@@ -1,0 +1,130 @@
+/* ===== Infortive Chat Theme (Figma → Voiceflow) ===== */
+
+/* Polices : si vous avez Avenir LT Std, remplacez le @import par @font-face */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  /* Couleurs (déduites de ton export) */
+  --brand-primary: #F08300;
+  --brand-navy: #051740;
+  --brand-deep: #1B203D;
+  --divider: rgba(27, 32, 61, 0.5);
+  --bubble-bg: rgba(217, 217, 217, 0.2);
+  --text: #051740;
+  --text-muted: rgba(0,0,0,0.6);
+  --bg: #FFFFFF;
+
+  /* Typo */
+  --font-sans: "Inter", "Roboto", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  --font-ui: "Roboto", "Inter", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+
+  /* Échelles typographiques vues */
+  --fs-body: 22px;         /* ~21.6px */
+  --lh-body: 35px;         /* ~160% */
+  --fs-title: 22px;
+  --lh-title: 26px;
+
+  /* Rayons + ombres */
+  --radius-panel: 21.625px;
+  --radius-bubble: 10.8125px;
+  --shadow-panel: 0 4.325px 5.406px rgba(0,0,0,.14),
+                  0 1.081px 10.812px rgba(0,0,0,.12),
+                  0 2.162px 4.325px rgba(0,0,0,.20);
+}
+
+/* Conteneur global (embedded) */
+#voiceflow-chat-container { font-family: var(--font-sans); }
+
+/* Widget/panel */
+#voiceflow-chat-container .vfrc-widget,
+#voiceflow-chat-container .voiceflow-chat {
+  background: var(--bg);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+/* Header (si affiché par le widget) */
+#voiceflow-chat-container .vfrc-header,
+#voiceflow-chat-container .vfrc-assistant-info__title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  letter-spacing: .16px;
+  color: var(--brand-navy);
+}
+
+/* Messages (texte) */
+#voiceflow-chat-container .vfrc-message,
+#voiceflow-chat-container .voiceflow-chat--message {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: .16px;
+  color: var(--text);
+}
+
+/* Bulle assistant */
+#voiceflow-chat-container .vfrc-message--assistant .vfrc-message__bubble,
+#voiceflow-chat-container .voiceflow-chat--bubble-assistant {
+  background: var(--bubble-bg);
+  color: var(--text);
+  border-radius: var(--radius-bubble);
+}
+
+/* Bulle user */
+#voiceflow-chat-container .vfrc-message--user .vfrc-message__bubble,
+#voiceflow-chat-container .voiceflow-chat--bubble-user {
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-bubble);
+}
+
+/* Boutons d’options / quick replies */
+#voiceflow-chat-container .vfrc-button,
+#voiceflow-chat-container .vfrc-quick-replies button,
+#voiceflow-chat-container button.vfrc-button {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  border-radius: 4.325px;
+  color: var(--brand-primary);
+}
+
+/* Input */
+#voiceflow-chat-container .vfrc-input,
+#voiceflow-chat-container input[type="text"],
+#voiceflow-chat-container textarea {
+  font-family: var(--font-ui);
+  color: var(--text);
+}
+
+/* Placeholder */
+#voiceflow-chat-container ::placeholder {
+  color: var(--text-muted);
+}
+
+/* Divider / lignes fines */
+#voiceflow-chat-container .vfrc-divider,
+#voiceflow-chat-container hr {
+  background: var(--divider);
+  opacity: .5;
+  height: 1.08px;
+}
+
+/* Barre de progression linéaire (si utilisée) */
+#voiceflow-chat-container .vfrc-progress--bar,
+#voiceflow-chat-container .vfrc-progress__bar {
+  background: rgba(240,131,0, .24);
+}
+#voiceflow-chat-container .vfrc-progress--bar > div,
+#voiceflow-chat-container .vfrc-progress__bar > div {
+  background: var(--brand-primary);
+}
+
+/* Avatars (couleur d’icône) */
+#voiceflow-chat-container .vfrc-avatar,
+#voiceflow-chat-container .vfrc-avatar svg {
+  color: var(--brand-navy);
+  fill: var(--brand-navy);
+}
