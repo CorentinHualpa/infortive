@@ -1,161 +1,225 @@
-/***** FEUILLE DE STYLE VOICEFLOW — 100% COMPATIBLE *****/
-
-/* ========================================
-   1) MESSAGES UTILISATEUR (bulles orange)
-   ======================================== */
-.vfrc-user-response .vfrc-message {
-  background: #FF6B35 !important;  /* Remplacez par votre couleur orange */
-  color: #ffffff !important;
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
-}
-
-/* ========================================
-   2) MESSAGES ASSISTANT (bulles grises)
-   ======================================== */
-.vfrc-system-response .vfrc-message {
-  background: rgba(217, 217, 217, 0.2) !important;
-  color: #333333 !important;
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
-}
-
-/* ========================================
-   3) INDICATEUR DE CHARGEMENT (3 points)
-   ======================================== */
-.vfrc-system-response--indicator {
-  background: rgba(217, 217, 217, 0.2) !important;
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
-}
-
-/* Points de chargement en orange */
-.vfrc-system-response--indicator::before,
-.vfrc-system-response--indicator::after,
-.vfrc-system-response--indicator > * {
-  background: #FF6B35 !important;
-}
-
-/* ========================================
-   4) BOUTON ENVOYER (orange)
-   ======================================== */
-.vfrc-chat-input--button {
-  background: #FF6B35 !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 12px !important;
-}
-
-.vfrc-chat-input--button:hover {
-  background: #E55A2B !important;
-}
-
-.vfrc-chat-input--button svg {
-  fill: #ffffff !important;
-}
-
-/* ========================================
-   5) BARRE DE DÉFILEMENT (orange)
-   ======================================== */
-.vfrc-chat--dialog::-webkit-scrollbar {
-  width: 8px;
-}
-
-.vfrc-chat--dialog::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.vfrc-chat--dialog::-webkit-scrollbar-thumb {
-  background: #FF6B35;
-  border-radius: 10px;
-}
-
-.vfrc-chat--dialog::-webkit-scrollbar-thumb:hover {
-  background: #E55A2B;
-}
-
-/* Firefox */
-.vfrc-chat--dialog {
-  scrollbar-width: thin;
-  scrollbar-color: #FF6B35 transparent;
-}
-
-/* ========================================
-   6) BOUTONS D'ACTION (dans les messages)
-   ======================================== */
-.vfrc-button {
-  background: #FF6B35 !important;
-  color: #ffffff !important;
-  border: 2px solid #FF6B35 !important;
-  border-radius: 8px !important;
-  padding: 10px 20px !important;
-}
-
-.vfrc-button:hover {
-  background: #E55A2B !important;
-  border-color: #E55A2B !important;
-}
-
 /* ==========================================================
-   REMPLACEMENT DU BOUTON D'ENVOI — TEXTE "Envoyer"
+   Infortive x Voiceflow — THEME COMPLET
+   (compat widget-next – DOM 2025-11-07)
    ========================================================== */
-/* 1) Conteneur du bas en flex propre */
-.vfrc-input-container,
-.vfrc-footer__content {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+
+/* Polices système (Avenir non inclus) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+
+/* ------------------ Variables ------------------ */
+:root{
+  --brand-primary:#F08300;     /* Orange Infortive */
+  --brand-navy:#072E4A;        /* Bleu foncé header */
+  --bubble-bg:rgba(217,217,217,.2);
+  --text:#1E293B;
+  --text-muted:rgba(0,0,0,.6);
+  --bg:#FFFFFF;
+
+  --font-sans:"Inter","Roboto",system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  --font-ui:"Inter","Roboto",system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+
+  --fs-body:18px;              /* lisible */
+  --lh-body:28px;
+  --fs-title:20px;
+  --lh-title:26px;
+
+  --radius-panel:22px;
+  --radius-bubble:14px;
+  --shadow-panel:0 8px 24px rgba(0,0,0,.08);
 }
 
-/* 2) La zone textarea prend la place, le bloc actions reste à la taille du contenu */
-.vfrc-chat-input__container-inner { 
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-}
-.vfrc-chat-input__actions {
-  flex: 0 0 auto !important;
-  overflow: visible !important;
-  display: flex !important;
-  align-items: center !important;
-  padding-right: 10px !important;
+/* ------------------ Panel / header ------------------ */
+.vfrc-widget,.voiceflow-chat{
+  background:var(--bg);
+  border-radius:var(--radius-panel);
+  box-shadow:var(--shadow-panel);
+  font-family:var(--font-sans);
 }
 
-/* 3) Bouton ENVOYER : largeur auto, pas de clipping, texte non coupé */
+/* Titre */
+.vfrc-header--title{
+  font-weight:700;
+  font-size:var(--fs-title);
+  line-height:var(--lh-title);
+  color:#fff !important;
+}
+
+/* Remplacer l’icône header par texte “Recommencer la conversation” */
+.vfrc-header--actions .vfrc-header--button{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:6px 12px !important;
+  border-radius:8px !important;
+  color:#fff !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+.vfrc-header--actions .vfrc-header--button svg{ display:none !important; }
+.vfrc-header--actions .vfrc-header--button::after{
+  content:"Recommencer la conversation";
+  font-family:var(--font-ui);
+  font-weight:600;
+  letter-spacing:.2px;
+  white-space:nowrap;
+  color:#fff;
+  opacity:.95;
+}
+.vfrc-header--actions .vfrc-header--button:hover::after{ opacity:1; text-decoration:underline; }
+
+/* ------------------ Messages ------------------ */
+.vfrc-message{
+  font-size:var(--fs-body);
+  line-height:var(--lh-body);
+  color:var(--text);
+  margin:12px 0 !important;
+}
+
+/* Assistant */
+.vfrc-system-response .vfrc-message,
+.vfrc-system-response .vfrc-message .markdown{
+  display:inline-block !important;
+  background:var(--bubble-bg) !important;
+  color:var(--text) !important;
+  border-radius:var(--radius-bubble) !important;
+  padding:16px 18px !important;
+  max-width:90%;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* Utilisateur (selon ton DOM: .vfrc-user-response > div._15emaa41) */
+.vfrc-user-response > div{
+  display:inline-block !important;
+  background:#073A59; /* pastille bleu nuit Infortive (tes captures) */
+  color:#fff !important;
+  border-radius:12px !important;
+  padding:10px 16px !important;
+  max-width:90%;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+/* Quick Replies / boutons */
+.vfrc-button, button.vfrc-button{
+  font-family:var(--font-ui);
+  font-weight:600;
+  letter-spacing:.2px;
+  border-radius:10px !important;
+  padding:10px 16px !important;
+  border:1px solid #073A59 !important;
+  color:#fff !important;
+  background:#073A59 !important;
+}
+.vfrc-button:hover{ filter:brightness(1.08); }
+
+/* Indicator (… ) */
+.vfrc-system-response--indicator{
+  background:var(--bubble-bg) !important;
+  border-radius:12px !important;
+  padding:12px 16px !important;
+}
+
+/* ------------------ Zone input & bouton ENVOYER ------------------ */
+/* Conteneur du bas en flex */
+.vfrc-footer__content{ display:flex !important; align-items:center !important; gap:10px !important; }
+.vfrc-input-container{ display:flex !important; align-items:center !important; gap:10px !important; }
+
+/* Boîte input (fond blanc arrondi) */
+.vfrc-chat-input__container-inner{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  background:#fff;
+  border-radius:20px;
+  padding:10px 14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+.vfrc-chat-input{
+  width:100% !important;
+  min-height:28px !important;
+  max-height:160px !important;
+  resize:none !important;
+  border:none !important;
+  outline:none !important;
+  background:transparent !important;
+  color:var(--text) !important;
+  font-family:var(--font-ui) !important;
+  font-size:16px !important;
+  line-height:22px !important;
+}
+::placeholder{ color:var(--text-muted); }
+
+/* Actions (à droite) */
+.vfrc-chat-input__actions{
+  flex:0 0 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  overflow:visible !important;
+  padding-right:6px !important;
+}
+
+/* Remplacer l’icône par le texte ENVOYER (état inactif/actif) */
+.vfrc-chat-input__send svg{ display:none !important; }
 #vfrc-send-message,
-.vfrc-chat-input__send {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 6px !important;
-  padding: 8px 14px !important;
-  width: auto !important;           /* <- enlève la largeur fixe */
-  height: auto !important;          /* <- enlève la hauteur fixe */
-  min-width: 0 !important;
-  white-space: nowrap !important;   /* <- ne pas couper “ENVOYER” */
-  overflow: visible !important;
-  color: rgba(240,131,0,.7) !important;     /* état inactif */
-  font-family: "Inter","Roboto",sans-serif;
-  font-weight: 700;
-  letter-spacing: .4px;
-  text-transform: uppercase;
-  line-height: 1 !important;
-  cursor: default;
+.vfrc-chat-input__send{
+  background:none !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:8px 14px !important;
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  border-radius:6px !important;
+  white-space:nowrap !important;
+  line-height:1 !important;
+  font-family:var(--font-ui);
+  font-weight:700;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:rgba(240,131,0,.7) !important; /* inactif */
+  cursor:default;
 }
-
-/* Masque l’icône et insère le libellé */
-#vfrc-send-message svg,
-.vfrc-chat-input__send svg { display: none !important; }
 #vfrc-send-message::after,
-.vfrc-chat-input__send::after { content: "ENVOYER"; }
+.vfrc-chat-input__send::after{ content:"ENVOYER"; }
 
-/* Actif (du moment que le bouton n’est pas disabled) */
 #vfrc-send-message:not([disabled]),
-.vfrc-chat-input__send:not([disabled]) {
-  color: #F08300 !important;
-  cursor: pointer;
+.vfrc-chat-input__send:not([disabled]){
+  color:var(--brand-primary) !important;      /* actif */
+  cursor:pointer;
 }
 #vfrc-send-message:not([disabled]):hover,
-.vfrc-chat-input__send:not([disabled]):hover {
-  color: #d46f00 !important;
-  text-decoration: underline;
+.vfrc-chat-input__send:not([disabled]):hover{ color:#d46f00 !important; text-decoration:underline; }
+
+/* ------------------ Scrollbar (zone messages) ------------------ */
+.vfrc-chat--dialog,
+.vfrc-chat-dialog,
+.vfrc-chat-dialog__container{
+  overflow-y:auto !important;
+  scrollbar-width:thin;
+  scrollbar-color:var(--brand-primary) transparent;
+}
+.vfrc-chat--dialog::-webkit-scrollbar,
+.vfrc-chat-dialog::-webkit-scrollbar,
+.vfrc-chat-dialog__container::-webkit-scrollbar{ width:10px; }
+.vfrc-chat--dialog::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb{
+  background:var(--brand-primary);
+  border-radius:999px;
+}
+.vfrc-chat--dialog::-webkit-scrollbar-track,
+.vfrc-chat-dialog::-webkit-scrollbar-track,
+.vfrc-chat-dialog__container::-webkit-scrollbar-track{ background:transparent; }
+
+/* ------------------ Dividers / détails ------------------ */
+.vfrc-divider, hr{ background:rgba(27,32,61,.35); height:1px; border:0; opacity:.6; }
+
+/* ------------------ Harmonisation des variables internes (widget) ------------------ */
+/* Le conteneur Voiceflow injecte des vars “--_1bof89n*”. On force l’accent. */
+.vfrc-chat__container-inner{
+  --_1bof89n5: var(--brand-primary) !important;
+  --_1bof89n6: var(--brand-primary) !important;
+  --_1bof89n7: var(--brand-primary) !important;
+  --_1bof89n8: var(--brand-primary) !important;
 }
