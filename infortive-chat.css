@@ -1,220 +1,109 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème complet stable (v4)
-   Auteur : Corentin Hualpa x ChatGPT | Date : 07/11/2025
+   Infortive × Voiceflow — Thème minimal stable (v5)
+   Base = ton bouton "Envoyer" + correctifs bulles/espacements
    ========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* ---------- Bouton "Envoyer" (TON BLOC, inchangé dans la logique) ---------- */
 
-:root {
-  --brand-primary: #F08300;              /* Orange Infortive */
-  --brand-navy: #073A59;                 /* Bleu nuit bulles user */
-  --bubble-bg: rgba(217,217,217,.2);     /* Fond bulles assistant */
-  --text: #1E293B;                       /* Gris foncé lisible */
-  --text-muted: rgba(0,0,0,.6);          /* Gris clair */
-  --font-sans: "Inter", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-}
-
-/* ==========================================================
-   RESET DE BASE
-   ========================================================== */
-.vfrc-footer__content,
-.vfrc-input-container {
-  display: revert !important;
-  align-items: revert !important;
-  gap: revert !important;
-}
-
-.vfrc-chat-input__container-inner {
-  background: transparent !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-}
-
-.vfrc-chat-focus-ring { display: revert !important; }
-.vfrc-footer__content-scroll-to-bottom-button { display: revert !important; }
-
-.vfrc-widget, .voiceflow-chat {
-  font-family: var(--font-sans);
-  background: #fff;
-}
-
-/* ==========================================================
-   HEADER
-   ========================================================== */
-.vfrc-header--title {
-  font-weight: 700;
-  color: #fff !important;
-}
-
-.vfrc-header--button .vfrc-icon svg {
-  color: #fff !important;
-  fill: #fff !important;
-}
-
-/* ==========================================================
-   MESSAGES ASSISTANT
-   ========================================================== */
-.vfrc-system-response .vfrc-message,
-.vfrc-system-response .vfrc-message .markdown {
-  display: inline-block !important;
-  background: var(--bubble-bg) !important;
-  color: var(--text) !important;
-  border-radius: 12px !important;
-  padding: 14px 16px !important;
-  max-width: 90% !important;
-  white-space: pre-wrap !important;
-  word-break: break-word !important;
-}
-
-.vfrc-system-response .vfrc-message .markdown p {
-  margin: 0 0 8px;
-}
-
-.vfrc-system-response .vfrc-message .markdown p:last-child {
-  margin-bottom: 0;
-}
-
-/* ==========================================================
-   MESSAGES UTILISATEUR
-   ========================================================== */
-.vfrc-user-response > div,
-.vfrc-user-response .vfrc-message,
-.vfrc-user-response ._15emaa41 {
-  display: inline-block !important;
-  background: var(--brand-navy) !important;
-  color: #fff !important;
-  border-radius: 12px !important;
-  padding: 10px 14px !important;
-  max-width: 90% !important;
-  white-space: pre-wrap !important;
-  word-break: break-word !important;
-}
-
-.vfrc-user-response > div *,
-.vfrc-user-response .vfrc-message * {
-  color: #fff !important;
-}
-
-.vfrc-message {
-  font-size: 18px;
-  line-height: 28px;
-  margin: 12px 0 !important;
-}
-
-/* ==========================================================
-   QUICK REPLIES / BOUTONS
-   ========================================================== */
-.vfrc-button, button.vfrc-button {
-  background: var(--brand-navy) !important;
-  color: #fff !important;
-  border: 1px solid var(--brand-navy) !important;
-  border-radius: 10px !important;
-  padding: 8px 14px !important;
-  font-weight: 600;
-  font-family: var(--font-sans);
-}
-
-.vfrc-button:hover {
-  filter: brightness(1.08);
-}
-
-/* ==========================================================
-   INDICATEUR DE CHARGEMENT
-   ========================================================== */
-.vfrc-system-response--indicator {
-  background: var(--bubble-bg) !important;
-  border-radius: 12px !important;
-  padding: 12px 16px !important;
-}
-
-/* ==========================================================
-   INPUT MESSAGE
-   ========================================================== */
-.vfrc-chat-input {
-  color: var(--text) !important;
-  font-family: var(--font-sans) !important;
-  font-size: 16px !important;
-  line-height: 22px !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-::placeholder {
-  color: var(--text-muted);
-}
-
-/* ==========================================================
-   BOUTON "ENVOYER" (remplace l’icône)
-   ========================================================== */
+/* 1️⃣ Cache complètement l’icône SVG */
+#vfrc-send-message svg,
 .vfrc-chat-input__send svg {
   display: none !important;
 }
 
+/* 2️⃣ Ajoute le texte “Envoyer” à la place */
+#vfrc-send-message::after,
+.vfrc-chat-input__send::after {
+  content: "Envoyer";
+  font-family: "Inter", "Roboto", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.4px;
+}
+
+/* 3️⃣ Style général du bouton */
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: none !important;
   border: none !important;
   box-shadow: none !important;
+  border-radius: 6px !important;
   padding: 8px 14px !important;
-  width: auto !important;
-  height: auto !important;
-  min-width: 0 !important;
-  white-space: nowrap !important;
-  font-family: var(--font-sans);
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  line-height: 1 !important;
-  color: rgba(240, 131, 0, 0.7) !important; /* inactif */
+  color: rgba(240, 131, 0, 0.7) !important; /* gris-orangé par défaut */
+  transition: all 0.2s ease-in-out;
   cursor: default;
-  display: block;
-  margin: 0 auto; /* centre le bouton */
+  display: block;            /* centre le bouton sans toucher au layout */
+  margin: 0 auto;
   text-align: center;
 }
 
-#vfrc-send-message::after,
-.vfrc-chat-input__send::after {
-  content: "ENVOYER";
-}
-
+/* 4️⃣ Quand l’utilisateur a saisi du texte (bouton activé) */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  color: var(--brand-primary) !important;
+  color: #F08300 !important; /* orange vif */
   cursor: pointer;
 }
 
+/* 5️⃣ État “hover” */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
   color: #d46f00 !important;
   text-decoration: underline;
 }
 
-/* ==========================================================
-   BARRE DE DÉFILEMENT (scrollbar)
-   ========================================================== */
+/* ---------- BULLes & espacement (minimal, sans casser la mise en page) ---------- */
+
+/* Assistant : bulle grise + encadré */
+.vfrc-system-response .vfrc-message {
+  display: inline-block !important;
+  background: rgba(217,217,217,0.2) !important;
+  color: #1E293B !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  max-width: 90%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.vfrc-system-response .vfrc-message .markdown p { margin: 0 0 8px; }
+.vfrc-system-response .vfrc-message .markdown p:last-child { margin-bottom: 0; }
+
+/* Utilisateur : bulle bleu nuit + texte blanc (selon ton DOM: .vfrc-user-response > div) */
+.vfrc-user-response > div,
+.vfrc-user-response .vfrc-message {
+  display: inline-block !important;
+  background: #073A59 !important;  /* bleu nuit Infortive */
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  max-width: 90%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* forcé à blanc pour tout le contenu de la bulle user */
+.vfrc-user-response > div *, .vfrc-user-response .vfrc-message * { color: #ffffff !important; }
+
+/* Espacement global entre messages */
+.vfrc-message { margin: 12px 0 !important; }
+
+/* ---------- Scrollbar orange (sur la zone qui scrolle) ---------- */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: var(--brand-primary) transparent;
+  scrollbar-color: #F08300 transparent;
 }
-
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 10px;
-}
-
+.vfrc-chat-dialog__container::-webkit-scrollbar { width: 10px; }
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: var(--brand-primary);
+  background: #F08300;
   border-radius: 999px;
 }
-
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent;
-}
+.vfrc-chat-dialog__container::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Détail header : garde l’icône blanche ---------- */
+.vfrc-header--button .vfrc-icon svg { color:#fff !important; fill:#fff !important; }
