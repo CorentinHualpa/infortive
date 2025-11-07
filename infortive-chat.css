@@ -1,30 +1,29 @@
-/* ===== Infortive Chat Theme (Figma → Voiceflow) ===== */
+/* ==========================================================
+   🎨 Infortive Chat Theme — Voiceflow Widget (v2, DOM 2025)
+   ========================================================== */
 
-/* Polices : si vous avez Avenir LT Std, remplacez le @import par @font-face */
+/* Import polices (Inter / Roboto par défaut) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
+/* ---------- Variables globales ---------- */
 :root {
-  /* Couleurs (déduites de ton export) */
   --brand-primary: #F08300;
   --brand-navy: #051740;
   --brand-deep: #1B203D;
   --divider: rgba(27, 32, 61, 0.5);
   --bubble-bg: rgba(217, 217, 217, 0.2);
   --text: #051740;
-  --text-muted: rgba(0,0,0,0.6);
+  --text-muted: rgba(0, 0, 0, 0.6);
   --bg: #FFFFFF;
 
-  /* Typo */
   --font-sans: "Inter", "Roboto", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
   --font-ui: "Roboto", "Inter", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
 
-  /* Échelles typographiques vues */
-  --fs-body: 22px;         /* ~21.6px */
-  --lh-body: 35px;         /* ~160% */
+  --fs-body: 22px;
+  --lh-body: 35px;
   --fs-title: 22px;
   --lh-title: 26px;
 
-  /* Rayons + ombres */
   --radius-panel: 21.625px;
   --radius-bubble: 10.8125px;
   --shadow-panel: 0 4.325px 5.406px rgba(0,0,0,.14),
@@ -32,99 +31,144 @@
                   0 2.162px 4.325px rgba(0,0,0,.20);
 }
 
-/* Conteneur global (embedded) */
-#voiceflow-chat-container { font-family: var(--font-sans); }
+/* ---------- Conteneur global ---------- */
+#voiceflow-chat-container {
+  font-family: var(--font-sans);
+}
 
-/* Widget/panel */
-#voiceflow-chat-container .vfrc-widget,
-#voiceflow-chat-container .voiceflow-chat {
+/* ---------- Panneau principal ---------- */
+.vfrc-widget, .voiceflow-chat {
   background: var(--bg);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-panel);
 }
 
-/* Header (si affiché par le widget) */
-#voiceflow-chat-container .vfrc-header,
-#voiceflow-chat-container .vfrc-assistant-info__title {
+/* ---------- Header (titre "Prise de brief") ---------- */
+.vfrc-header--title {
   font-family: var(--font-sans);
   font-weight: 700;
   font-size: var(--fs-title);
   line-height: var(--lh-title);
   letter-spacing: .16px;
-  color: var(--brand-navy);
+  color: #fff !important;
 }
 
-/* Messages (texte) */
-#voiceflow-chat-container .vfrc-message,
-#voiceflow-chat-container .voiceflow-chat--message {
+/* ---------- Messages et bulles ---------- */
+
+/* Texte et interlignes */
+.vfrc-message {
   font-size: var(--fs-body);
   line-height: var(--lh-body);
-  letter-spacing: .16px;
   color: var(--text);
+  margin: 10px 0 !important;
 }
 
 /* Bulle assistant */
-#voiceflow-chat-container .vfrc-message--assistant .vfrc-message__bubble,
-#voiceflow-chat-container .voiceflow-chat--bubble-assistant {
-  background: var(--bubble-bg);
+.vfrc-system-response .vfrc-message {
+  background: var(--bubble-bg) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-bubble) !important;
+  padding: 14px 16px !important;
+}
+
+/* Bulle utilisateur */
+.vfrc-user-response > div {
+  background: var(--brand-primary) !important;
+  color: #fff !important;
+  border-radius: var(--radius-bubble) !important;
+  padding: 10px 14px !important;
+}
+
+/* ---------- Input & placeholder ---------- */
+.vfrc-chat-input,
+.vfrc-chat-input__container-inner textarea {
+  font-family: var(--font-ui);
   color: var(--text);
-  border-radius: var(--radius-bubble);
+}
+::placeholder {
+  color: var(--text-muted);
 }
 
-/* Bulle user */
-#voiceflow-chat-container .vfrc-message--user .vfrc-message__bubble,
-#voiceflow-chat-container .voiceflow-chat--bubble-user {
+/* ---------- Bouton "Envoyer" ---------- */
+#vfrc-send-message,
+.vfrc-chat-input__send {
+  background: var(--brand-primary) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  width: 42px !important;
+  height: 42px !important;
+}
+#vfrc-send-message svg,
+.vfrc-chat-input__send svg {
+  fill: #fff !important;
+  stroke: #fff !important;
+}
+#vfrc-send-message[disabled],
+.vfrc-chat-input__send[disabled] {
+  background: color-mix(in srgb, var(--brand-primary) 55%, #ffffff) !important;
+  opacity: .85 !important;
+}
+
+/* ---------- Scrollbar zone de messages ---------- */
+.vfrc-chat--dialog,
+.vfrc-chat-dialog,
+.vfrc-chat-dialog__container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-primary) transparent;
+}
+.vfrc-chat--dialog::-webkit-scrollbar,
+.vfrc-chat-dialog::-webkit-scrollbar,
+.vfrc-chat-dialog__container::-webkit-scrollbar {
+  width: 10px;
+}
+.vfrc-chat--dialog::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
   background: var(--brand-primary);
-  color: #fff;
-  border-radius: var(--radius-bubble);
+  border-radius: 999px;
+}
+.vfrc-chat--dialog::-webkit-scrollbar-track,
+.vfrc-chat-dialog::-webkit-scrollbar-track,
+.vfrc-chat-dialog__container::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Boutons d’options / quick replies */
-#voiceflow-chat-container .vfrc-button,
-#voiceflow-chat-container .vfrc-quick-replies button,
-#voiceflow-chat-container button.vfrc-button {
+/* ---------- Boutons d’options / quick replies ---------- */
+.vfrc-button,
+.vfrc-quick-replies button,
+button.vfrc-button {
   font-family: var(--font-ui);
   font-weight: 500;
   letter-spacing: 1.25px;
   text-transform: uppercase;
   border-radius: 4.325px;
   color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+  background: #fff;
+}
+.vfrc-button:hover {
+  background: var(--brand-primary);
+  color: #fff;
 }
 
-/* Input */
-#voiceflow-chat-container .vfrc-input,
-#voiceflow-chat-container input[type="text"],
-#voiceflow-chat-container textarea {
-  font-family: var(--font-ui);
-  color: var(--text);
-}
-
-/* Placeholder */
-#voiceflow-chat-container ::placeholder {
-  color: var(--text-muted);
-}
-
-/* Divider / lignes fines */
-#voiceflow-chat-container .vfrc-divider,
-#voiceflow-chat-container hr {
+/* ---------- Divider ---------- */
+.vfrc-divider, hr {
   background: var(--divider);
   opacity: .5;
   height: 1.08px;
+  border: none;
 }
 
-/* Barre de progression linéaire (si utilisée) */
-#voiceflow-chat-container .vfrc-progress--bar,
-#voiceflow-chat-container .vfrc-progress__bar {
-  background: rgba(240,131,0, .24);
-}
-#voiceflow-chat-container .vfrc-progress--bar > div,
-#voiceflow-chat-container .vfrc-progress__bar > div {
-  background: var(--brand-primary);
+/* ---------- Scroll-to-bottom icon ---------- */
+.vfrc-footer__content-scroll-to-bottom-button svg {
+  color: var(--brand-primary) !important;
+  fill: var(--brand-primary) !important;
 }
 
-/* Avatars (couleur d’icône) */
-#voiceflow-chat-container .vfrc-avatar,
-#voiceflow-chat-container .vfrc-avatar svg {
-  color: var(--brand-navy);
-  fill: var(--brand-navy);
+/* ---------- Test visuel temporaire ---------- */
+/* (facultatif — supprime après validation) */
+/*
+.vfrc-chat * {
+  outline: 1px dashed rgba(255,0,0,.25) !important;
 }
+*/
