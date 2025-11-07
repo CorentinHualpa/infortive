@@ -99,24 +99,28 @@
 /* ==========================================================
    REMPLACEMENT DU BOUTON D'ENVOI — TEXTE "Envoyer"
    ========================================================== */
-
-/* 1️⃣ Cache complètement l’icône SVG */
-#vfrc-send-message svg,
-.vfrc-chat-input__send svg {
-  display: none !important;
+/* 1) Conteneur du bas en flex propre */
+.vfrc-input-container,
+.vfrc-footer__content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
-/* 2️⃣ Ajoute le texte “Envoyer” à la place */
-#vfrc-send-message::after,
-.vfrc-chat-input__send::after {
-  content: "Envoyer";
-  font-family: "Inter", "Roboto", sans-serif;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.4px;
+/* 2) La zone textarea prend la place, le bloc actions reste à la taille du contenu */
+.vfrc-chat-input__container-inner { 
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+.vfrc-chat-input__actions {
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  padding-right: 10px !important;
 }
 
-/* 3️⃣ Style général du bouton */
+/* 3) Bouton ENVOYER : largeur auto, pas de clipping, texte non coupé */
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: none !important;
@@ -124,19 +128,32 @@
   box-shadow: none !important;
   border-radius: 6px !important;
   padding: 8px 14px !important;
-  color: rgba(240, 131, 0, 0.7) !important; /* gris-orangé par défaut */
-  transition: all 0.2s ease-in-out;
+  width: auto !important;           /* <- enlève la largeur fixe */
+  height: auto !important;          /* <- enlève la hauteur fixe */
+  min-width: 0 !important;
+  white-space: nowrap !important;   /* <- ne pas couper “ENVOYER” */
+  overflow: visible !important;
+  color: rgba(240,131,0,.7) !important;     /* état inactif */
+  font-family: "Inter","Roboto",sans-serif;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  line-height: 1 !important;
   cursor: default;
 }
 
-/* 4️⃣ Quand l’utilisateur a saisi du texte (bouton activé) */
+/* Masque l’icône et insère le libellé */
+#vfrc-send-message svg,
+.vfrc-chat-input__send svg { display: none !important; }
+#vfrc-send-message::after,
+.vfrc-chat-input__send::after { content: "ENVOYER"; }
+
+/* Actif (du moment que le bouton n’est pas disabled) */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  color: #F08300 !important; /* orange vif */
+  color: #F08300 !important;
   cursor: pointer;
 }
-
-/* 5️⃣ État “hover” */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
   color: #d46f00 !important;
