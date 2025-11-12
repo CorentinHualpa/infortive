@@ -1,8 +1,20 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.5
+   Infortive × Voiceflow — Thème stable v6.6
    Amélioration du contraste bouton "Envoyer"
-   + Exclusion minimaliste des extensions (sans les toucher)
+   + Titre header en orange
+   + Exclusion minimaliste des extensions
    ========================================================== */
+
+/* ---------- Header — Titre en orange ---------- */
+.vfrc-header--title {
+  color: #F08300 !important;
+}
+
+/* Header — garde l'icône blanche */
+.vfrc-header--button .vfrc-icon svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
 
 /* ---------- Bouton "Envoyer" ---------- */
 /* Cache complètement l'icône SVG */
@@ -135,14 +147,6 @@
 .vfrc-chat-dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
   background: transparent;
-}
-
-/* ==========================================================
-   Header — garde l'icône blanche
-   ========================================================== */
-.vfrc-header--button .vfrc-icon svg {
-  color: #fff !important;
-  fill: #fff !important;
 }
 
 /* ==========================================================
