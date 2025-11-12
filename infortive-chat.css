@@ -1,13 +1,30 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.6
+   Infortive × Voiceflow — Thème stable v6.7
    Amélioration du contraste bouton "Envoyer"
-   + Titre header en orange
+   + Titre header custom "Votre besoin" en ultra-noir
    + Exclusion minimaliste des extensions
    ========================================================== */
 
-/* ---------- Header — Titre en orange ---------- */
+/* ---------- Header — Titre custom en orange ultra-noir ---------- */
 .vfrc-header--title {
-  color: #F08300 !important;
+  color: transparent !important; /* Cache le texte original */
+  position: relative;
+  font-size: 0 !important; /* Masque complètement le texte d'origine */
+}
+
+/* Ajoute "Votre besoin" à la place */
+.vfrc-header--title::before {
+  content: "Votre besoin";
+  color: #F08300 !important; /* Orange Infortive */
+  font-weight: 900 !important; /* Ultra-noir / Black */
+  font-size: 20px !important; /* Taille visible */
+  font-family: "Inter", "Roboto", -apple-system, sans-serif !important;
+  letter-spacing: 0.3px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
 }
 
 /* Header — garde l'icône blanche */
