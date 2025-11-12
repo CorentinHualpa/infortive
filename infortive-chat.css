@@ -1,17 +1,17 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.2
+   Infortive × Voiceflow — Thème stable v6.3
    Amélioration du contraste bouton "Envoyer"
+   + Exceptions pour extensions personnalisées
    ========================================================== */
 
 /* ---------- Bouton "Envoyer" ---------- */
-
-/* Cache complètement l’icône SVG */
+/* Cache complètement l'icône SVG */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
   display: none !important;
 }
 
-/* Ajoute le texte “Envoyer” à la place */
+/* Ajoute le texte "Envoyer" à la place */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
@@ -30,7 +30,7 @@
   box-shadow: none !important;
   border-radius: 6px !important;
   padding: 8px 14px !important;
-  color: rgba(240, 131, 0, 0.35) !important; /* 🔸 plus visible mais clairement “désactivé” */
+  color: rgba(240, 131, 0, 0.35) !important; /* 🔸 plus visible mais clairement "désactivé" */
   transition: all 0.25s ease-in-out;
   cursor: not-allowed;
   display: flex !important;
@@ -69,8 +69,22 @@
 
 /* ==========================================================
    Bulles & Espacement
+   ⚠️ EXCLUSION : Ne s'applique PAS aux extensions custom
    ========================================================== */
 
+/* Bulles système - SAUF dans les extensions */
+.vfrc-system-response:not(.upload-modern-wrap):not(.upload-modern-wrap *) .vfrc-message:not(.upload-modern-wrap):not(.upload-modern-wrap *) {
+  display: inline-block !important;
+  background: rgba(217,217,217,0.2) !important;
+  color: #1E293B !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  max-width: 90%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Alternative plus propre : cibler uniquement les messages Voiceflow natifs */
 .vfrc-system-response .vfrc-message {
   display: inline-block !important;
   background: rgba(217,217,217,0.2) !important;
@@ -82,6 +96,21 @@
   word-break: break-word;
 }
 
+/* ✅ Exception explicite pour l'extension d'upload */
+.upload-modern-wrap,
+.upload-modern-wrap * {
+  background: revert !important;
+  color: revert !important;
+  border-radius: revert !important;
+  padding: revert !important;
+  max-width: revert !important;
+  white-space: revert !important;
+  word-break: revert !important;
+  display: revert !important;
+  margin: revert !important;
+}
+
+/* Bulles utilisateur */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message {
   display: inline-block !important;
@@ -99,38 +128,69 @@
   color: #ffffff !important;
 }
 
-.vfrc-message { margin: 12px 0 !important; }
+/* Marge des messages - SAUF extension */
+.vfrc-message:not(.upload-modern-wrap):not(.upload-modern-wrap *) { 
+  margin: 12px 0 !important; 
+}
 
 /* ==========================================================
    Scrollbar orange
+   ⚠️ EXCLUSION : Ne s'applique PAS aux extensions
    ========================================================== */
-.vfrc-chat--dialog,
-.vfrc-chat-dialog,
-.vfrc-chat-dialog__container {
+
+/* Scrollbar Firefox - chat principal uniquement */
+.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *),
+.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *),
+.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *) {
   scrollbar-width: thin;
   scrollbar-color: #F08300 transparent;
 }
-.vfrc-chat--dialog::-webkit-scrollbar,
-.vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar {
+
+/* Scrollbar WebKit - chat principal uniquement */
+.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar,
+.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar,
+.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar {
   width: 10px;
 }
-.vfrc-chat--dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
+
+.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-thumb {
   background: #F08300;
   border-radius: 999px;
 }
-.vfrc-chat--dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
+
+.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-track,
+.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-track,
+.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-track {
   background: transparent;
 }
 
 /* ==========================================================
-   Header — garde l’icône blanche
+   Header — garde l'icône blanche
    ========================================================== */
 .vfrc-header--button .vfrc-icon svg {
   color: #fff !important;
   fill: #fff !important;
+}
+
+/* ==========================================================
+   ✅ Protection totale de l'extension d'upload
+   Garantit que RIEN n'interfère avec le style de l'extension
+   ========================================================== */
+
+/* Réinitialisation complète pour toute l'extension */
+.upload-modern-wrap,
+.upload-modern-wrap *,
+.upload-modern-wrap *::before,
+.upload-modern-wrap *::after {
+  all: revert !important;
+}
+
+/* Permet à l'extension de définir ses propres styles */
+.upload-modern-wrap {
+  all: initial !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
