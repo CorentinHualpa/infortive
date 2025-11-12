@@ -1,7 +1,7 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.4
+   Infortive × Voiceflow — Thème stable v6.5
    Amélioration du contraste bouton "Envoyer"
-   + Exclusion propre des extensions via classe Voiceflow
+   + Exclusion minimaliste des extensions (sans les toucher)
    ========================================================== */
 
 /* ---------- Bouton "Envoyer" ---------- */
@@ -69,11 +69,11 @@
 
 /* ==========================================================
    Bulles & Espacement
-   ⚠️ EXCLUSION : Ne s'applique PAS aux extensions custom
+   ⚠️ EXCLUSION : :not() pour éviter les extensions
    ========================================================== */
 
 /* Bulles système - SAUF extensions custom */
-.vfrc-system-response .vfrc-message:not(.vfrc-message--extension-UploadToN8nWithLoader) {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) {
   display: inline-block !important;
   background: rgba(217,217,217,0.2) !important;
   color: #1E293B !important;
@@ -103,7 +103,7 @@
 }
 
 /* Marge des messages - SAUF extensions */
-.vfrc-message:not(.vfrc-message--extension-UploadToN8nWithLoader) { 
+.vfrc-message:not([class*="extension"]) { 
   margin: 12px 0 !important; 
 }
 
@@ -146,31 +146,13 @@
 }
 
 /* ==========================================================
-   ✅ Protection totale des extensions custom
-   Garantit qu'aucun style ne s'applique aux extensions
+   ✅ Protection minimaliste des extensions
+   On ne fait RIEN aux extensions, juste garantir transparence
    ========================================================== */
 
-/* Réinitialise TOUS les styles pour l'extension d'upload */
-.vfrc-message--extension-UploadToN8nWithLoader,
-.vfrc-message--extension-UploadToN8nWithLoader *,
-.vfrc-message--extension-UploadToN8nWithLoader *::before,
-.vfrc-message--extension-UploadToN8nWithLoader *::after {
-  background: initial !important;
-  color: initial !important;
-  border-radius: initial !important;
-  padding: initial !important;
-  margin: initial !important;
-  max-width: initial !important;
-  white-space: initial !important;
-  word-break: initial !important;
-  display: initial !important;
-}
-
-/* S'assure que le conteneur de l'extension reste en block */
-.vfrc-message--extension-UploadToN8nWithLoader {
-  display: block !important;
+/* Conteneur transparent uniquement */
+.vfrc-message[class*="extension"] {
   background: transparent !important;
   padding: 0 !important;
-  margin: 0 !important;
   border-radius: 0 !important;
 }
