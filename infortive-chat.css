@@ -1,15 +1,29 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.7 FINAL
+   Infortive × Voiceflow — Thème stable v6.8 FINAL
    Amélioration du contraste bouton "Envoyer"
-   + Titre header en orange avec trait noir dessous
+   + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    ========================================================== */
 
-/* ---------- Header — Titre en orange avec trait noir ---------- */
+/* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
 .vfrc-header--title {
   color: #F08300 !important;
-  border-bottom: 2px solid #000000 !important;
   padding-bottom: 12px !important;
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+/* Trait noir pleine largeur sous le titre */
+.vfrc-header--title::after {
+  content: "" !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 2px !important;
+  background-color: #000000 !important;
 }
 
 /* Header — garde l'icône blanche */
