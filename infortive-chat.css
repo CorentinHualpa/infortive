@@ -1,7 +1,7 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.3
+   Infortive × Voiceflow — Thème stable v6.4
    Amélioration du contraste bouton "Envoyer"
-   + Exceptions pour extensions personnalisées
+   + Exclusion propre des extensions via classe Voiceflow
    ========================================================== */
 
 /* ---------- Bouton "Envoyer" ---------- */
@@ -72,8 +72,8 @@
    ⚠️ EXCLUSION : Ne s'applique PAS aux extensions custom
    ========================================================== */
 
-/* Bulles système - SAUF dans les extensions */
-.vfrc-system-response:not(.upload-modern-wrap):not(.upload-modern-wrap *) .vfrc-message:not(.upload-modern-wrap):not(.upload-modern-wrap *) {
+/* Bulles système - SAUF extensions custom */
+.vfrc-system-response .vfrc-message:not(.vfrc-message--extension-UploadToN8nWithLoader) {
   display: inline-block !important;
   background: rgba(217,217,217,0.2) !important;
   color: #1E293B !important;
@@ -82,32 +82,6 @@
   max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-/* Alternative plus propre : cibler uniquement les messages Voiceflow natifs */
-.vfrc-system-response .vfrc-message {
-  display: inline-block !important;
-  background: rgba(217,217,217,0.2) !important;
-  color: #1E293B !important;
-  border-radius: 12px !important;
-  padding: 14px 16px !important;
-  max-width: 90%;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* ✅ Exception explicite pour l'extension d'upload */
-.upload-modern-wrap,
-.upload-modern-wrap * {
-  background: revert !important;
-  color: revert !important;
-  border-radius: revert !important;
-  padding: revert !important;
-  max-width: revert !important;
-  white-space: revert !important;
-  word-break: revert !important;
-  display: revert !important;
-  margin: revert !important;
 }
 
 /* Bulles utilisateur */
@@ -128,41 +102,38 @@
   color: #ffffff !important;
 }
 
-/* Marge des messages - SAUF extension */
-.vfrc-message:not(.upload-modern-wrap):not(.upload-modern-wrap *) { 
+/* Marge des messages - SAUF extensions */
+.vfrc-message:not(.vfrc-message--extension-UploadToN8nWithLoader) { 
   margin: 12px 0 !important; 
 }
 
 /* ==========================================================
    Scrollbar orange
-   ⚠️ EXCLUSION : Ne s'applique PAS aux extensions
    ========================================================== */
 
-/* Scrollbar Firefox - chat principal uniquement */
-.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *),
-.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *),
-.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *) {
+.vfrc-chat--dialog,
+.vfrc-chat-dialog,
+.vfrc-chat-dialog__container {
   scrollbar-width: thin;
   scrollbar-color: #F08300 transparent;
 }
 
-/* Scrollbar WebKit - chat principal uniquement */
-.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar,
-.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar,
-.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar {
+.vfrc-chat--dialog::-webkit-scrollbar,
+.vfrc-chat-dialog::-webkit-scrollbar,
+.vfrc-chat-dialog__container::-webkit-scrollbar {
   width: 10px;
 }
 
-.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-thumb {
+.vfrc-chat--dialog::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog::-webkit-scrollbar-thumb,
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
   background: #F08300;
   border-radius: 999px;
 }
 
-.vfrc-chat--dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-track,
-.vfrc-chat-dialog:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container:not(.upload-modern-wrap):not(.upload-modern-wrap *)::-webkit-scrollbar-track {
+.vfrc-chat--dialog::-webkit-scrollbar-track,
+.vfrc-chat-dialog::-webkit-scrollbar-track,
+.vfrc-chat-dialog__container::-webkit-scrollbar-track {
   background: transparent;
 }
 
@@ -175,22 +146,31 @@
 }
 
 /* ==========================================================
-   ✅ Protection totale de l'extension d'upload
-   Garantit que RIEN n'interfère avec le style de l'extension
+   ✅ Protection totale des extensions custom
+   Garantit qu'aucun style ne s'applique aux extensions
    ========================================================== */
 
-/* Réinitialisation complète pour toute l'extension */
-.upload-modern-wrap,
-.upload-modern-wrap *,
-.upload-modern-wrap *::before,
-.upload-modern-wrap *::after {
-  all: revert !important;
+/* Réinitialise TOUS les styles pour l'extension d'upload */
+.vfrc-message--extension-UploadToN8nWithLoader,
+.vfrc-message--extension-UploadToN8nWithLoader *,
+.vfrc-message--extension-UploadToN8nWithLoader *::before,
+.vfrc-message--extension-UploadToN8nWithLoader *::after {
+  background: initial !important;
+  color: initial !important;
+  border-radius: initial !important;
+  padding: initial !important;
+  margin: initial !important;
+  max-width: initial !important;
+  white-space: initial !important;
+  word-break: initial !important;
+  display: initial !important;
 }
 
-/* Permet à l'extension de définir ses propres styles */
-.upload-modern-wrap {
-  all: initial !important;
+/* S'assure que le conteneur de l'extension reste en block */
+.vfrc-message--extension-UploadToN8nWithLoader {
   display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
