@@ -1,6 +1,7 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v6.8 FINAL
-   Amélioration du contraste bouton "Envoyer"
+   Infortive × Voiceflow — Thème stable v7.0
+   + Boutons natifs Voiceflow stylés
+   + Amélioration du contraste bouton "Envoyer"
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    ========================================================== */
@@ -32,6 +33,69 @@
   fill: #fff !important;
 }
 
+/* ==========================================================
+   Boutons natifs Voiceflow (buttons de réponse)
+   ========================================================== */
+.vfrc-button,
+button.vfrc-button {
+  /* Fond dégradé orange Infortive */
+  background: linear-gradient(135deg, #F08300, #d46f00) !important;
+  
+  /* Texte */
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  font-family: "Inter", "Roboto", sans-serif !important;
+  
+  /* Forme */
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 12px 20px !important;
+  
+  /* Ombre */
+  box-shadow: 0 4px 12px rgba(240, 131, 0, 0.3) !important;
+  
+  /* Animation */
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  
+  /* Espacement */
+  margin: 6px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  
+  /* Alignement du texte */
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+/* Hover sur les boutons natifs */
+.vfrc-button:hover,
+button.vfrc-button:hover {
+  background: linear-gradient(135deg, #d46f00, #F08300) !important;
+  box-shadow: 0 6px 16px rgba(240, 131, 0, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Active (clic) sur les boutons natifs */
+.vfrc-button:active,
+button.vfrc-button:active {
+  transform: translateY(0px) !important;
+  box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
+}
+
+/* Conteneur des boutons */
+.vfrc-button-container,
+.vfrc-card--buttons {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 8px 0 !important;
+}
+
 /* ---------- Bouton "Envoyer" ---------- */
 /* Cache complètement l'icône SVG */
 #vfrc-send-message svg,
@@ -58,7 +122,7 @@
   box-shadow: none !important;
   border-radius: 6px !important;
   padding: 8px 14px !important;
-  color: rgba(240, 131, 0, 0.35) !important; /* 🔸 plus visible mais clairement "désactivé" */
+  color: rgba(240, 131, 0, 0.35) !important;
   transition: all 0.25s ease-in-out;
   cursor: not-allowed;
   display: flex !important;
@@ -73,7 +137,7 @@
 /* État actif : orange vif + curseur clic */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  color: #F08300 !important; /* 🔸 orange Infortive saturé */
+  color: #F08300 !important;
   cursor: pointer;
   opacity: 1;
 }
@@ -99,7 +163,6 @@
    Bulles & Espacement
    ⚠️ EXCLUSION : :not() pour éviter les extensions
    ========================================================== */
-
 /* Bulles système - SAUF extensions custom */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
   display: inline-block !important;
@@ -138,7 +201,6 @@
 /* ==========================================================
    Scrollbar orange
    ========================================================== */
-
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
@@ -169,7 +231,6 @@
    ✅ Protection minimaliste des extensions
    On ne fait RIEN aux extensions, juste garantir transparence
    ========================================================== */
-
 /* Conteneur transparent uniquement */
 .vfrc-message[class*="extension"] {
   background: transparent !important;
