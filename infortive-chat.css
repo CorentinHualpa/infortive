@@ -25,9 +25,9 @@
   --font-bold: 700;
   
   /* Tailles adaptées pour le web */
-  --heading-2: 24px;      /* Titre principal */
-  --heading-6: 20px;      /* Sous-titres */
-  --body-1: 16px;         /* Messages */
+  --heading-2: 22px;      /* Titre principal */
+  --heading-6: 18px;      /* Sous-titres */
+  --body-1: 14px;         /* Messages */
   --body-2: 14px;         /* Textes secondaires */
   --button: 14px;         /* Boutons */
   --caption: 12px;        /* Petits textes */
