@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.1
+   Infortive × Voiceflow — Thème stable v7.2
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés
    + Amélioration du contraste bouton "Envoyer"
@@ -26,18 +26,21 @@
   
   /* Tailles adaptées pour le web */
   --heading-2: 20px;      /* Titre principal */
-  --heading-6: 16px;      /* Sous-titres */
-  --body-1: 11px;         /* Messages - RÉDUIT */
-  --body-2: 11px;         /* Textes secondaires - RÉDUIT */
+  --heading-6: 14px;      /* Sous-titres */
+  --body-1: 10px;         /* Messages - ENCORE RÉDUIT */
+  --body-2: 10px;         /* Textes secondaires - ENCORE RÉDUIT */
   --button: 12px;         /* Boutons */
-  --caption: 12px;        /* Petits textes */
-  --overline: 10px;       /* Micro-textes */
+  --caption: 10px;        /* Petits textes */
+  --overline: 9px;        /* Micro-textes */
 }
 
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
-.vfrc-header--title {
+/* ✅ Sélecteur plus spécifique pour contrer les classes générées */
+div.vfrc-header--title,
+.fptyqm0.vfrc-header--title,
+.fptyqm1.vfrc-header--title {
   font-family: var(--font-family) !important;
-  font-weight: var(--font-bold) !important; /* ✅ GRAS (700) */
+  font-weight: 700 !important; /* ✅ Force 700 (bold) */
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
@@ -50,6 +53,7 @@
 }
 
 /* Trait noir pleine largeur sous le titre */
+div.vfrc-header--title::after,
 .vfrc-header--title::after {
   content: "" !important;
   position: absolute !important;
@@ -57,7 +61,7 @@
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  height: 1px !important; /* ✅ RÉDUIT à 1px */
+  height: 1px !important;
   background-color: #000000 !important;
 }
 
@@ -207,8 +211,8 @@ button.vfrc-button:active {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important; /* ✅ 11px maintenant */
-  line-height: 1.25 !important;
+  font-size: var(--body-1) !important; /* ✅ 10px maintenant */
+  line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   
   display: inline-block !important;
@@ -221,14 +225,39 @@ button.vfrc-button:active {
   word-break: break-word;
 }
 
+/* ✅ Force la taille sur TOUS les éléments de texte */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) p,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) span,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) li {
+  font-family: var(--font-family) !important;
+  font-size: var(--body-1) !important; /* ✅ 10px */
+  line-height: 1.5 !important;
+}
+
 /* ✅ AUGMENTATION PADDING pour les titres h1, h2, h3 */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h2,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h3 {
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-semibold) !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
   margin-top: 8px !important;
   margin-bottom: 8px !important;
+}
+
+/* Tailles spécifiques des titres */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h1 {
+  font-size: 14px !important;
+}
+
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h2 {
+  font-size: 13px !important;
+}
+
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 {
+  font-size: 12px !important;
 }
 
 /* Bulles utilisateur */
@@ -237,8 +266,8 @@ button.vfrc-button:active {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important; /* ✅ 11px maintenant */
-  line-height: 1.25 !important;
+  font-size: var(--body-1) !important; /* ✅ 10px maintenant */
+  line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   
   display: inline-block !important;
@@ -254,6 +283,7 @@ button.vfrc-button:active {
 .vfrc-user-response > div *,
 .vfrc-user-response .vfrc-message * {
   color: #ffffff !important;
+  font-size: var(--body-1) !important; /* ✅ Force 10px partout */
 }
 
 /* Marge des messages - SAUF extensions */
@@ -268,8 +298,8 @@ button.vfrc-button:active {
 .vfrc-chat-input input {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important; /* ✅ 11px maintenant */
-  line-height: 1.25 !important;
+  font-size: var(--body-1) !important; /* ✅ 10px maintenant */
+  line-height: 1.5 !important;
 }
 
 /* ==========================================================
@@ -330,8 +360,8 @@ button.vfrc-button:active {
 .vfrc-helper-text {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-2) !important; /* ✅ 11px maintenant */
-  line-height: 1.25 !important;
+  font-size: var(--body-2) !important; /* ✅ 10px maintenant */
+  line-height: 1.5 !important;
 }
 
 /* Captions (petits textes) */
@@ -340,7 +370,7 @@ button.vfrc-button:active {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--caption) !important;
-  line-height: 1.25 !important;
+  line-height: 1.5 !important;
 }
 
 /* Overline (micro-textes en majuscules) */
@@ -349,7 +379,7 @@ button.vfrc-button:active {
   font-family: var(--font-family) !important;
   font-weight: var(--font-medium) !important;
   font-size: var(--overline) !important;
-  line-height: 1.25 !important;
+  line-height: 1.5 !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
 }
