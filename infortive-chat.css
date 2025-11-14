@@ -1,10 +1,11 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.2
+   Infortive × Voiceflow — Thème stable v7.3
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés
    + Amélioration du contraste bouton "Envoyer"
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
+   + Hiérarchie typographique optimisée
    ========================================================== */
 
 /* ==========================================================
@@ -25,10 +26,13 @@
   --font-bold: 700;
   
   /* Tailles adaptées pour le web */
-  --heading-2: 20px;      /* Titre principal */
-  --heading-6: 14px;      /* Sous-titres */
-  --body-1: 10px;         /* Messages - ENCORE RÉDUIT */
-  --body-2: 10px;         /* Textes secondaires - ENCORE RÉDUIT */
+  --heading-1: 16px;      /* H1 - Titre principal dans messages */
+  --heading-2: 20px;      /* Header du chat */
+  --heading-3: 14px;      /* H2 - Sous-titre important */
+  --heading-4: 13px;      /* H3 - Sous-titre secondaire */
+  --heading-6: 14px;      /* Sous-titres généraux */
+  --body-1: 10px;         /* Messages - texte normal */
+  --body-2: 10px;         /* Textes secondaires */
   --button: 12px;         /* Boutons */
   --caption: 10px;        /* Petits textes */
   --overline: 9px;        /* Micro-textes */
@@ -211,7 +215,7 @@ button.vfrc-button:active {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important; /* ✅ 10px maintenant */
+  font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   
@@ -225,39 +229,61 @@ button.vfrc-button:active {
   word-break: break-word;
 }
 
-/* ✅ Force la taille sur TOUS les éléments de texte */
+/* ✅ Force la taille sur TOUS les éléments de texte normal */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) span,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) span:not(h1 span):not(h2 span):not(h3 span),
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div:not(h1 div):not(h2 div):not(h3 div),
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
   font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important; /* ✅ 10px */
+  font-size: var(--body-1) !important;
+  font-weight: var(--font-regular) !important;
   line-height: 1.5 !important;
 }
 
-/* ✅ AUGMENTATION PADDING pour les titres h1, h2, h3 */
+/* ==========================================================
+   ✅ HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (dans les messages)
+   ========================================================== */
+
+/* H1 - Titre principal */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h1 * {
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-bold) !important;
+  font-size: var(--heading-1) !important; /* ✅ 16px */
+  line-height: 1.4 !important;
+  padding-top: 16px !important;
+  padding-bottom: 10px !important;
+  margin-top: 10px !important;
+  margin-bottom: 6px !important;
+  color: #1E293B !important;
+}
+
+/* H2 - Sous-titre important */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h2,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h2 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
+  font-size: var(--heading-3) !important; /* ✅ 14px */
+  line-height: 1.4 !important;
   padding-top: 14px !important;
-  padding-bottom: 14px !important;
+  padding-bottom: 8px !important;
   margin-top: 8px !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 5px !important;
+  color: #1E293B !important;
 }
 
-/* Tailles spécifiques des titres */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h1 {
-  font-size: 14px !important;
-}
-
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h2 {
-  font-size: 13px !important;
-}
-
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 {
-  font-size: 12px !important;
+/* H3 - Sous-titre secondaire */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h3,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 * {
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-semibold) !important;
+  font-size: var(--heading-4) !important; /* ✅ 13px */
+  line-height: 1.4 !important;
+  padding-top: 12px !important;
+  padding-bottom: 6px !important;
+  margin-top: 6px !important;
+  margin-bottom: 4px !important;
+  color: #1E293B !important;
 }
 
 /* Bulles utilisateur */
@@ -266,7 +292,7 @@ button.vfrc-button:active {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important; /* ✅ 10px maintenant */
+  font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   
@@ -283,7 +309,7 @@ button.vfrc-button:active {
 .vfrc-user-response > div *,
 .vfrc-user-response .vfrc-message * {
   color: #ffffff !important;
-  font-size: var(--body-1) !important; /* ✅ Force 10px partout */
+  font-size: var(--body-1) !important;
 }
 
 /* Marge des messages - SAUF extensions */
@@ -298,7 +324,7 @@ button.vfrc-button:active {
 .vfrc-chat-input input {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important; /* ✅ 10px maintenant */
+  font-size: var(--body-1) !important;
   line-height: 1.5 !important;
 }
 
@@ -360,7 +386,7 @@ button.vfrc-button:active {
 .vfrc-helper-text {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-2) !important; /* ✅ 10px maintenant */
+  font-size: var(--body-2) !important;
   line-height: 1.5 !important;
 }
 
