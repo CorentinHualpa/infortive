@@ -27,8 +27,8 @@
   /* Tailles adaptées pour le web */
   --heading-2: 20px;      /* Titre principal */
   --heading-6: 16px;      /* Sous-titres */
-  --body-1: 12px;         /* Messages */
-  --body-2: 12px;         /* Textes secondaires */
+  --body-1: 11px;         /* Messages - RÉDUIT */
+  --body-2: 11px;         /* Textes secondaires - RÉDUIT */
   --button: 12px;         /* Boutons */
   --caption: 12px;        /* Petits textes */
   --overline: 10px;       /* Micro-textes */
@@ -37,7 +37,7 @@
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
 .vfrc-header--title {
   font-family: var(--font-family) !important;
-  font-weight: var(--font-semibold) !important;
+  font-weight: var(--font-bold) !important; /* ✅ GRAS (700) */
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
@@ -57,7 +57,7 @@
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  height: 2px !important;
+  height: 1px !important; /* ✅ RÉDUIT à 1px */
   background-color: #000000 !important;
 }
 
@@ -207,7 +207,7 @@ button.vfrc-button:active {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
+  font-size: var(--body-1) !important; /* ✅ 11px maintenant */
   line-height: 1.25 !important;
   letter-spacing: 0.01em !important;
   
@@ -221,13 +221,23 @@ button.vfrc-button:active {
   word-break: break-word;
 }
 
+/* ✅ AUGMENTATION PADDING pour les titres h1, h2, h3 */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h2,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+}
+
 /* Bulles utilisateur */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
+  font-size: var(--body-1) !important; /* ✅ 11px maintenant */
   line-height: 1.25 !important;
   letter-spacing: 0.01em !important;
   
@@ -258,7 +268,7 @@ button.vfrc-button:active {
 .vfrc-chat-input input {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
+  font-size: var(--body-1) !important; /* ✅ 11px maintenant */
   line-height: 1.25 !important;
 }
 
@@ -320,7 +330,7 @@ button.vfrc-button:active {
 .vfrc-helper-text {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-2) !important;
+  font-size: var(--body-2) !important; /* ✅ 11px maintenant */
   line-height: 1.25 !important;
 }
 
