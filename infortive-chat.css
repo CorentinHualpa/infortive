@@ -552,3 +552,43 @@ button.vfrc-button:active {
   -moz-box-shadow: none !important;
   filter: drop-shadow(0 0 0 transparent) !important;
 }
+
+/* Cible ABSOLUMENT TOUTES les classes qui commencent par _ */
+[class*="_"]:not(.vfrc-button) {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Cible spécifiquement le footer et TOUS ses enfants */
+.vfrc-footer__content,
+.vfrc-footer__content *,
+div[class*="vfrc-footer"] *,
+div[class^="_1vj"] *,
+div[class^="_1gdvh"] *,
+div[class^="_1cosygz"] *,
+div[class^="oq48"] *,
+div[class^="ngo48"] *,
+div[class^="jsli"] * {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Force sur le conteneur parent du footer */
+.vfrc-chat > div:last-child,
+.vfrc-chat > div:last-child * {
+  box-shadow: none !important;
+}
+
+/* Supprime aussi les ombres portées CSS filter */
+.vfrc-chat {
+  filter: none !important;
+}
+
+.vfrc-chat * {
+  filter: inherit !important;
+}
