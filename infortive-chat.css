@@ -278,10 +278,35 @@ button.vfrc-button:active {
 }
 
 /* ---------- Bouton "Envoyer" ---------- */
-/* Cache complètement l'icône SVG */
+/* Cache SEULEMENT l'icône SVG du bouton ENVOYER (pas le micro) */
 #vfrc-send-message svg,
-.vfrc-chat-input__send svg {
+.vfrc-chat-input__send svg,
+button[title="Send"] svg {
   display: none !important;
+}
+
+/* ✅ PRÉSERVE LE BOUTON MICRO (Voice Input) */
+.vfrc-chat-input__actions button[title="Voice"],
+.vfrc-chat-input__actions button[aria-label="Voice"],
+.vfrc-chat-input__voice,
+.vfrc-chat-input__voice-button,
+button[class*="voice"]:not(#vfrc-send-message) {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Icône du micro en orange */
+button[title="Voice"] svg,
+button[aria-label="Voice"] svg,
+.vfrc-chat-input__voice svg {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #F08300 !important;
+  fill: #F08300 !important;
 }
 
 /* Ajoute le texte "Envoyer" à la place */
