@@ -84,6 +84,48 @@
   border: none !important;
 }
 
+/* ✅ SUPPRESSION SPÉCIFIQUE DE L'OMBRE DU BAS */
+/* Zone d'input et son conteneur */
+.vfrc-chat-input,
+.vfrc-chat-input__container,
+.vfrc-chat-input__wrapper {
+  box-shadow: none !important;
+  border-top: none !important;
+  background: transparent !important;
+}
+
+/* Gradient/overlay en bas de la zone de chat */
+.vfrc-chat__bottom-overlay,
+.vfrc-chat__gradient-overlay,
+.vfrc-chat-dialog::before,
+.vfrc-chat-dialog::after,
+.vfrc-chat-dialog__container::before,
+.vfrc-chat-dialog__container::after {
+  box-shadow: none !important;
+  background: transparent !important;
+  display: none !important;
+}
+
+/* Footer et zone du bas */
+.vfrc-chat__footer,
+.vfrc-chat-footer,
+.vfrc-footer {
+  box-shadow: none !important;
+  border-top: none !important;
+  background: transparent !important;
+}
+
+/* Supprime toute ombre inset */
+.vfrc-chat,
+.vfrc-chat-dialog,
+.vfrc-chat-dialog__container,
+.vfrc-chat__container-inner {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: inset 0 0 0 transparent !important;
+}
+
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
 /* ✅ Sélecteur plus spécifique pour contrer les classes générées */
 div.vfrc-header--title,
