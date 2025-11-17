@@ -1,11 +1,12 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.3
+   Infortive × Voiceflow — Thème stable v7.4
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés
    + Amélioration du contraste bouton "Envoyer"
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    + Hiérarchie typographique optimisée
+   + SUPPRESSION DE L'OMBRE/CARTE AUTOUR DU WIDGET
    ========================================================== */
 
 /* ==========================================================
@@ -36,6 +37,51 @@
   --button: 12px;         /* Boutons */
   --caption: 10px;        /* Petits textes */
   --overline: 9px;        /* Micro-textes */
+}
+
+/* ==========================================================
+   ✅ SUPPRESSION DE L'OMBRE/CARTE AUTOUR DU WIDGET
+   ========================================================== */
+/* Conteneur principal de la carte - supprime l'effet carte */
+.vfrc-chat__container-inner {
+  box-shadow: none !important;        /* Enlève l'ombre */
+  background: transparent !important;  /* Plus de fond blanc de carte */
+  border-radius: 0 !important;        /* Plus d'angles arrondis */
+  border: none !important;            /* Aucune bordure */
+  margin: 0 !important;               /* Enlève la marge extérieure */
+  padding: 0 !important;              /* Réduit la marge intérieure */
+}
+
+/* Conteneur du chat lui-même */
+.vfrc-chat {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+}
+
+/* Le wrapper du dialogue (zone scrollable) */
+.vfrc-chat-dialog__container,
+.vfrc-chat-dialog,
+.vfrc-chat--dialog {
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Overlay du bas (pour éviter un halo autour) */
+.vfrc-chat--overlay {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Widget container et launcher - au cas où */
+.vfrc-widget,
+.vfrc-launcher,
+.vfrc-widget-container {
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
@@ -209,7 +255,6 @@ button.vfrc-button:active {
    Bulles & Espacement
    ⚠️ EXCLUSION : :not() pour éviter les extensions
    ========================================================== */
-
 /* Bulles système - SAUF extensions custom */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
   /* Typographie */
@@ -243,7 +288,6 @@ button.vfrc-button:active {
 /* ==========================================================
    ✅ HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (dans les messages)
    ========================================================== */
-
 /* H1 - Titre principal */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1 * {
@@ -371,7 +415,6 @@ button.vfrc-button:active {
 /* ==========================================================
    Styles typographiques supplémentaires (si besoin)
    ========================================================== */
-
 /* Sous-titres potentiels (Heading 6) */
 .vfrc-subtitle,
 .vfrc-section-title {
