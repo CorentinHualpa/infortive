@@ -88,10 +88,23 @@
 /* Zone d'input et son conteneur */
 .vfrc-chat-input,
 .vfrc-chat-input__container,
-.vfrc-chat-input__wrapper {
+.vfrc-chat-input__wrapper,
+.vfrc-input-container {
   box-shadow: none !important;
   border-top: none !important;
   background: transparent !important;
+}
+
+/* Footer et toutes ses classes générées */
+.vfrc-footer__content,
+[class*="vfrc-footer"],
+[class^="_1vj"],
+[class^="_1gdvh"],
+[class^="oq48"],
+[class^="jsli"] {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
 }
 
 /* Gradient/overlay en bas de la zone de chat */
@@ -124,6 +137,40 @@
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   box-shadow: inset 0 0 0 transparent !important;
+}
+
+/* ✅ SUPPRESSION AGRESSIVE DE TOUTES LES OMBRES DU WIDGET */
+/* Cible tout élément qui pourrait avoir une ombre dans le widget */
+div[class*="vfrc-"] {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+}
+
+/* Supprime spécifiquement l'ombre du conteneur d'input */
+.vfrc-input-container,
+.vfrc-input-container::before,
+.vfrc-input-container::after,
+div[class*="_1gdvh"],
+div[class*="_1gdvh"]::before,
+div[class*="_1gdvh"]::after {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Supprime toute ombre sur le conteneur principal et ses enfants directs */
+.vfrc-chat > *,
+.vfrc-chat-dialog > *,
+.vfrc-footer__content > * {
+  box-shadow: none !important;
+}
+
+/* Force la suppression de l'ombre même avec !important dans le style inline */
+[style*="box-shadow"] {
+  box-shadow: none !important;
 }
 
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
@@ -493,4 +540,15 @@ button.vfrc-button:active {
   line-height: 1.5 !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
+}
+
+/* ==========================================================
+   ⚠️ RÈGLE NUCLÉAIRE - Supprime TOUTES les ombres sauf boutons
+   ========================================================== */
+/* Supprime toutes les ombres du widget */
+.vfrc-chat *:not(.vfrc-button):not(button.vfrc-button) {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  filter: drop-shadow(0 0 0 transparent) !important;
 }
