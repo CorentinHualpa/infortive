@@ -1,20 +1,16 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.0 FINAL
+   Infortive × Voiceflow — Thème stable v7.3
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés
    + Amélioration du contraste bouton "Envoyer"
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    + Hiérarchie typographique optimisée
-   + SUPPRESSION DÉFINITIVE DE TOUTES LES OMBRES
-   + PRÉSERVATION DU BOUTON MICRO
    ========================================================== */
-
 /* ==========================================================
    Import de la police Plus Jakarta Sans
    ========================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
 /* ==========================================================
    Variables typographiques
    ========================================================== */
@@ -39,69 +35,13 @@
   --caption: 10px;        /* Petits textes */
   --overline: 9px;        /* Micro-textes */
 }
-
-/* ==========================================================
-   ✅ SUPPRESSION TOTALE DES OMBRES (SOLUTION FINALE)
-   ========================================================== */
-/* Supprime l'ombre sur TOUTES les classes du widget */
-.vfrc-chat__container-inner,
-.vfrc-chat__container-inner *,
-.vfrc-chat,
-.vfrc-chat *,
-.vfrc-footer,
-.vfrc-footer *,
-.vfrc-footer__content,
-.vfrc-footer__content *,
-.vfrc-input-container,
-.vfrc-input-container *,
-._1vj16242,
-._1vj16245,
-._1gdvh9t0,
-._1gdvh9t2,
-._1gdvh9t7,
-._1gdvh9t9,
-._1gdvh9tc,
-._1gdvh9td,
-._1gdvh9tf,
-.oq48l92,
-.oq48l93,
-.oq48l94,
-.jsli361,
-.jsli363,
-._5x612k0,
-._5x612k2,
-._5x612k3,
-._1cosygz0,
-._1cosygz1,
-.ngo4890,
-.ngo489a,
-.ngo489b,
-.ngo489o,
-.ngo489p,
-[class^="_"],
-[class*="vfrc-"]:not(.vfrc-button) {
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  -moz-box-shadow: none !important;
-  filter: none !important;
-  text-shadow: none !important;
-}
-
-/* Force sur le conteneur principal */
-.vfrc-chat__container-inner {
-  background: transparent !important;
-  border-radius: 0 !important;
-  border: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
+/* ✅ Sélecteur plus spécifique pour contrer les classes générées */
 div.vfrc-header--title,
 .fptyqm0.vfrc-header--title,
 .fptyqm1.vfrc-header--title {
   font-family: var(--font-family) !important;
-  font-weight: 700 !important;
+  font-weight: 700 !important; /* ✅ Force 700 (bold) */
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
@@ -112,7 +52,6 @@ div.vfrc-header--title,
   display: block !important;
   width: 100% !important;
 }
-
 /* Trait noir pleine largeur sous le titre */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
@@ -125,15 +64,13 @@ div.vfrc-header--title::after,
   height: 1px !important;
   background-color: #000000 !important;
 }
-
 /* Header — garde l'icône blanche */
 .vfrc-header--button .vfrc-icon svg {
   color: #fff !important;
   fill: #fff !important;
 }
-
 /* ==========================================================
-   Boutons natifs Voiceflow (buttons de réponse) - PRÉSERVE L'OMBRE
+   Boutons natifs Voiceflow (buttons de réponse)
    ========================================================== */
 .vfrc-button,
 button.vfrc-button {
@@ -155,7 +92,7 @@ button.vfrc-button {
   border-radius: 6px !important;
   padding: 10px 18px !important;
   
-  /* ✅ OMBRE PRÉSERVÉE POUR LES BOUTONS */
+  /* Ombre */
   box-shadow: 0 4px 12px rgba(240, 131, 0, 0.3) !important;
   
   /* Animation */
@@ -174,7 +111,6 @@ button.vfrc-button {
   justify-content: center !important;
   gap: 8px !important;
 }
-
 /* Hover sur les boutons natifs */
 .vfrc-button:hover,
 button.vfrc-button:hover {
@@ -182,14 +118,12 @@ button.vfrc-button:hover {
   box-shadow: 0 6px 16px rgba(240, 131, 0, 0.4) !important;
   transform: translateY(-2px) !important;
 }
-
 /* Active (clic) sur les boutons natifs */
 .vfrc-button:active,
 button.vfrc-button:active {
   transform: translateY(0px) !important;
   box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
 }
-
 /* Conteneur des boutons */
 .vfrc-button-container,
 .vfrc-card--buttons {
@@ -198,35 +132,13 @@ button.vfrc-button:active {
   gap: 8px !important;
   padding: 8px 0 !important;
 }
-
 /* ---------- Bouton "Envoyer" ---------- */
-/* Cache UNIQUEMENT l'icône du bouton ENVOYER */
-#vfrc-send-message svg {
+/* Cache complètement l'icône SVG */
+#vfrc-send-message svg,
+.vfrc-chat-input__send svg {
   display: none !important;
 }
-
-/* ✅ PRÉSERVE LE BOUTON MICRO */
-/* Le bouton micro n'a pas l'ID vfrc-send-message */
-button[title="Voice"],
-button[aria-label="Voice"],
-button[title="Microphone"],
-.vfrc-chat-input__voice-button,
-.vfrc-chat-input__actions button:not(#vfrc-send-message) {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Style pour l'icône du micro */
-button[title="Voice"] svg,
-button[aria-label="Voice"] svg,
-.vfrc-chat-input__voice-button svg {
-  display: block !important;
-  color: #F08300 !important;
-  fill: #F08300 !important;
-}
-
-/* Ajoute le texte "Envoyer" au bouton d'envoi */
+/* Ajoute le texte "Envoyer" à la place */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
@@ -236,8 +148,7 @@ button[aria-label="Voice"] svg,
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-
-/* Style général du bouton envoi (état inactif) */
+/* Style général du bouton (état inactif) */
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: none !important;
@@ -256,7 +167,6 @@ button[aria-label="Voice"] svg,
   text-align: center;
   user-select: none;
 }
-
 /* État actif : orange vif + curseur clic */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
@@ -264,30 +174,28 @@ button[aria-label="Voice"] svg,
   cursor: pointer;
   opacity: 1;
 }
-
 /* Hover actif */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
   color: #d46f00 !important;
   text-decoration: underline;
 }
-
 /* Conteneur du bouton (évite clipping) */
 .vfrc-chat-input__actions {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 10px !important;
   flex: 0 0 auto !important;
   padding-right: 8px !important;
   overflow: visible !important;
 }
-
 /* ==========================================================
    Bulles & Espacement
+   ⚠️ EXCLUSION : :not() pour éviter les extensions
    ========================================================== */
 /* Bulles système - SAUF extensions custom */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
+  /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
@@ -303,8 +211,7 @@ button[aria-label="Voice"] svg,
   white-space: pre-wrap;
   word-break: break-word;
 }
-
-/* Force la taille sur TOUS les éléments de texte normal */
+/* ✅ Force la taille sur TOUS les éléments de texte normal */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) span:not(h1 span):not(h2 span):not(h3 span),
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div:not(h1 div):not(h2 div):not(h3 div),
@@ -314,16 +221,15 @@ button[aria-label="Voice"] svg,
   font-weight: var(--font-regular) !important;
   line-height: 1.5 !important;
 }
-
 /* ==========================================================
-   HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (dans les messages)
+   ✅ HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (dans les messages)
    ========================================================== */
 /* H1 - Titre principal */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-bold) !important;
-  font-size: var(--heading-1) !important;
+  font-size: var(--heading-1) !important; /* ✅ 16px */
   line-height: 1.4 !important;
   padding-top: 16px !important;
   padding-bottom: 10px !important;
@@ -331,13 +237,12 @@ button[aria-label="Voice"] svg,
   margin-bottom: 6px !important;
   color: #1E293B !important;
 }
-
 /* H2 - Sous-titre important */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h2,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h2 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
-  font-size: var(--heading-3) !important;
+  font-size: var(--heading-3) !important; /* ✅ 14px */
   line-height: 1.4 !important;
   padding-top: 14px !important;
   padding-bottom: 8px !important;
@@ -345,13 +250,12 @@ button[aria-label="Voice"] svg,
   margin-bottom: 5px !important;
   color: #1E293B !important;
 }
-
 /* H3 - Sous-titre secondaire */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h3,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h3 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
-  font-size: var(--heading-4) !important;
+  font-size: var(--heading-4) !important; /* ✅ 13px */
   line-height: 1.4 !important;
   padding-top: 12px !important;
   padding-bottom: 6px !important;
@@ -359,10 +263,10 @@ button[aria-label="Voice"] svg,
   margin-bottom: 4px !important;
   color: #1E293B !important;
 }
-
 /* Bulles utilisateur */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message {
+  /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
@@ -378,18 +282,15 @@ button[aria-label="Voice"] svg,
   white-space: pre-wrap;
   word-break: break-word;
 }
-
 .vfrc-user-response > div *,
 .vfrc-user-response .vfrc-message * {
   color: #ffffff !important;
   font-size: var(--body-1) !important;
 }
-
 /* Marge des messages - SAUF extensions */
 .vfrc-message:not([class*="extension"]) { 
   margin: 12px 0 !important; 
 }
-
 /* ==========================================================
    Input de saisie
    ========================================================== */
@@ -400,7 +301,6 @@ button[aria-label="Voice"] svg,
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
 }
-
 /* ==========================================================
    Scrollbar orange
    ========================================================== */
@@ -410,28 +310,25 @@ button[aria-label="Voice"] svg,
   scrollbar-width: thin;
   scrollbar-color: #F08300 transparent;
 }
-
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
 .vfrc-chat-dialog__container::-webkit-scrollbar {
   width: 10px;
 }
-
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
   background: #F08300;
   border-radius: 999px;
 }
-
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
   background: transparent;
 }
-
 /* ==========================================================
-   Protection minimaliste des extensions
+   ✅ Protection minimaliste des extensions
+   On ne fait RIEN aux extensions, juste garantir transparence
    ========================================================== */
 /* Conteneur transparent uniquement */
 .vfrc-message[class*="extension"] {
@@ -439,9 +336,8 @@ button[aria-label="Voice"] svg,
   padding: 0 !important;
   border-radius: 0 !important;
 }
-
 /* ==========================================================
-   Styles typographiques supplémentaires
+   Styles typographiques supplémentaires (si besoin)
    ========================================================== */
 /* Sous-titres potentiels (Heading 6) */
 .vfrc-subtitle,
@@ -451,7 +347,6 @@ button[aria-label="Voice"] svg,
   font-size: var(--heading-6) !important;
   line-height: 1.4 !important;
 }
-
 /* Textes secondaires (Body 2) */
 .vfrc-secondary-text,
 .vfrc-helper-text {
@@ -460,7 +355,6 @@ button[aria-label="Voice"] svg,
   font-size: var(--body-2) !important;
   line-height: 1.5 !important;
 }
-
 /* Captions (petits textes) */
 .vfrc-caption,
 .vfrc-timestamp {
@@ -469,7 +363,6 @@ button[aria-label="Voice"] svg,
   font-size: var(--caption) !important;
   line-height: 1.5 !important;
 }
-
 /* Overline (micro-textes en majuscules) */
 .vfrc-overline,
 .vfrc-label {
@@ -479,4 +372,52 @@ button[aria-label="Voice"] svg,
   line-height: 1.5 !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
+}
+
+/* ==========================================================
+   SUPPRESSION DES OMBRES
+   ========================================================== */
+/* Conteneur principal de la carte */
+.vfrc-chat__container-inner {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Conteneur du chat */
+.vfrc-chat {
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+/* Le wrapper du dialogue */
+.vfrc-chat-dialog__container,
+.vfrc-chat-dialog,
+.vfrc-chat--dialog {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Overlay du bas */
+.vfrc-chat--overlay {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Footer et zone d'input */
+.vfrc-footer,
+.vfrc-footer__content,
+.vfrc-input-container {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Supprime les ombres sur toutes les classes générées dynamiquement */
+[class^="_"],
+[class*="_"] {
+  box-shadow: none !important;
 }
