@@ -1,11 +1,13 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.3
+   Infortive × Voiceflow — Thème stable v7.4
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés
    + Amélioration du contraste bouton "Envoyer"
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    + Hiérarchie typographique optimisée
+   + Header transparent
+   + Bouton reset masqué
    ========================================================== */
 /* ==========================================================
    Import de la police Plus Jakarta Sans
@@ -35,6 +37,32 @@
   --caption: 10px;        /* Petits textes */
   --overline: 9px;        /* Micro-textes */
 }
+/* ==========================================================
+   Header transparent + Bouton reset masqué
+   ========================================================== */
+/* ✅ Header et container transparents */
+.vfrc-header,
+.vfrc-header--container-inner,
+div.vfrc-header,
+div.vfrc-header--container-inner {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ✅ Masquer complètement le bouton reset */
+.vfrc-header--button,
+button.vfrc-header--button,
+.vfrc-header--actions {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
 /* ✅ Sélecteur plus spécifique pour contrer les classes générées */
 div.vfrc-header--title,
@@ -51,6 +79,7 @@ div.vfrc-header--title,
   position: relative !important;
   display: block !important;
   width: 100% !important;
+  background: transparent !important;
 }
 /* Trait noir pleine largeur sous le titre */
 div.vfrc-header--title::after,
@@ -72,8 +101,8 @@ div.vfrc-header--title::after,
 /* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
    ========================================================== */
-.vfrc-button,
-button.vfrc-button {
+.vfrc-button:not(.vfrc-header--button),
+button.vfrc-button:not(.vfrc-header--button) {
   /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
@@ -112,15 +141,15 @@ button.vfrc-button {
   gap: 8px !important;
 }
 /* Hover sur les boutons natifs */
-.vfrc-button:hover,
-button.vfrc-button:hover {
+.vfrc-button:not(.vfrc-header--button):hover,
+button.vfrc-button:not(.vfrc-header--button):hover {
   background: linear-gradient(135deg, #d46f00, #F08300) !important;
   box-shadow: 0 6px 16px rgba(240, 131, 0, 0.4) !important;
   transform: translateY(-2px) !important;
 }
 /* Active (clic) sur les boutons natifs */
-.vfrc-button:active,
-button.vfrc-button:active {
+.vfrc-button:not(.vfrc-header--button):active,
+button.vfrc-button:not(.vfrc-header--button):active {
   transform: translateY(0px) !important;
   box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
 }
@@ -373,7 +402,6 @@ button.vfrc-button:active {
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
 }
-
 /* ==========================================================
    SUPPRESSION DES OMBRES
    ========================================================== */
@@ -385,7 +413,6 @@ button.vfrc-button:active {
   margin: 0 !important;
   padding: 0 !important;
 }
-
 /* Conteneur du chat */
 .vfrc-chat {
   box-shadow: none !important;
@@ -393,7 +420,6 @@ button.vfrc-button:active {
   border-radius: 0 !important;
   margin: 0 !important;
 }
-
 /* Le wrapper du dialogue */
 .vfrc-chat-dialog__container,
 .vfrc-chat-dialog,
@@ -401,13 +427,11 @@ button.vfrc-button:active {
   box-shadow: none !important;
   background: transparent !important;
 }
-
 /* Overlay du bas */
 .vfrc-chat--overlay {
   box-shadow: none !important;
   background: transparent !important;
 }
-
 /* Footer et zone d'input */
 .vfrc-footer,
 .vfrc-footer__content,
@@ -415,7 +439,6 @@ button.vfrc-button:active {
   box-shadow: none !important;
   background: transparent !important;
 }
-
 /* Supprime les ombres sur toutes les classes générées dynamiquement */
 [class^="_"],
 [class*="_"] {
