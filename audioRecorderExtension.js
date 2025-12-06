@@ -15,7 +15,7 @@
  * @version 3.0.0
  */
 
-const AudioRecorderExtension = {
+export const AudioRecorderExtension = {
   name: 'AudioRecorder',
   type: 'effect',
   match: ({ trace }) =>
