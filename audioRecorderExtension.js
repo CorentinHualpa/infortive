@@ -1,18 +1,18 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v4.1
+ * VOICEFLOW AUDIO RECORDER EXTENSION v4.2
  * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
  * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
  * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
- * CHANGELOG v4.1:
+ * CHANGELOG v4.2:
+ * - Fixed event payload structure for Voiceflow (type: 'event' + event.name)
  * - Fixed SVG icons display
- * - Added proper event payload structure for Voiceflow
  * 
  * @author Voiceflow Extensions
- * @version 4.1.0
+ * @version 4.2.0
  */
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -1225,6 +1225,7 @@ export const AudioRecorderExtension = {
 
     // =========================================================================
     // INJECTION DANS VOICEFLOW - Configuration de l'event
+    // Structure conforme à la documentation Voiceflow Events
     // =========================================================================
     els.inject.addEventListener('click', () => {
       const text = els.transcript.innerText || els.transcript.textContent;
@@ -1233,20 +1234,26 @@ export const AudioRecorderExtension = {
         return;
       }
 
-      // Payload pour Voiceflow - structure compatible avec les events
-      const payload = {
-        type: config.eventName,  // Le nom de l'event (ex: "Inject_in_chat")
+      // Payload pour Voiceflow - Structure CORRECTE selon la doc
+      // https://docs.voiceflow.com/docs/using-events
+      const interactPayload = {
+        type: 'event',  // ✅ Toujours 'event' pour déclencher un Event Trigger
         payload: {
+          event: {
+            name: config.eventName  // Le nom de l'event défini dans Event CMS (ex: "Inject_in_chat")
+          },
+          // Données additionnelles accessibles via last_event.payload
           call_transcript: text.trim(),
           duration: els.timer.textContent,
           timestamp: new Date().toISOString()
         }
       };
 
-      console.log('[AudioRecorder] 📤 Injection dans Voiceflow:', payload);
+      console.log('[AudioRecorder] 📤 Injection dans Voiceflow:', interactPayload);
+      console.log('[AudioRecorder] 📨 Event name:', config.eventName);
 
       if (window.voiceflow?.chat?.interact) {
-        window.voiceflow.chat.interact(payload);
+        window.voiceflow.chat.interact(interactPayload);
         toast('✅ Injecté dans le chat!', 'success');
         
         // Réinitialiser après injection
@@ -1266,7 +1273,7 @@ export const AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.1 prête');
+    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.2 prête');
     console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
     console.log('[AudioRecorder] 🌍 Langue:', config.language);
     console.log('[AudioRecorder] 📨 Event:', config.eventName);
