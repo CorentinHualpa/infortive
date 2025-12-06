@@ -1,14 +1,18 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v4.0
+ * VOICEFLOW AUDIO RECORDER EXTENSION v4.1
  * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
  * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
  * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
+ * CHANGELOG v4.1:
+ * - Fixed SVG icons display
+ * - Added proper event payload structure for Voiceflow
+ * 
  * @author Voiceflow Extensions
- * @version 4.0.0
+ * @version 4.1.0
  */
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -80,6 +84,22 @@ export const AudioRecorderExtension = {
     };
 
     // =========================================================================
+    // SVG ICONS - Defined as constants for reuse
+    // =========================================================================
+    const ICONS = {
+      microphone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>`,
+      stop: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`,
+      pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`,
+      play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+      download: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
+      close: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`,
+      document: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`,
+      copy: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
+      trash: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
+      send: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>`,
+    };
+
+    // =========================================================================
     // STYLES
     // =========================================================================
     const styles = document.createElement('style');
@@ -91,6 +111,10 @@ export const AudioRecorderExtension = {
         right: 20px;
         z-index: 10000;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      #vf-audio-recorder-widget * {
+        box-sizing: border-box;
       }
 
       .vf-ar-toggle {
@@ -105,6 +129,7 @@ export const AudioRecorderExtension = {
         justify-content: center;
         box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);
         transition: all 0.3s ease;
+        padding: 0;
       }
 
       .vf-ar-toggle:hover {
@@ -119,7 +144,7 @@ export const AudioRecorderExtension = {
       .vf-ar-toggle svg {
         width: 26px;
         height: 26px;
-        fill: white;
+        color: white;
       }
 
       .vf-ar-panel {
@@ -164,7 +189,7 @@ export const AudioRecorderExtension = {
       .vf-ar-title svg {
         width: 18px;
         height: 18px;
-        fill: ${config.primaryColor};
+        color: ${config.primaryColor};
       }
 
       .vf-ar-badge {
@@ -188,6 +213,7 @@ export const AudioRecorderExtension = {
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
+        padding: 0;
       }
 
       .vf-ar-close:hover {
@@ -197,7 +223,7 @@ export const AudioRecorderExtension = {
       .vf-ar-close svg {
         width: 14px;
         height: 14px;
-        fill: ${config.textColor};
+        color: ${config.textColor};
       }
 
       .vf-ar-timer-section {
@@ -222,6 +248,7 @@ export const AudioRecorderExtension = {
         border-radius: 50%;
         background: #6b7280;
         transition: all 0.3s;
+        flex-shrink: 0;
       }
 
       .vf-ar-status-dot.recording {
@@ -280,6 +307,7 @@ export const AudioRecorderExtension = {
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
+        padding: 0;
       }
 
       .vf-ar-btn-record {
@@ -300,7 +328,7 @@ export const AudioRecorderExtension = {
       .vf-ar-btn-record svg {
         width: 28px;
         height: 28px;
-        fill: white;
+        color: white;
       }
 
       .vf-ar-btn-secondary {
@@ -323,7 +351,7 @@ export const AudioRecorderExtension = {
       .vf-ar-btn-secondary svg {
         width: 22px;
         height: 22px;
-        fill: ${config.textColor};
+        color: ${config.textColor};
       }
 
       .vf-ar-transcript-section {
@@ -352,7 +380,7 @@ export const AudioRecorderExtension = {
       .vf-ar-transcript-title svg {
         width: 14px;
         height: 14px;
-        fill: ${config.primaryColor};
+        color: ${config.primaryColor};
       }
 
       .vf-ar-transcript-actions {
@@ -384,7 +412,7 @@ export const AudioRecorderExtension = {
       }
 
       .vf-ar-btn-copy svg {
-        fill: white;
+        color: white;
       }
 
       .vf-ar-btn-copy:hover {
@@ -397,7 +425,7 @@ export const AudioRecorderExtension = {
       }
 
       .vf-ar-btn-clear svg {
-        fill: #fca5a5;
+        color: #fca5a5;
       }
 
       .vf-ar-btn-clear:hover {
@@ -470,7 +498,7 @@ export const AudioRecorderExtension = {
       .vf-ar-inject svg {
         width: 16px;
         height: 16px;
-        fill: white;
+        color: white;
       }
 
       .vf-ar-toast {
@@ -523,18 +551,18 @@ export const AudioRecorderExtension = {
     widget.id = 'vf-audio-recorder-widget';
     widget.innerHTML = `
       <button class="vf-ar-toggle" id="vf-ar-toggle" title="Enregistreur audio">
-        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        ${ICONS.microphone}
       </button>
 
       <div class="vf-ar-panel" id="vf-ar-panel">
         <div class="vf-ar-header">
           <div class="vf-ar-title">
-            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            ${ICONS.microphone}
             Enregistreur d'appel
             <span class="vf-ar-badge">ElevenLabs</span>
           </div>
           <button class="vf-ar-close" id="vf-ar-close" title="Fermer">
-            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            ${ICONS.close}
           </button>
         </div>
 
@@ -552,38 +580,38 @@ export const AudioRecorderExtension = {
 
         <div class="vf-ar-controls">
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger l'audio" disabled>
-            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            ${ICONS.download}
           </button>
           
           <button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Démarrer">
-            <svg viewBox="0 0 24 24" id="vf-ar-rec-icon"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            ${ICONS.microphone}
           </button>
           
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-pause" title="Pause" disabled>
-            <svg viewBox="0 0 24 24" id="vf-ar-pause-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            ${ICONS.pause}
           </button>
         </div>
 
         <div class="vf-ar-transcript-section">
           <div class="vf-ar-transcript-header">
             <div class="vf-ar-transcript-title">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              ${ICONS.document}
               Transcription
             </div>
             <div class="vf-ar-transcript-actions">
               <button class="vf-ar-action-btn vf-ar-btn-copy" id="vf-ar-copy" title="Copier">
-                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                ${ICONS.copy}
                 Copier
               </button>
               <button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">
-                <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                ${ICONS.trash}
                 Effacer
               </button>
             </div>
           </div>
           <div class="vf-ar-transcript" id="vf-ar-transcript" contenteditable="true"></div>
           <button class="vf-ar-inject" id="vf-ar-inject" disabled>
-            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            ${ICONS.send}
             Injecter dans le chat
           </button>
         </div>
@@ -603,9 +631,7 @@ export const AudioRecorderExtension = {
       dot: $('vf-ar-dot'),
       label: $('vf-ar-label'),
       record: $('vf-ar-record'),
-      recIcon: $('vf-ar-rec-icon'),
       pause: $('vf-ar-pause'),
-      pauseIcon: $('vf-ar-pause-icon'),
       download: $('vf-ar-download'),
       bars: document.querySelectorAll('.vf-ar-bar'),
       transcript: $('vf-ar-transcript'),
@@ -653,15 +679,15 @@ export const AudioRecorderExtension = {
     }
 
     function setUI(mode) {
-      const { toggle, record, recIcon, pause, pauseIcon, dot, label, download } = els;
+      const { toggle, record, pause, dot, label, download } = els;
       
       switch(mode) {
         case 'idle':
           toggle.classList.remove('recording');
           record.classList.remove('recording');
-          recIcon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>';
+          record.innerHTML = ICONS.microphone;
           pause.disabled = true;
-          pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          pause.innerHTML = ICONS.pause;
           dot.classList.remove('recording', 'paused', 'connecting');
           label.textContent = 'Prêt à enregistrer';
           if (state.audioChunks.length) download.disabled = false;
@@ -676,7 +702,7 @@ export const AudioRecorderExtension = {
         case 'recording':
           toggle.classList.add('recording');
           record.classList.add('recording');
-          recIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
+          record.innerHTML = ICONS.stop;
           pause.disabled = false;
           dot.classList.add('recording');
           dot.classList.remove('paused', 'connecting');
@@ -684,14 +710,14 @@ export const AudioRecorderExtension = {
           break;
 
         case 'paused':
-          pauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          pause.innerHTML = ICONS.play;
           dot.classList.remove('recording', 'connecting');
           dot.classList.add('paused');
           label.textContent = 'En pause';
           break;
 
         case 'resumed':
-          pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          pause.innerHTML = ICONS.pause;
           dot.classList.add('recording');
           dot.classList.remove('paused', 'connecting');
           label.textContent = 'Enregistrement + Transcription...';
@@ -745,7 +771,7 @@ export const AudioRecorderExtension = {
         });
 
         const wsUrl = `wss://api.elevenlabs.io/v1/speech-to-text/realtime?${wsParams.toString()}`;
-        console.log('[AudioRecorder] 🔗 URL WebSocket:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
+        console.log('[AudioRecorder] 🔗 URL WebSocket (token masqué)');
 
         const ws = new WebSocket(wsUrl);
 
@@ -1197,6 +1223,9 @@ export const AudioRecorderExtension = {
       toast('🗑️ Effacé', 'info');
     });
 
+    // =========================================================================
+    // INJECTION DANS VOICEFLOW - Configuration de l'event
+    // =========================================================================
     els.inject.addEventListener('click', () => {
       const text = els.transcript.innerText || els.transcript.textContent;
       if (!text.trim()) {
@@ -1204,27 +1233,29 @@ export const AudioRecorderExtension = {
         return;
       }
 
+      // Payload pour Voiceflow - structure compatible avec les events
       const payload = {
-        type: 'event',
+        type: config.eventName,  // Le nom de l'event (ex: "Inject_in_chat")
         payload: {
-          event: { name: config.eventName },
           call_transcript: text.trim(),
           duration: els.timer.textContent,
           timestamp: new Date().toISOString()
         }
       };
 
-      console.log('[AudioRecorder] 📤 Injection:', payload);
+      console.log('[AudioRecorder] 📤 Injection dans Voiceflow:', payload);
 
       if (window.voiceflow?.chat?.interact) {
         window.voiceflow.chat.interact(payload);
         toast('✅ Injecté dans le chat!', 'success');
         
+        // Réinitialiser après injection
         state.transcript = '';
         state.interimTranscript = '';
         els.transcript.innerHTML = '';
         els.inject.disabled = true;
       } else {
+        console.error('[AudioRecorder] ❌ window.voiceflow.chat.interact non disponible');
         toast('⚠️ Chat Voiceflow non trouvé', 'error');
       }
     });
@@ -1235,9 +1266,10 @@ export const AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.0 prête');
+    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.1 prête');
     console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
     console.log('[AudioRecorder] 🌍 Langue:', config.language);
+    console.log('[AudioRecorder] 📨 Event:', config.eventName);
   }
 };
 
