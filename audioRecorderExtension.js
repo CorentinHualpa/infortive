@@ -678,15 +678,32 @@ export const AudioRecorderExtension = {
     }
 
     function updateDisplay() {
+      console.log('[AudioRecorder] 🖥️ updateDisplay() appelée');
+      
       const final = state.transcript;
       const interim = state.interimTranscript;
+      
+      console.log('[AudioRecorder] 🖥️ État transcription:', {
+        final: final ? final.substring(0, 50) + (final.length > 50 ? '...' : '') : '(vide)',
+        finalLength: final ? final.length : 0,
+        interim: interim ? interim.substring(0, 50) + (interim.length > 50 ? '...' : '') : '(vide)',
+        interimLength: interim ? interim.length : 0
+      });
+      
+      if (!els.transcript) {
+        console.error('[AudioRecorder] ❌ Élément transcript introuvable!');
+        return;
+      }
+      
       if (final || interim) {
         els.transcript.innerHTML = final + (interim ? `<span class="interim"> ${interim}</span>` : '');
         els.transcript.scrollTop = els.transcript.scrollHeight;
         els.inject.disabled = false;
+        console.log('[AudioRecorder] ✅ Affichage mis à jour avec du texte');
       } else {
         els.transcript.innerHTML = '';
         els.inject.disabled = true;
+        console.log('[AudioRecorder] ⚠️ Aucun texte à afficher');
       }
     }
 
@@ -728,58 +745,167 @@ export const AudioRecorderExtension = {
     // =========================================================================
     
     function initWebSpeech() {
+      console.log('[AudioRecorder] 🔧 Initialisation Web Speech API...');
+      
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
       if (!SpeechRecognition) {
-        console.warn('[AudioRecorder] Web Speech API non supportée');
+        console.error('[AudioRecorder] ❌ Web Speech API NON SUPPORTÉE dans ce navigateur');
+        console.log('[AudioRecorder] Navigateur:', navigator.userAgent);
+        toast('⚠️ Web Speech API non supportée', 'error');
         return null;
       }
+      
+      console.log('[AudioRecorder] ✅ Web Speech API disponible');
+      console.log('[AudioRecorder] 📋 Langue configurée:', config.language);
 
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = config.language;
       recognition.maxAlternatives = 1;
+      
+      console.log('[AudioRecorder] 📋 Configuration reconnaissance:', {
+        continuous: recognition.continuous,
+        interimResults: recognition.interimResults,
+        lang: recognition.lang,
+        maxAlternatives: recognition.maxAlternatives
+      });
+
+      recognition.onstart = () => {
+        console.log('[AudioRecorder] 🎤 Reconnaissance vocale DÉMARRÉE');
+        console.log('[AudioRecorder] 🎤 En attente de parole...');
+      };
+
+      recognition.onaudiostart = () => {
+        console.log('[AudioRecorder] 🔊 Audio capturé - microphone actif');
+      };
+
+      recognition.onsoundstart = () => {
+        console.log('[AudioRecorder] 🔉 Son détecté');
+      };
+
+      recognition.onspeechstart = () => {
+        console.log('[AudioRecorder] 🗣️ PAROLE DÉTECTÉE - transcription en cours...');
+      };
+
+      recognition.onspeechend = () => {
+        console.log('[AudioRecorder] 🔇 Fin de parole détectée');
+      };
+
+      recognition.onsoundend = () => {
+        console.log('[AudioRecorder] 🔈 Fin du son');
+      };
+
+      recognition.onaudioend = () => {
+        console.log('[AudioRecorder] 🎤 Capture audio terminée');
+      };
 
       recognition.onresult = (event) => {
+        console.log('[AudioRecorder] 📝 RÉSULTAT REÇU!');
+        console.log('[AudioRecorder] 📝 Nombre de résultats:', event.results.length);
+        console.log('[AudioRecorder] 📝 Index du résultat:', event.resultIndex);
+        
         let interim = '';
         let final = '';
         
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
+          const transcript = result[0].transcript;
+          const confidence = result[0].confidence;
+          
+          console.log(`[AudioRecorder] 📝 Résultat[${i}]:`, {
+            transcript: transcript,
+            isFinal: result.isFinal,
+            confidence: confidence ? (confidence * 100).toFixed(1) + '%' : 'N/A'
+          });
+          
           if (result.isFinal) {
-            final += result[0].transcript + ' ';
+            final += transcript + ' ';
+            console.log('[AudioRecorder] ✅ Texte FINAL ajouté:', transcript);
           } else {
-            interim += result[0].transcript;
+            interim += transcript;
+            console.log('[AudioRecorder] ⏳ Texte INTERIM:', transcript);
           }
         }
         
         if (final) {
           state.transcript += final;
+          console.log('[AudioRecorder] 📄 Transcription totale:', state.transcript);
         }
         state.interimTranscript = interim;
+        
+        console.log('[AudioRecorder] 🔄 Mise à jour affichage...');
         updateDisplay();
       };
 
       recognition.onerror = (event) => {
-        console.error('[AudioRecorder] Erreur reconnaissance:', event.error);
-        if (event.error === 'not-allowed') {
-          toast('⚠️ Accès au micro refusé', 'error');
-        } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
-          toast('Erreur: ' + event.error, 'error');
+        console.error('[AudioRecorder] ❌ ERREUR reconnaissance:', event.error);
+        console.error('[AudioRecorder] ❌ Message:', event.message || 'Pas de message');
+        
+        switch(event.error) {
+          case 'not-allowed':
+            console.error('[AudioRecorder] ❌ Permission micro refusée par l\'utilisateur');
+            toast('⚠️ Accès au micro refusé', 'error');
+            break;
+          case 'no-speech':
+            console.log('[AudioRecorder] ⚠️ Aucune parole détectée (normal si silence)');
+            break;
+          case 'audio-capture':
+            console.error('[AudioRecorder] ❌ Problème de capture audio - vérifier le microphone');
+            toast('⚠️ Problème de capture audio', 'error');
+            break;
+          case 'network':
+            console.error('[AudioRecorder] ❌ Erreur réseau - connexion requise pour la transcription');
+            toast('⚠️ Erreur réseau', 'error');
+            break;
+          case 'aborted':
+            console.log('[AudioRecorder] ⚠️ Reconnaissance interrompue');
+            break;
+          case 'language-not-supported':
+            console.error('[AudioRecorder] ❌ Langue non supportée:', config.language);
+            toast('⚠️ Langue non supportée', 'error');
+            break;
+          case 'service-not-allowed':
+            console.error('[AudioRecorder] ❌ Service non autorisé - HTTPS requis');
+            toast('⚠️ HTTPS requis pour la transcription', 'error');
+            break;
+          default:
+            console.error('[AudioRecorder] ❌ Erreur inconnue:', event.error);
+            toast('Erreur: ' + event.error, 'error');
         }
       };
 
       recognition.onend = () => {
+        console.log('[AudioRecorder] 🔚 Session de reconnaissance TERMINÉE');
+        console.log('[AudioRecorder] 🔚 État actuel:', {
+          isRecording: state.isRecording,
+          isPaused: state.isPaused
+        });
+        
         // Redémarrer si toujours en enregistrement
         if (state.isRecording && !state.isPaused) {
+          console.log('[AudioRecorder] 🔄 Redémarrage automatique de la reconnaissance...');
           try {
-            recognition.start();
+            setTimeout(() => {
+              if (state.isRecording && !state.isPaused) {
+                recognition.start();
+                console.log('[AudioRecorder] ✅ Reconnaissance redémarrée');
+              }
+            }, 100);
           } catch (e) {
-            console.log('[AudioRecorder] Reconnaissance terminée');
+            console.error('[AudioRecorder] ❌ Erreur redémarrage:', e);
           }
+        } else {
+          console.log('[AudioRecorder] ⏹️ Pas de redémarrage (enregistrement arrêté ou en pause)');
         }
       };
 
+      recognition.onnomatch = () => {
+        console.log('[AudioRecorder] ⚠️ Aucune correspondance trouvée pour le son détecté');
+      };
+
+      console.log('[AudioRecorder] ✅ Tous les handlers configurés');
       return recognition;
     }
 
@@ -788,9 +914,12 @@ export const AudioRecorderExtension = {
     // =========================================================================
     
     async function startRecording() {
+      console.log('[AudioRecorder] 🚀 === DÉMARRAGE ENREGISTREMENT ===');
+      
       try {
         toast('Initialisation...', 'info');
         
+        console.log('[AudioRecorder] 📹 Demande accès microphone...');
         state.stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: 1,
@@ -800,35 +929,61 @@ export const AudioRecorderExtension = {
             autoGainControl: true
           }
         });
+        console.log('[AudioRecorder] ✅ Microphone obtenu');
+        console.log('[AudioRecorder] 📹 Tracks audio:', state.stream.getAudioTracks().map(t => ({
+          label: t.label,
+          enabled: t.enabled,
+          muted: t.muted,
+          readyState: t.readyState
+        })));
 
         // Audio Context pour visualisation
+        console.log('[AudioRecorder] 🔊 Création AudioContext...');
         state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         state.analyser = state.audioContext.createAnalyser();
         state.analyser.fftSize = 64;
         state.analyser.smoothingTimeConstant = 0.8;
         state.microphone = state.audioContext.createMediaStreamSource(state.stream);
         state.microphone.connect(state.analyser);
+        console.log('[AudioRecorder] ✅ AudioContext créé, état:', state.audioContext.state);
 
         // MediaRecorder pour sauvegarde
+        console.log('[AudioRecorder] 💾 Création MediaRecorder...');
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') 
           ? 'audio/webm;codecs=opus' : 'audio/webm';
+        console.log('[AudioRecorder] 💾 MimeType:', mimeType);
         state.mediaRecorder = new MediaRecorder(state.stream, { mimeType });
         state.mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) state.audioChunks.push(e.data);
+          if (e.data.size > 0) {
+            state.audioChunks.push(e.data);
+            console.log('[AudioRecorder] 💾 Chunk audio reçu:', e.data.size, 'bytes');
+          }
         };
         state.mediaRecorder.start(500);
+        console.log('[AudioRecorder] ✅ MediaRecorder démarré');
 
         // Web Speech API
+        console.log('[AudioRecorder] 🎤 Configuration Web Speech API...');
+        console.log('[AudioRecorder] 🎤 useWebSpeech:', config.useWebSpeech);
+        
         if (config.useWebSpeech) {
           state.recognition = initWebSpeech();
+          console.log('[AudioRecorder] 🎤 Recognition object:', state.recognition ? 'CRÉÉ' : 'NULL');
+          
           if (state.recognition) {
             try {
+              console.log('[AudioRecorder] 🎤 Démarrage de la reconnaissance...');
               state.recognition.start();
-              console.log('[AudioRecorder] Web Speech API démarrée');
+              console.log('[AudioRecorder] ✅ Web Speech API démarrée avec succès');
             } catch (e) {
-              console.error('[AudioRecorder] Erreur démarrage reconnaissance:', e);
+              console.error('[AudioRecorder] ❌ Erreur démarrage reconnaissance:', e);
+              console.error('[AudioRecorder] ❌ Stack:', e.stack);
             }
+          } else {
+            console.error('[AudioRecorder] ❌ Recognition est null - Web Speech non disponible');
           }
+        } else {
+          console.log('[AudioRecorder] ⚠️ Web Speech désactivé dans la config');
         }
 
         // Timer
@@ -920,6 +1075,7 @@ export const AudioRecorderExtension = {
       if (!state.analyser || !state.isRecording) return;
       
       const data = new Uint8Array(state.analyser.frequencyBinCount);
+      let logCounter = 0;
       
       function draw() {
         if (!state.isRecording) {
@@ -929,6 +1085,19 @@ export const AudioRecorderExtension = {
         state.animationFrameId = requestAnimationFrame(draw);
         if (!state.isPaused) {
           state.analyser.getByteFrequencyData(data);
+          
+          // Log niveau audio toutes les 2 secondes (environ 120 frames)
+          logCounter++;
+          if (logCounter % 120 === 0) {
+            const avgLevel = data.reduce((a, b) => a + b, 0) / data.length;
+            const maxLevel = Math.max(...data);
+            console.log('[AudioRecorder] 📊 Niveau audio:', {
+              moyenne: avgLevel.toFixed(1),
+              max: maxLevel,
+              actif: maxLevel > 10 ? '✅ Son détecté' : '⚠️ Pas de son'
+            });
+          }
+          
           els.bars.forEach((bar, i) => {
             const v = data[i] || 0;
             bar.style.height = `${Math.max(6, (v / 255) * 100)}%`;
