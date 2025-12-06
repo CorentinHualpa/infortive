@@ -1,28 +1,27 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v3.2
- * Extension pour enregistrer des appels et transcrire en temps réel
+ * VOICEFLOW AUDIO RECORDER EXTENSION v4.0
+ * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
- * TRANSCRIPTION : Web Speech API (Chrome/Edge)
+ * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
+ * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
  * @author Voiceflow Extensions
- * @version 3.2.0
+ * @version 4.0.0
  */
-
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
   type: 'effect',
   match: ({ trace }) =>
     trace.type === 'ext_audioRecorder' || trace.payload?.name === 'ext_audioRecorder',
-
   effect: ({ trace }) => {
     // =========================================================================
     // CONFIGURATION
     // =========================================================================
     const config = {
       apiKey: trace.payload?.apiKey || '',
-      language: trace.payload?.language || 'fr-FR',
+      language: trace.payload?.language || 'fr',
       eventName: trace.payload?.eventName || 'Inject_in_chat',
       primaryColor: trace.payload?.primaryColor || '#f5a623',
       backgroundColor: trace.payload?.backgroundColor || '#1e2a3a',
@@ -30,8 +29,17 @@ export const AudioRecorderExtension = {
       textColor: trace.payload?.textColor || '#ffffff',
       position: trace.payload?.position || 'bottom',
       widgetOffset: trace.payload?.widgetOffset || 20,
-      useWebSpeech: trace.payload?.useWebSpeech !== false,
+      // ElevenLabs specific
+      modelId: trace.payload?.modelId || 'scribe_v2_realtime',
+      sampleRate: 16000,
     };
+
+    // Validation de la clé API
+    if (!config.apiKey) {
+      console.error('[AudioRecorder] ❌ Clé API ElevenLabs manquante!');
+    } else {
+      console.log('[AudioRecorder] ✅ Clé API présente');
+    }
 
     // Éviter les doublons
     if (document.getElementById('vf-audio-recorder-widget')) {
@@ -39,7 +47,12 @@ export const AudioRecorderExtension = {
       return;
     }
 
-    console.log('[AudioRecorder] Initialisation...');
+    console.log('[AudioRecorder] 🚀 Initialisation avec ElevenLabs STT...');
+    console.log('[AudioRecorder] 📋 Config:', { 
+      language: config.language, 
+      modelId: config.modelId,
+      hasApiKey: !!config.apiKey 
+    });
 
     // =========================================================================
     // STATE
@@ -52,21 +65,25 @@ export const AudioRecorderExtension = {
       audioChunks: [],
       stream: null,
       mediaRecorder: null,
-      recognition: null,
       audioContext: null,
       analyser: null,
       microphone: null,
+      scriptProcessor: null,
+      websocket: null,
       timerInterval: null,
       recordingStartTime: null,
       pausedDuration: 0,
       pauseStartTime: null,
       animationFrameId: null,
+      sessionId: null,
+      sttToken: null,
     };
 
     // =========================================================================
     // STYLES
     // =========================================================================
     const styles = document.createElement('style');
+    styles.id = 'vf-audio-recorder-styles';
     styles.textContent = `
       #vf-audio-recorder-widget {
         position: fixed;
@@ -105,7 +122,6 @@ export const AudioRecorderExtension = {
         fill: white;
       }
 
-      /* Panel à GAUCHE du bouton */
       .vf-ar-panel {
         position: absolute;
         ${config.position === 'top' ? 'top: 0' : 'bottom: 0'};
@@ -149,6 +165,16 @@ export const AudioRecorderExtension = {
         width: 18px;
         height: 18px;
         fill: ${config.primaryColor};
+      }
+
+      .vf-ar-badge {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        font-size: 9px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
       }
 
       .vf-ar-close {
@@ -205,6 +231,11 @@ export const AudioRecorderExtension = {
 
       .vf-ar-status-dot.paused {
         background: ${config.primaryColor};
+      }
+
+      .vf-ar-status-dot.connecting {
+        background: #3b82f6;
+        animation: vf-ar-blink 0.5s ease-in-out infinite;
       }
 
       .vf-ar-status-label {
@@ -387,7 +418,7 @@ export const AudioRecorderExtension = {
       }
 
       .vf-ar-transcript:empty::before {
-        content: '🎤 La transcription apparaîtra ici...';
+        content: '🎤 La transcription ElevenLabs apparaîtra ici...';
         color: rgba(255,255,255,0.4);
         font-style: italic;
       }
@@ -486,7 +517,7 @@ export const AudioRecorderExtension = {
     document.head.appendChild(styles);
 
     // =========================================================================
-    // HTML avec SVG inline corrects
+    // HTML
     // =========================================================================
     const widget = document.createElement('div');
     widget.id = 'vf-audio-recorder-widget';
@@ -500,6 +531,7 @@ export const AudioRecorderExtension = {
           <div class="vf-ar-title">
             <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
             Enregistreur d'appel
+            <span class="vf-ar-badge">ElevenLabs</span>
           </div>
           <button class="vf-ar-close" id="vf-ar-close" title="Fermer">
             <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -519,17 +551,14 @@ export const AudioRecorderExtension = {
         </div>
 
         <div class="vf-ar-controls">
-          <!-- Télécharger -->
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger l'audio" disabled>
             <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
           </button>
           
-          <!-- Enregistrer/Stop -->
           <button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Démarrer">
             <svg viewBox="0 0 24 24" id="vf-ar-rec-icon"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
           </button>
           
-          <!-- Pause -->
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-pause" title="Pause" disabled>
             <svg viewBox="0 0 24 24" id="vf-ar-pause-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           </button>
@@ -617,7 +646,6 @@ export const AudioRecorderExtension = {
         els.transcript.innerHTML = final + (interim ? `<span class="interim">${interim}</span>` : '');
         els.transcript.scrollTop = els.transcript.scrollHeight;
         els.inject.disabled = false;
-        console.log('[AudioRecorder] 📝 Affichage mis à jour:', (final + interim).substring(0, 50));
       } else {
         els.transcript.innerHTML = '';
         els.inject.disabled = true;
@@ -627,157 +655,262 @@ export const AudioRecorderExtension = {
     function setUI(mode) {
       const { toggle, record, recIcon, pause, pauseIcon, dot, label, download } = els;
       
-      if (mode === 'idle') {
-        toggle.classList.remove('recording');
-        record.classList.remove('recording');
-        recIcon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>';
-        pause.disabled = true;
-        pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-        dot.classList.remove('recording', 'paused');
-        label.textContent = 'Prêt à enregistrer';
-        if (state.audioChunks.length) download.disabled = false;
-      } else if (mode === 'recording') {
-        toggle.classList.add('recording');
-        record.classList.add('recording');
-        recIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
-        pause.disabled = false;
-        dot.classList.add('recording');
-        dot.classList.remove('paused');
-        label.textContent = 'Enregistrement...';
-      } else if (mode === 'paused') {
-        pauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-        dot.classList.remove('recording');
-        dot.classList.add('paused');
-        label.textContent = 'En pause';
-      } else if (mode === 'resumed') {
-        pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-        dot.classList.add('recording');
-        dot.classList.remove('paused');
-        label.textContent = 'Enregistrement...';
+      switch(mode) {
+        case 'idle':
+          toggle.classList.remove('recording');
+          record.classList.remove('recording');
+          recIcon.innerHTML = '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>';
+          pause.disabled = true;
+          pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          dot.classList.remove('recording', 'paused', 'connecting');
+          label.textContent = 'Prêt à enregistrer';
+          if (state.audioChunks.length) download.disabled = false;
+          break;
+
+        case 'connecting':
+          dot.classList.add('connecting');
+          dot.classList.remove('recording', 'paused');
+          label.textContent = 'Connexion à ElevenLabs...';
+          break;
+
+        case 'recording':
+          toggle.classList.add('recording');
+          record.classList.add('recording');
+          recIcon.innerHTML = '<rect x="6" y="6" width="12" height="12" rx="2"/>';
+          pause.disabled = false;
+          dot.classList.add('recording');
+          dot.classList.remove('paused', 'connecting');
+          label.textContent = 'Enregistrement + Transcription...';
+          break;
+
+        case 'paused':
+          pauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          dot.classList.remove('recording', 'connecting');
+          dot.classList.add('paused');
+          label.textContent = 'En pause';
+          break;
+
+        case 'resumed':
+          pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          dot.classList.add('recording');
+          dot.classList.remove('paused', 'connecting');
+          label.textContent = 'Enregistrement + Transcription...';
+          break;
       }
     }
 
     // =========================================================================
-    // WEB SPEECH API - VERSION CORRIGÉE
+    // ELEVENLABS API - GET SINGLE USE TOKEN
     // =========================================================================
-    
-    function createRecognition() {
-      console.log('[AudioRecorder] 🔧 Création Web Speech API...');
-      
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
-      if (!SpeechRecognition) {
-        console.error('[AudioRecorder] ❌ Web Speech API non supportée!');
-        console.error('[AudioRecorder] ❌ Utilisez Chrome ou Edge');
-        toast('⚠️ Utilisez Chrome ou Edge pour la transcription', 'error');
-        return null;
-      }
-      
-      console.log('[AudioRecorder] ✅ SpeechRecognition disponible');
 
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = config.language;
-      recognition.maxAlternatives = 1;
+    async function getElevenLabsToken() {
+      console.log('[AudioRecorder] 🔑 Demande de token ElevenLabs...');
       
-      console.log('[AudioRecorder] 📋 Config:', {
-        lang: recognition.lang,
-        continuous: recognition.continuous,
-        interimResults: recognition.interimResults
+      const response = await fetch('https://api.elevenlabs.io/v1/single-use-token/realtime_scribe', {
+        method: 'POST',
+        headers: {
+          'xi-api-key': config.apiKey
+        }
       });
 
-      recognition.onstart = function() {
-        console.log('[AudioRecorder] 🎤🎤🎤 RECONNAISSANCE ACTIVE 🎤🎤🎤');
-      };
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[AudioRecorder] ❌ Erreur token:', response.status, errorText);
+        throw new Error(`Erreur token: ${response.status} - ${errorText}`);
+      }
 
-      recognition.onaudiostart = function() {
-        console.log('[AudioRecorder] 🔊 Capture audio active');
-      };
+      const data = await response.json();
+      console.log('[AudioRecorder] ✅ Token obtenu:', data.token?.substring(0, 20) + '...');
+      return data.token;
+    }
 
-      recognition.onsoundstart = function() {
-        console.log('[AudioRecorder] 🔉 Son détecté');
-      };
-
-      recognition.onspeechstart = function() {
-        console.log('[AudioRecorder] 🗣️ PAROLE DÉTECTÉE!');
-      };
-
-      recognition.onresult = function(event) {
-        console.log('[AudioRecorder] 📝📝📝 RÉSULTAT REÇU 📝📝📝');
-        console.log('[AudioRecorder] Nombre de résultats:', event.results.length);
+    // =========================================================================
+    // ELEVENLABS WEBSOCKET - SPEECH TO TEXT
+    // =========================================================================
+    
+    function connectElevenLabsWebSocket(token) {
+      return new Promise((resolve, reject) => {
+        console.log('[AudioRecorder] 🔌 Connexion WebSocket ElevenLabs...');
         
-        let interim = '';
-        let final = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i];
-          const text = result[0].transcript;
-          const conf = result[0].confidence;
-          
-          if (result.isFinal) {
-            final += text + ' ';
-            console.log('[AudioRecorder] ✅ FINAL:', text, '(conf:', Math.round(conf * 100) + '%)');
-          } else {
-            interim += text;
-            console.log('[AudioRecorder] ⏳ Interim:', text);
+        // Construire l'URL WebSocket avec le token
+        const wsParams = new URLSearchParams({
+          model_id: config.modelId,
+          language_code: config.language,
+          token: token,
+          audio_format: 'pcm_16000',
+          commit_strategy: 'vad',
+          vad_silence_threshold_secs: '1.0',
+          vad_threshold: '0.3',
+          include_timestamps: 'false'
+        });
+
+        const wsUrl = `wss://api.elevenlabs.io/v1/speech-to-text/realtime?${wsParams.toString()}`;
+        console.log('[AudioRecorder] 🔗 URL WebSocket:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
+
+        const ws = new WebSocket(wsUrl);
+
+        // Timeout de connexion
+        const connectionTimeout = setTimeout(() => {
+          if (ws.readyState !== WebSocket.OPEN) {
+            console.error('[AudioRecorder] ❌ Timeout connexion WebSocket');
+            ws.close();
+            reject(new Error('Timeout de connexion (10s)'));
           }
-        }
-        
-        if (final) {
-          state.transcript += final;
-        }
-        state.interimTranscript = interim;
-        updateDisplay();
-      };
+        }, 10000);
 
-      recognition.onerror = function(event) {
-        console.error('[AudioRecorder] ❌ ERREUR:', event.error);
-        
-        switch(event.error) {
-          case 'no-speech':
-            console.log('[AudioRecorder] (Silence - normal)');
-            break;
-          case 'audio-capture':
-            console.error('[AudioRecorder] Problème micro!');
-            toast('⚠️ Problème de microphone', 'error');
-            break;
-          case 'not-allowed':
-            console.error('[AudioRecorder] Permission refusée!');
-            toast('⚠️ Permission micro refusée', 'error');
-            break;
-          case 'network':
-            console.error('[AudioRecorder] Erreur réseau!');
-            toast('⚠️ Erreur réseau - vérifiez connexion', 'error');
-            break;
-          case 'aborted':
-            console.log('[AudioRecorder] (Interrompu)');
-            break;
-          default:
-            console.error('[AudioRecorder] Erreur:', event.error);
-        }
-      };
+        ws.onopen = () => {
+          console.log('[AudioRecorder] ✅ WebSocket ouvert, attente session...');
+        };
 
-      recognition.onend = function() {
-        console.log('[AudioRecorder] 🔚 Session terminée');
-        console.log('[AudioRecorder] État:', { isRecording: state.isRecording, isPaused: state.isPaused });
-        
-        if (state.isRecording && !state.isPaused) {
-          console.log('[AudioRecorder] 🔄 Redémarrage...');
+        ws.onmessage = (event) => {
           try {
-            recognition.start();
-            console.log('[AudioRecorder] ✅ Redémarré');
+            const data = JSON.parse(event.data);
+            
+            switch(data.message_type) {
+              case 'session_started':
+                clearTimeout(connectionTimeout);
+                state.sessionId = data.session_id;
+                console.log('[AudioRecorder] ✅ Session ElevenLabs démarrée:', data.session_id);
+                console.log('[AudioRecorder] 📋 Config serveur:', data.config);
+                resolve(ws);
+                break;
+
+              case 'partial_transcript':
+                if (data.text) {
+                  console.log('[AudioRecorder] 📝 Partiel:', data.text);
+                  state.interimTranscript = data.text;
+                  updateDisplay();
+                }
+                break;
+
+              case 'committed_transcript':
+                if (data.text && data.text.trim()) {
+                  console.log('[AudioRecorder] ✅ Final:', data.text);
+                  state.transcript += data.text + ' ';
+                  state.interimTranscript = '';
+                  updateDisplay();
+                }
+                break;
+
+              case 'committed_transcript_with_timestamps':
+                if (data.text && data.text.trim()) {
+                  console.log('[AudioRecorder] ✅ Final (timestamps):', data.text);
+                  state.transcript += data.text + ' ';
+                  state.interimTranscript = '';
+                  updateDisplay();
+                }
+                break;
+
+              default:
+                // Gérer les erreurs
+                if (data.message_type?.includes('error') || data.error) {
+                  console.error('[AudioRecorder] ❌ Erreur ElevenLabs:', data);
+                  toast('Erreur: ' + (data.message || data.error || 'Erreur inconnue'), 'error');
+                } else {
+                  console.log('[AudioRecorder] 📨 Message:', data.message_type, data);
+                }
+            }
           } catch (e) {
-            console.log('[AudioRecorder] ⚠️ Déjà en cours ou erreur:', e.message);
+            console.error('[AudioRecorder] ❌ Erreur parsing:', e, event.data);
           }
-        }
+        };
+
+        ws.onerror = (error) => {
+          console.error('[AudioRecorder] ❌ Erreur WebSocket:', error);
+          clearTimeout(connectionTimeout);
+          reject(new Error('Erreur WebSocket'));
+        };
+
+        ws.onclose = (event) => {
+          console.log('[AudioRecorder] 🔌 WebSocket fermé:', event.code, event.reason);
+          clearTimeout(connectionTimeout);
+          
+          if (state.isRecording && event.code !== 1000) {
+            toast('Connexion ElevenLabs perdue', 'error');
+          }
+        };
+
+        state.websocket = ws;
+      });
+    }
+
+    // =========================================================================
+    // AUDIO PROCESSING - PCM 16-bit 16kHz
+    // =========================================================================
+
+    function float32ToPCM16(float32Array) {
+      const pcm16 = new Int16Array(float32Array.length);
+      for (let i = 0; i < float32Array.length; i++) {
+        const s = Math.max(-1, Math.min(1, float32Array[i]));
+        pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+      return pcm16;
+    }
+
+    function resampleTo16kHz(audioData, originalSampleRate) {
+      if (originalSampleRate === 16000) {
+        return audioData;
+      }
+
+      const ratio = originalSampleRate / 16000;
+      const newLength = Math.round(audioData.length / ratio);
+      const result = new Float32Array(newLength);
+
+      for (let i = 0; i < newLength; i++) {
+        const srcIndex = i * ratio;
+        const srcIndexFloor = Math.floor(srcIndex);
+        const srcIndexCeil = Math.min(srcIndexFloor + 1, audioData.length - 1);
+        const t = srcIndex - srcIndexFloor;
+        result[i] = audioData[srcIndexFloor] * (1 - t) + audioData[srcIndexCeil] * t;
+      }
+
+      return result;
+    }
+
+    function arrayBufferToBase64(buffer) {
+      const uint8Array = new Uint8Array(buffer);
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, chunk);
+      }
+      return btoa(binary);
+    }
+
+    function sendAudioChunk(audioData, sampleRate) {
+      if (!state.websocket || state.websocket.readyState !== WebSocket.OPEN) {
+        return;
+      }
+
+      if (state.isPaused) {
+        return;
+      }
+
+      // Resampler si nécessaire
+      let processedAudio = audioData;
+      if (sampleRate !== 16000) {
+        processedAudio = resampleTo16kHz(audioData, sampleRate);
+      }
+
+      // Convertir en PCM 16-bit
+      const pcm16 = float32ToPCM16(processedAudio);
+      
+      // Convertir en base64
+      const base64Audio = arrayBufferToBase64(pcm16.buffer);
+
+      // Envoyer à ElevenLabs
+      const message = {
+        message_type: 'input_audio_chunk',
+        audio_base_64: base64Audio,
+        sample_rate: 16000
       };
 
-      recognition.onspeechend = function() {
-        console.log('[AudioRecorder] 🔇 Fin de parole');
-      };
-
-      return recognition;
+      try {
+        state.websocket.send(JSON.stringify(message));
+      } catch (e) {
+        console.error('[AudioRecorder] ❌ Erreur envoi audio:', e);
+      }
     }
 
     // =========================================================================
@@ -785,21 +918,36 @@ export const AudioRecorderExtension = {
     // =========================================================================
     
     async function startRecording() {
-      console.log('[AudioRecorder] 🚀🚀🚀 DÉMARRAGE 🚀🚀🚀');
+      console.log('[AudioRecorder] 🚀 DÉMARRAGE...');
       
-      // IMPORTANT: Définir l'état AVANT tout
+      // Vérifier la clé API
+      if (!config.apiKey) {
+        toast('❌ Clé API ElevenLabs manquante!', 'error');
+        return;
+      }
+
+      // Réinitialiser l'état
       state.isRecording = true;
       state.isPaused = false;
       state.transcript = '';
       state.interimTranscript = '';
       state.audioChunks = [];
       
+      setUI('connecting');
+      updateDisplay();
+
       try {
-        console.log('[AudioRecorder] 📹 Demande micro...');
+        // 1. Obtenir un token single-use
+        console.log('[AudioRecorder] 🔑 Obtention du token...');
+        const token = await getElevenLabsToken();
+        state.sttToken = token;
+
+        // 2. Demander l'accès au microphone
+        console.log('[AudioRecorder] 🎤 Demande accès micro...');
         state.stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: 1,
-            sampleRate: 16000,
+            sampleRate: { ideal: 16000 },
             echoCancellation: true,
             noiseSuppression: true,
             autoGainControl: true
@@ -807,16 +955,42 @@ export const AudioRecorderExtension = {
         });
         console.log('[AudioRecorder] ✅ Micro OK');
 
-        // Audio Context
+        // 3. Configurer l'AudioContext
         state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const actualSampleRate = state.audioContext.sampleRate;
+        console.log('[AudioRecorder] 🎵 Sample rate navigateur:', actualSampleRate);
+
         state.analyser = state.audioContext.createAnalyser();
         state.analyser.fftSize = 64;
         state.analyser.smoothingTimeConstant = 0.8;
+
         state.microphone = state.audioContext.createMediaStreamSource(state.stream);
         state.microphone.connect(state.analyser);
-        console.log('[AudioRecorder] ✅ AudioContext OK');
 
-        // MediaRecorder
+        // 4. Connecter au WebSocket ElevenLabs
+        console.log('[AudioRecorder] 🔌 Connexion ElevenLabs...');
+        await connectElevenLabsWebSocket(token);
+        console.log('[AudioRecorder] ✅ ElevenLabs connecté!');
+
+        // 5. Créer un ScriptProcessor pour capturer l'audio
+        const bufferSize = 4096;
+        state.scriptProcessor = state.audioContext.createScriptProcessor(bufferSize, 1, 1);
+        
+        state.scriptProcessor.onaudioprocess = (event) => {
+          if (!state.isRecording || state.isPaused) return;
+
+          const inputData = event.inputBuffer.getChannelData(0);
+          const audioData = new Float32Array(inputData);
+
+          // Envoyer à ElevenLabs
+          sendAudioChunk(audioData, actualSampleRate);
+        };
+
+        state.microphone.connect(state.scriptProcessor);
+        state.scriptProcessor.connect(state.audioContext.destination);
+        console.log('[AudioRecorder] ✅ Audio pipeline OK');
+
+        // 6. Configurer MediaRecorder pour sauvegarder l'audio
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') 
           ? 'audio/webm;codecs=opus' : 'audio/webm';
         state.mediaRecorder = new MediaRecorder(state.stream, { mimeType });
@@ -826,23 +1000,7 @@ export const AudioRecorderExtension = {
         state.mediaRecorder.start(500);
         console.log('[AudioRecorder] ✅ MediaRecorder OK');
 
-        // Web Speech API - DÉMARRAGE IMMÉDIAT
-        if (config.useWebSpeech) {
-          console.log('[AudioRecorder] 🎤 Initialisation Web Speech...');
-          state.recognition = createRecognition();
-          
-          if (state.recognition) {
-            console.log('[AudioRecorder] 🎤 Démarrage IMMÉDIAT de la reconnaissance...');
-            try {
-              state.recognition.start();
-              console.log('[AudioRecorder] ✅ recognition.start() appelé');
-            } catch (e) {
-              console.error('[AudioRecorder] ❌ Erreur start():', e);
-            }
-          }
-        }
-
-        // Timer
+        // 7. Démarrer le timer
         state.recordingStartTime = Date.now();
         state.pausedDuration = 0;
         state.timerInterval = setInterval(() => {
@@ -852,23 +1010,79 @@ export const AudioRecorderExtension = {
           }
         }, 100);
 
-        // Visualisation
+        // 8. Démarrer la visualisation
         visualize();
-
+        
         setUI('recording');
-        toast('🎙️ Enregistrement démarré', 'success');
+        toast('🎙️ Enregistrement + Transcription actifs', 'success');
 
       } catch (err) {
         console.error('[AudioRecorder] ❌ Erreur:', err);
         state.isRecording = false;
+        setUI('idle');
+        
+        // Nettoyer les ressources partiellement initialisées
+        cleanupResources();
         
         if (err.name === 'NotAllowedError') {
           toast('⚠️ Accès micro refusé', 'error');
         } else if (err.name === 'NotFoundError') {
           toast('⚠️ Aucun micro trouvé', 'error');
+        } else if (err.message.includes('token') || err.message.includes('401') || err.message.includes('403')) {
+          toast('⚠️ Clé API ElevenLabs invalide', 'error');
+        } else if (err.message.includes('CORS') || err.message.includes('Failed to fetch')) {
+          toast('⚠️ Erreur réseau - voir console', 'error');
+          console.error('[AudioRecorder] 💡 Si erreur CORS, utilisez un proxy ou Voiceflow Function');
         } else {
           toast('Erreur: ' + err.message, 'error');
         }
+      }
+    }
+
+    function cleanupResources() {
+      // Fermer WebSocket
+      if (state.websocket) {
+        try { 
+          state.websocket.close(1000, 'Cleanup'); 
+        } catch(e) {}
+        state.websocket = null;
+      }
+
+      // Arrêter le ScriptProcessor
+      if (state.scriptProcessor) {
+        try {
+          state.scriptProcessor.disconnect();
+        } catch(e) {}
+        state.scriptProcessor = null;
+      }
+
+      // Arrêter MediaRecorder
+      if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+        try {
+          state.mediaRecorder.stop();
+        } catch(e) {}
+      }
+
+      // Fermer AudioContext
+      if (state.audioContext && state.audioContext.state !== 'closed') {
+        try {
+          state.audioContext.close();
+        } catch(e) {}
+      }
+
+      // Arrêter le stream
+      if (state.stream) {
+        state.stream.getTracks().forEach(t => t.stop());
+      }
+
+      // Arrêter le timer
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+      }
+
+      // Arrêter la visualisation
+      if (state.animationFrameId) {
+        cancelAnimationFrame(state.animationFrameId);
       }
     }
 
@@ -878,34 +1092,13 @@ export const AudioRecorderExtension = {
       state.isRecording = false;
       state.isPaused = false;
 
-      if (state.recognition) {
-        try { state.recognition.stop(); } catch(e) {}
-        state.recognition = null;
-      }
+      cleanupResources();
 
-      if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
-        state.mediaRecorder.stop();
-      }
-
-      if (state.audioContext && state.audioContext.state !== 'closed') {
-        state.audioContext.close().catch(() => {});
-      }
-
-      if (state.stream) {
-        state.stream.getTracks().forEach(t => t.stop());
-      }
-
-      if (state.timerInterval) {
-        clearInterval(state.timerInterval);
-      }
-
-      if (state.animationFrameId) {
-        cancelAnimationFrame(state.animationFrameId);
-      }
-
+      // Réinitialiser les barres
       els.bars.forEach(b => b.style.height = '6px');
+
       setUI('idle');
-      toast('⏹️ Terminé', 'success');
+      toast('⏹️ Enregistrement terminé', 'success');
     }
 
     function togglePause() {
@@ -916,7 +1109,6 @@ export const AudioRecorderExtension = {
       if (state.isPaused) {
         state.pauseStartTime = Date.now();
         if (state.mediaRecorder?.state === 'recording') state.mediaRecorder.pause();
-        if (state.recognition) try { state.recognition.stop(); } catch(e) {}
         setUI('paused');
         toast('⏸️ Pause', 'info');
       } else {
@@ -924,9 +1116,6 @@ export const AudioRecorderExtension = {
           state.pausedDuration += Date.now() - state.pauseStartTime;
         }
         if (state.mediaRecorder?.state === 'paused') state.mediaRecorder.resume();
-        if (state.recognition) {
-          try { state.recognition.start(); } catch(e) {}
-        }
         setUI('resumed');
         toast('▶️ Reprise', 'info');
       }
@@ -936,7 +1125,6 @@ export const AudioRecorderExtension = {
       if (!state.analyser || !state.isRecording) return;
       
       const data = new Uint8Array(state.analyser.frequencyBinCount);
-      let logCounter = 0;
       
       function draw() {
         if (!state.isRecording) {
@@ -946,13 +1134,6 @@ export const AudioRecorderExtension = {
         state.animationFrameId = requestAnimationFrame(draw);
         if (!state.isPaused) {
           state.analyser.getByteFrequencyData(data);
-          
-          logCounter++;
-          if (logCounter % 120 === 0) {
-            const max = Math.max(...data);
-            console.log('[AudioRecorder] 📊 Audio max:', max);
-          }
-          
           els.bars.forEach((bar, i) => {
             const v = data[i] || 0;
             bar.style.height = `${Math.max(6, (v / 255) * 100)}%`;
@@ -979,7 +1160,6 @@ export const AudioRecorderExtension = {
       if (state.isRecording) {
         stopRecording();
       } else {
-        updateDisplay();
         startRecording();
       }
     });
@@ -1038,25 +1218,26 @@ export const AudioRecorderExtension = {
 
       if (window.voiceflow?.chat?.interact) {
         window.voiceflow.chat.interact(payload);
-        toast('✅ Injecté!', 'success');
+        toast('✅ Injecté dans le chat!', 'success');
         
         state.transcript = '';
         state.interimTranscript = '';
         els.transcript.innerHTML = '';
         els.inject.disabled = true;
       } else {
-        toast('⚠️ Chat non trouvé', 'error');
+        toast('⚠️ Chat Voiceflow non trouvé', 'error');
       }
     });
 
-    // Raccourcis clavier
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && els.panel.classList.contains('open')) {
         els.panel.classList.remove('open');
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension prête');
+    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.0 prête');
+    console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
+    console.log('[AudioRecorder] 🌍 Langue:', config.language);
   }
 };
 
@@ -1064,6 +1245,7 @@ export const AudioRecorderExtension = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { AudioRecorderExtension };
 }
+
 if (typeof window !== 'undefined') {
   window.AudioRecorderExtension = AudioRecorderExtension;
 }
