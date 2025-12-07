@@ -1,19 +1,19 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v4.3
+ * VOICEFLOW AUDIO RECORDER EXTENSION v4.4
  * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
  * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
  * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
- * CHANGELOG v4.3:
- * - Fixed SVG icons with explicit fill colors (no more currentColor issues)
- * - Added colored icons for header elements (orange theme)
- * - Fixed event payload structure for Voiceflow (type: 'event' + event.name)
+ * CHANGELOG v4.4:
+ * - Replaced SVG icons with Unicode emojis for better cross-browser compatibility
+ * - Main buttons now use: 🎙️ ⏹️ ⏸️ ▶️ ⬇️
+ * - Fixed event payload structure for Voiceflow
  * 
  * @author Voiceflow Extensions
- * @version 4.3.0
+ * @version 4.4.0
  */
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -149,6 +149,10 @@ export const AudioRecorderExtension = {
         width: 26px;
         height: 26px;
         display: block;
+      }
+
+      .vf-ar-toggle .vf-ar-icon {
+        font-size: 26px;
       }
 
       .vf-ar-panel {
@@ -334,6 +338,18 @@ export const AudioRecorderExtension = {
         width: 28px;
         height: 28px;
         display: block;
+      }
+
+      .vf-ar-icon {
+        font-size: 24px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .vf-ar-btn-record .vf-ar-icon {
+        font-size: 28px;
       }
 
       .vf-ar-btn-secondary {
@@ -552,7 +568,7 @@ export const AudioRecorderExtension = {
     widget.id = 'vf-audio-recorder-widget';
     widget.innerHTML = `
       <button class="vf-ar-toggle" id="vf-ar-toggle" title="Enregistreur audio">
-        ${ICONS.microphone}
+        <span class="vf-ar-icon">🎙️</span>
       </button>
 
       <div class="vf-ar-panel" id="vf-ar-panel">
@@ -563,7 +579,7 @@ export const AudioRecorderExtension = {
             <span class="vf-ar-badge">ElevenLabs</span>
           </div>
           <button class="vf-ar-close" id="vf-ar-close" title="Fermer">
-            ${ICONS.close}
+            <span style="font-size: 16px; font-weight: bold;">✕</span>
           </button>
         </div>
 
@@ -581,15 +597,15 @@ export const AudioRecorderExtension = {
 
         <div class="vf-ar-controls">
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger l'audio" disabled>
-            ${ICONS.download}
+            <span class="vf-ar-icon">⬇️</span>
           </button>
           
           <button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Démarrer l'enregistrement">
-            ${ICONS.microphone}
+            <span class="vf-ar-icon">🎙️</span>
           </button>
           
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-pause" title="Pause" disabled>
-            ${ICONS.pause}
+            <span class="vf-ar-icon">⏸️</span>
           </button>
         </div>
 
@@ -682,13 +698,17 @@ export const AudioRecorderExtension = {
     function setUI(mode) {
       const { toggle, record, pause, dot, label, download } = els;
       
+      // Get the icon spans
+      const recordIcon = record.querySelector('.vf-ar-icon');
+      const pauseIcon = pause.querySelector('.vf-ar-icon');
+      
       switch(mode) {
         case 'idle':
           toggle.classList.remove('recording');
           record.classList.remove('recording');
-          record.innerHTML = ICONS.microphone;
+          if (recordIcon) recordIcon.textContent = '🎙️';
           pause.disabled = true;
-          pause.innerHTML = ICONS.pause;
+          if (pauseIcon) pauseIcon.textContent = '⏸️';
           dot.classList.remove('recording', 'paused', 'connecting');
           label.textContent = 'Prêt à enregistrer';
           if (state.audioChunks.length) download.disabled = false;
@@ -703,7 +723,7 @@ export const AudioRecorderExtension = {
         case 'recording':
           toggle.classList.add('recording');
           record.classList.add('recording');
-          record.innerHTML = ICONS.stop;
+          if (recordIcon) recordIcon.textContent = '⏹️';
           pause.disabled = false;
           dot.classList.add('recording');
           dot.classList.remove('paused', 'connecting');
@@ -711,14 +731,14 @@ export const AudioRecorderExtension = {
           break;
 
         case 'paused':
-          pause.innerHTML = ICONS.play;
+          if (pauseIcon) pauseIcon.textContent = '▶️';
           dot.classList.remove('recording', 'connecting');
           dot.classList.add('paused');
           label.textContent = 'En pause';
           break;
 
         case 'resumed':
-          pause.innerHTML = ICONS.pause;
+          if (pauseIcon) pauseIcon.textContent = '⏸️';
           dot.classList.add('recording');
           dot.classList.remove('paused', 'connecting');
           label.textContent = 'Enregistrement + Transcription...';
@@ -1274,7 +1294,7 @@ export const AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.3 prête');
+    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.4 prête');
     console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
     console.log('[AudioRecorder] 🌍 Langue:', config.language);
     console.log('[AudioRecorder] 📨 Event:', config.eventName);
