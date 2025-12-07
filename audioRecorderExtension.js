@@ -1,18 +1,19 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v4.2
+ * VOICEFLOW AUDIO RECORDER EXTENSION v4.3
  * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
  * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
  * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
- * CHANGELOG v4.2:
+ * CHANGELOG v4.3:
+ * - Fixed SVG icons with explicit fill colors (no more currentColor issues)
+ * - Added colored icons for header elements (orange theme)
  * - Fixed event payload structure for Voiceflow (type: 'event' + event.name)
- * - Fixed SVG icons display
  * 
  * @author Voiceflow Extensions
- * @version 4.2.0
+ * @version 4.3.0
  */
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -84,19 +85,22 @@ export const AudioRecorderExtension = {
     };
 
     // =========================================================================
-    // SVG ICONS - Defined as constants for reuse
+    // SVG ICONS - With explicit fill colors for maximum compatibility
     // =========================================================================
     const ICONS = {
-      microphone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>`,
-      stop: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`,
-      pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`,
-      play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
-      download: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
-      close: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`,
-      document: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`,
-      copy: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
-      trash: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
-      send: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>`,
+      // Icônes blanches pour les boutons
+      microphone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>`,
+      stop: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`,
+      pause: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`,
+      play: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M8 5v14l11-7z"/></svg>`,
+      download: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`,
+      close: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`,
+      send: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>`,
+      // Icônes colorées pour le header et les labels
+      microphoneOrange: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${config.primaryColor}"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>`,
+      documentOrange: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${config.primaryColor}"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`,
+      copy: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
+      trash: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#fca5a5"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
     };
 
     // =========================================================================
@@ -144,7 +148,7 @@ export const AudioRecorderExtension = {
       .vf-ar-toggle svg {
         width: 26px;
         height: 26px;
-        color: white;
+        display: block;
       }
 
       .vf-ar-panel {
@@ -189,7 +193,8 @@ export const AudioRecorderExtension = {
       .vf-ar-title svg {
         width: 18px;
         height: 18px;
-        color: ${config.primaryColor};
+        flex-shrink: 0;
+        display: block;
       }
 
       .vf-ar-badge {
@@ -223,7 +228,7 @@ export const AudioRecorderExtension = {
       .vf-ar-close svg {
         width: 14px;
         height: 14px;
-        color: ${config.textColor};
+        display: block;
       }
 
       .vf-ar-timer-section {
@@ -328,7 +333,7 @@ export const AudioRecorderExtension = {
       .vf-ar-btn-record svg {
         width: 28px;
         height: 28px;
-        color: white;
+        display: block;
       }
 
       .vf-ar-btn-secondary {
@@ -351,7 +356,7 @@ export const AudioRecorderExtension = {
       .vf-ar-btn-secondary svg {
         width: 22px;
         height: 22px;
-        color: ${config.textColor};
+        display: block;
       }
 
       .vf-ar-transcript-section {
@@ -380,7 +385,8 @@ export const AudioRecorderExtension = {
       .vf-ar-transcript-title svg {
         width: 14px;
         height: 14px;
-        color: ${config.primaryColor};
+        flex-shrink: 0;
+        display: block;
       }
 
       .vf-ar-transcript-actions {
@@ -404,14 +410,12 @@ export const AudioRecorderExtension = {
       .vf-ar-action-btn svg {
         width: 12px;
         height: 12px;
+        flex-shrink: 0;
+        display: block;
       }
 
       .vf-ar-btn-copy {
         background: #3b82f6;
-        color: white;
-      }
-
-      .vf-ar-btn-copy svg {
         color: white;
       }
 
@@ -421,10 +425,6 @@ export const AudioRecorderExtension = {
 
       .vf-ar-btn-clear {
         background: rgba(239, 68, 68, 0.2);
-        color: #fca5a5;
-      }
-
-      .vf-ar-btn-clear svg {
         color: #fca5a5;
       }
 
@@ -498,7 +498,8 @@ export const AudioRecorderExtension = {
       .vf-ar-inject svg {
         width: 16px;
         height: 16px;
-        color: white;
+        flex-shrink: 0;
+        display: block;
       }
 
       .vf-ar-toast {
@@ -557,7 +558,7 @@ export const AudioRecorderExtension = {
       <div class="vf-ar-panel" id="vf-ar-panel">
         <div class="vf-ar-header">
           <div class="vf-ar-title">
-            ${ICONS.microphone}
+            ${ICONS.microphoneOrange}
             Enregistreur d'appel
             <span class="vf-ar-badge">ElevenLabs</span>
           </div>
@@ -583,7 +584,7 @@ export const AudioRecorderExtension = {
             ${ICONS.download}
           </button>
           
-          <button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Démarrer">
+          <button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Démarrer l'enregistrement">
             ${ICONS.microphone}
           </button>
           
@@ -595,7 +596,7 @@ export const AudioRecorderExtension = {
         <div class="vf-ar-transcript-section">
           <div class="vf-ar-transcript-header">
             <div class="vf-ar-transcript-title">
-              ${ICONS.document}
+              ${ICONS.documentOrange}
               Transcription
             </div>
             <div class="vf-ar-transcript-actions">
@@ -1273,7 +1274,7 @@ export const AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.2 prête');
+    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.3 prête');
     console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
     console.log('[AudioRecorder] 🌍 Langue:', config.language);
     console.log('[AudioRecorder] 📨 Event:', config.eventName);
