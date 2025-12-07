@@ -1,19 +1,20 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v4.4
+ * VOICEFLOW AUDIO RECORDER EXTENSION v4.5
  * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
  * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
  * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
- * CHANGELOG v4.4:
- * - Replaced SVG icons with Unicode emojis for better cross-browser compatibility
- * - Main buttons now use: 🎙️ ⏹️ ⏸️ ▶️ ⬇️
- * - Fixed event payload structure for Voiceflow
+ * CHANGELOG v4.5:
+ * - Fixed button sizing (now properly circular with min/max dimensions)
+ * - Increased emoji sizes for visibility (28px-32px)
+ * - Fixed button overlap issues with increased widget offset
+ * - Improved spacing and layout
  * 
  * @author Voiceflow Extensions
- * @version 4.4.0
+ * @version 4.5.0
  */
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -33,7 +34,7 @@ export const AudioRecorderExtension = {
       secondaryBg: trace.payload?.secondaryBg || '#2a3a4a',
       textColor: trace.payload?.textColor || '#ffffff',
       position: trace.payload?.position || 'bottom',
-      widgetOffset: trace.payload?.widgetOffset || 20,
+      widgetOffset: trace.payload?.widgetOffset || 90,
       // ElevenLabs specific
       modelId: trace.payload?.modelId || 'scribe_v2_realtime',
       sampleRate: 16000,
@@ -122,8 +123,12 @@ export const AudioRecorderExtension = {
       }
 
       .vf-ar-toggle {
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        min-height: 60px;
+        max-width: 60px;
+        max-height: 60px;
         border-radius: 50%;
         background: linear-gradient(135deg, ${config.primaryColor}, #e8941f);
         border: none;
@@ -134,6 +139,7 @@ export const AudioRecorderExtension = {
         box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);
         transition: all 0.3s ease;
         padding: 0;
+        flex-shrink: 0;
       }
 
       .vf-ar-toggle:hover {
@@ -145,21 +151,15 @@ export const AudioRecorderExtension = {
         background: linear-gradient(135deg, #ef4444, #dc2626);
       }
 
-      .vf-ar-toggle svg {
-        width: 26px;
-        height: 26px;
-        display: block;
-      }
-
       .vf-ar-toggle .vf-ar-icon {
-        font-size: 26px;
+        font-size: 28px;
       }
 
       .vf-ar-panel {
         position: absolute;
         ${config.position === 'top' ? 'top: 0' : 'bottom: 0'};
-        right: 70px;
-        width: 360px;
+        right: 75px;
+        width: 340px;
         background: ${config.backgroundColor};
         border-radius: 16px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
@@ -302,14 +302,13 @@ export const AudioRecorderExtension = {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 12px;
-        padding: 14px 16px;
+        gap: 16px;
+        padding: 16px;
         background: rgba(0,0,0,0.2);
         border-top: 1px solid rgba(255,255,255,0.1);
       }
 
       .vf-ar-btn {
-        border-radius: 50%;
         border: none;
         cursor: pointer;
         display: flex;
@@ -317,11 +316,17 @@ export const AudioRecorderExtension = {
         justify-content: center;
         transition: all 0.2s ease;
         padding: 0;
+        flex-shrink: 0;
       }
 
       .vf-ar-btn-record {
-        width: 60px;
-        height: 60px;
+        width: 64px;
+        height: 64px;
+        min-width: 64px;
+        min-height: 64px;
+        max-width: 64px;
+        max-height: 64px;
+        border-radius: 50%;
         background: linear-gradient(135deg, #ef4444, #dc2626);
         box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
       }
@@ -334,27 +339,14 @@ export const AudioRecorderExtension = {
         background: linear-gradient(135deg, #6b7280, #4b5563);
       }
 
-      .vf-ar-btn-record svg {
-        width: 28px;
-        height: 28px;
-        display: block;
-      }
-
-      .vf-ar-icon {
-        font-size: 24px;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .vf-ar-btn-record .vf-ar-icon {
-        font-size: 28px;
-      }
-
       .vf-ar-btn-secondary {
-        width: 48px;
-        height: 48px;
+        width: 52px;
+        height: 52px;
+        min-width: 52px;
+        min-height: 52px;
+        max-width: 52px;
+        max-height: 52px;
+        border-radius: 50%;
         background: ${config.secondaryBg};
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
@@ -369,10 +361,19 @@ export const AudioRecorderExtension = {
         cursor: not-allowed;
       }
 
-      .vf-ar-btn-secondary svg {
-        width: 22px;
-        height: 22px;
-        display: block;
+      /* Emoji icon styling */
+      .vf-ar-icon {
+        font-size: 28px;
+        line-height: 1;
+        text-align: center;
+      }
+
+      .vf-ar-btn-record .vf-ar-icon {
+        font-size: 32px;
+      }
+
+      .vf-ar-btn-secondary .vf-ar-icon {
+        font-size: 24px;
       }
 
       .vf-ar-transcript-section {
@@ -554,8 +555,34 @@ export const AudioRecorderExtension = {
 
       @media (max-width: 500px) {
         .vf-ar-panel {
-          width: 300px;
-          right: 65px;
+          width: 290px;
+          right: 70px;
+        }
+        
+        .vf-ar-btn-record {
+          width: 56px;
+          height: 56px;
+          min-width: 56px;
+          min-height: 56px;
+          max-width: 56px;
+          max-height: 56px;
+        }
+        
+        .vf-ar-btn-secondary {
+          width: 46px;
+          height: 46px;
+          min-width: 46px;
+          min-height: 46px;
+          max-width: 46px;
+          max-height: 46px;
+        }
+        
+        .vf-ar-icon {
+          font-size: 22px;
+        }
+        
+        .vf-ar-btn-record .vf-ar-icon {
+          font-size: 26px;
         }
       }
     `;
@@ -1294,7 +1321,7 @@ export const AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.4 prête');
+    console.log('[AudioRecorder] ✅ Extension ElevenLabs v4.5 prête');
     console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
     console.log('[AudioRecorder] 🌍 Langue:', config.language);
     console.log('[AudioRecorder] 📨 Event:', config.eventName);
