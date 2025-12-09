@@ -1,15 +1,13 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v7.2
+ * VOICEFLOW AUDIO RECORDER EXTENSION v7.3
  * =============================================================================
- * FIXES v7.2:
- * - SVGs now have display:block and proper sizing
- * - Panel positioned fully within viewport
- * - Thinner border (2px)
- * - All buttons properly sized with visible icons
- * - Clear button no longer cut off
+ * FIXES v7.3:
+ * - Panel overflow visible (clear button no longer cut off)
+ * - Better viewport positioning
+ * - Width increased to 360px to fit all buttons
  * 
- * @version 7.2.0
+ * @version 7.3.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -145,14 +143,14 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-toggle:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 25px rgba(240,131,0,0.5);}';
     css += '.vf-ar-toggle.recording{background:linear-gradient(135deg,#ef4444,#dc2626);animation:vf-pulse 2s infinite;}';
     
-    // Panel - thinner border, proper width
+    // Panel - thinner border, proper width, NO overflow hidden
     css += '.vf-ar-panel{';
     css += 'position:fixed;';
-    css += 'width:340px;max-width:calc(100vw - 40px);';
+    css += 'width:360px;max-width:calc(100vw - 40px);';
     css += 'background:#ffffff;border-radius:16px;';
     css += 'border:2px solid ' + config.primaryColor + ';';
     css += 'box-shadow:0 20px 50px -10px rgba(0,0,0,0.25);';
-    css += 'overflow:hidden;opacity:0;visibility:hidden;transform:scale(0.95);';
+    css += 'overflow:visible;opacity:0;visibility:hidden;transform:scale(0.95);';
     css += 'transition:opacity 0.25s,visibility 0.25s,transform 0.25s;';
     css += 'z-index:10001;';
     css += '}';
@@ -164,6 +162,7 @@ export var AudioRecorderExtension = {
     css += 'padding:12px 16px;';
     css += 'display:flex;justify-content:space-between;align-items:center;';
     css += 'cursor:grab;user-select:none;-webkit-user-select:none;';
+    css += 'border-radius:14px 14px 0 0;overflow:hidden;';
     css += '}';
     css += '.vf-ar-header:active{cursor:grabbing;}';
     css += '.vf-ar-header-left{display:flex;align-items:center;gap:8px;}';
@@ -229,8 +228,8 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-btn-secondary:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af;transform:scale(1.06);}';
     css += '.vf-ar-btn-secondary:disabled{opacity:0.4;cursor:not-allowed;}';
     
-    // Transcript section
-    css += '.vf-ar-transcript-section{padding:16px;background:#fff;border-top:1px solid #e5e7eb;}';
+    // Transcript section - ensure visible overflow
+    css += '.vf-ar-transcript-section{padding:16px;background:#fff;border-top:1px solid #e5e7eb;overflow:visible;border-radius:0 0 14px 14px;}';
     
     // Transcript header with proper layout
     css += '.vf-ar-transcript-header{';
@@ -239,8 +238,8 @@ export var AudioRecorderExtension = {
     css += '}';
     css += '.vf-ar-transcript-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;}';
     
-    // Action buttons container - ensure no overflow
-    css += '.vf-ar-transcript-actions{display:flex;gap:6px;flex-shrink:0;}';
+    // Action buttons container - ensure visible
+    css += '.vf-ar-transcript-actions{display:flex;gap:6px;flex-shrink:0;overflow:visible;}';
     
     // Action buttons
     css += '.vf-ar-action-btn{';
@@ -402,26 +401,31 @@ export var AudioRecorderExtension = {
     // =========================================================================
     function positionPanel() {
       var toggleRect = els.toggle.getBoundingClientRect();
-      var panelWidth = 340;
+      var panelWidth = 360;
       var panelHeight = panel.offsetHeight || 550;
-      var margin = 20;
+      var margin = 25;
       
-      // Try to position to the LEFT of the toggle
-      var left = toggleRect.left - panelWidth - 15;
+      // Calculate position - prefer LEFT of toggle
+      var left = toggleRect.left - panelWidth - 20;
       var top = window.innerHeight - panelHeight - margin;
       
-      // If not enough space on the left, position above the toggle
+      // If not enough space on the left, try to fit on screen
       if (left < margin) {
-        left = margin;
-        top = toggleRect.top - panelHeight - 15;
-        
-        // If not enough space above, position below
-        if (top < margin) {
-          top = toggleRect.bottom + 15;
-        }
+        // Center horizontally or position from left edge
+        left = Math.min(margin, window.innerWidth - panelWidth - margin);
       }
       
-      // Final constraints
+      // Ensure right edge is within viewport
+      if (left + panelWidth > window.innerWidth - margin) {
+        left = window.innerWidth - panelWidth - margin;
+      }
+      
+      // Ensure top is within viewport
+      if (top < margin) {
+        top = margin;
+      }
+      
+      // Final safety: absolute constraints
       left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
       top = Math.max(margin, Math.min(top, window.innerHeight - panelHeight - margin));
       
@@ -433,24 +437,28 @@ export var AudioRecorderExtension = {
 
     function constrainToViewport() {
       var rect = panel.getBoundingClientRect();
-      var margin = 15;
+      var margin = 20;
       var left = rect.left;
       var top = rect.top;
       var changed = false;
       
+      // Ensure right edge is inside viewport
       if (rect.right > window.innerWidth - margin) {
         left = window.innerWidth - rect.width - margin;
         changed = true;
       }
-      if (rect.left < margin) {
+      // Ensure left edge is inside viewport
+      if (left < margin) {
         left = margin;
         changed = true;
       }
+      // Ensure bottom is inside viewport
       if (rect.bottom > window.innerHeight - margin) {
         top = window.innerHeight - rect.height - margin;
         changed = true;
       }
-      if (rect.top < margin) {
+      // Ensure top is inside viewport
+      if (top < margin) {
         top = margin;
         changed = true;
       }
@@ -458,6 +466,8 @@ export var AudioRecorderExtension = {
       if (changed) {
         panel.style.left = Math.max(margin, left) + 'px';
         panel.style.top = Math.max(margin, top) + 'px';
+        panel.style.right = 'auto';
+        panel.style.bottom = 'auto';
       }
     }
 
@@ -534,11 +544,11 @@ export var AudioRecorderExtension = {
         var saved = localStorage.getItem('vf-ar-pos');
         if (saved) {
           var pos = JSON.parse(saved);
-          var panelWidth = 340;
-          var panelHeight = 550;
+          var panelWidth = 360;
           
+          // Validate position is within viewport
           if (pos.left >= 0 && pos.top >= 0 && 
-              pos.left < window.innerWidth - 100 && 
+              pos.left < window.innerWidth - panelWidth && 
               pos.top < window.innerHeight - 100) {
             panel.style.left = pos.left + 'px';
             panel.style.top = pos.top + 'px';
@@ -946,7 +956,7 @@ export var AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] v7.2 Ready');
+    console.log('[AudioRecorder] v7.3 Ready');
   }
 };
 
