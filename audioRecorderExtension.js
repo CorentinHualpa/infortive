@@ -1,13 +1,12 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v7.4
+ * VOICEFLOW AUDIO RECORDER EXTENSION v7.5
  * =============================================================================
- * FIXES v7.4:
- * - Compact transcript header (Transcript + Copier + Clear all fit)
- * - Smaller fonts and padding for action buttons
- * - Proper flex layout
+ * FIXES v7.5:
+ * - Panel stays open when clicking outside
+ * - Only closes via X button or Escape key
  * 
- * @version 7.4.0
+ * @version 7.5.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -886,12 +885,7 @@ export var AudioRecorderExtension = {
       panel.classList.remove('open');
     };
     
-    document.addEventListener('click', function(e) {
-      if (state.isDragging) return;
-      if (!widget.contains(e.target) && !panel.contains(e.target) && panel.classList.contains('open')) {
-        panel.classList.remove('open');
-      }
-    });
+    // Panel stays open - only closes via X button or Escape key
     
     els.record.onclick = function() {
       if (state.isRecording) stopRecording();
@@ -957,7 +951,7 @@ export var AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] v7.4 Ready');
+    console.log('[AudioRecorder] v7.5 Ready');
   }
 };
 
