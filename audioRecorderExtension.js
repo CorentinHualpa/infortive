@@ -1,13 +1,13 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v7.3
+ * VOICEFLOW AUDIO RECORDER EXTENSION v7.4
  * =============================================================================
- * FIXES v7.3:
- * - Panel overflow visible (clear button no longer cut off)
- * - Better viewport positioning
- * - Width increased to 360px to fit all buttons
+ * FIXES v7.4:
+ * - Compact transcript header (Transcript + Copier + Clear all fit)
+ * - Smaller fonts and padding for action buttons
+ * - Proper flex layout
  * 
- * @version 7.3.0
+ * @version 7.4.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -231,26 +231,27 @@ export var AudioRecorderExtension = {
     // Transcript section - ensure visible overflow
     css += '.vf-ar-transcript-section{padding:16px;background:#fff;border-top:1px solid #e5e7eb;overflow:visible;border-radius:0 0 14px 14px;}';
     
-    // Transcript header with proper layout
+    // Transcript header - compact layout that fits
     css += '.vf-ar-transcript-header{';
     css += 'display:flex;align-items:center;justify-content:space-between;';
-    css += 'margin-bottom:12px;gap:8px;flex-wrap:nowrap;';
+    css += 'margin-bottom:12px;gap:6px;';
     css += '}';
-    css += '.vf-ar-transcript-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;}';
+    css += '.vf-ar-transcript-title{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.03em;flex-shrink:1;min-width:0;}';
+    css += '.vf-ar-transcript-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}';
     
-    // Action buttons container - ensure visible
-    css += '.vf-ar-transcript-actions{display:flex;gap:6px;flex-shrink:0;overflow:visible;}';
+    // Action buttons container - flex end
+    css += '.vf-ar-transcript-actions{display:flex;gap:6px;flex-shrink:0;}';
     
-    // Action buttons
+    // Action buttons - compact
     css += '.vf-ar-action-btn{';
     css += 'display:flex;align-items:center;justify-content:center;gap:4px;';
-    css += 'padding:8px 12px;border-radius:8px;border:none;';
-    css += 'font-size:12px;font-weight:600;cursor:pointer;';
-    css += 'transition:all 0.2s;white-space:nowrap;flex-shrink:0;';
+    css += 'padding:6px 10px;border-radius:6px;border:none;';
+    css += 'font-size:11px;font-weight:600;cursor:pointer;';
+    css += 'transition:all 0.2s;white-space:nowrap;';
     css += '}';
     css += '.vf-ar-btn-copy{background:' + config.secondaryColor + ';color:#fff;}';
-    css += '.vf-ar-btn-copy:hover{background:#052e47;transform:translateY(-1px);}';
-    css += '.vf-ar-btn-clear{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:8px;}';
+    css += '.vf-ar-btn-copy:hover{background:#052e47;}';
+    css += '.vf-ar-btn-clear{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:6px 8px;min-width:32px;}';
     css += '.vf-ar-btn-clear:hover{background:#fee2e2;}';
     
     // Transcript area
@@ -363,10 +364,10 @@ export var AudioRecorderExtension = {
     // Transcript section
     html += '<div class="vf-ar-transcript-section">';
     html += '<div class="vf-ar-transcript-header">';
-    html += '<div class="vf-ar-transcript-title">' + iconDoc('#6b7280', 14) + '<span>Transcription</span></div>';
+    html += '<div class="vf-ar-transcript-title">' + iconDoc('#9ca3af', 12) + '<span>Transcript</span></div>';
     html += '<div class="vf-ar-transcript-actions">';
     html += '<button class="vf-ar-action-btn vf-ar-btn-copy" id="vf-ar-copy">' + iconCopy('#FFFFFF', 12) + '<span>Copier</span></button>';
-    html += '<button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">' + iconTrash('#dc2626', 14) + '</button>';
+    html += '<button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">' + iconTrash('#dc2626', 12) + '</button>';
     html += '</div></div>';
     html += '<div class="vf-ar-transcript" id="vf-ar-transcript" contenteditable="true"></div>';
     html += '<button class="vf-ar-inject" id="vf-ar-inject" disabled>' + iconSend('#FFFFFF', 16) + '<span>Injecter dans le chat</span></button>';
@@ -956,7 +957,7 @@ export var AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] v7.3 Ready');
+    console.log('[AudioRecorder] v7.4 Ready');
   }
 };
 
