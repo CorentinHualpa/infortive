@@ -1,23 +1,21 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v5.0
+ * VOICEFLOW AUDIO RECORDER EXTENSION v5.1 — Infortive Theme
  * Extension pour enregistrer des appels et transcrire en temps réel avec ElevenLabs
  * =============================================================================
  * 
  * TRANSCRIPTION : ElevenLabs Speech-to-Text Realtime API (WebSocket)
  * AUTHENTIFICATION : Single-use token (15 min validity)
  * 
- * CHANGELOG v5.0:
- * - Fixed emoji icons replaced by proper SVG icons (WordPress emoji conversion issue)
- * - All button icons are now SVG with explicit sizing
- * - Improved panel positioning (won't overflow screen)
- * - More modern, softer color palette
- * - Better responsive design
- * - Fixed transcript actions buttons overflow
- * - Cleaner, more professional appearance
+ * CHANGELOG v5.1:
+ * - Intégration du thème Infortive (Plus Jakarta Sans, #F08300, #073A59)
+ * - Design plus épuré et aéré
+ * - Fond blanc/gris clair au lieu de fond sombre
+ * - Meilleur espacement (moins compressé)
+ * - Harmonisation avec le CSS Voiceflow existant
  * 
  * @author Voiceflow Extensions
- * @version 5.0.0
+ * @version 5.1.0
  */
 export const AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -26,21 +24,33 @@ export const AudioRecorderExtension = {
     trace.type === 'ext_audioRecorder' || trace.payload?.name === 'ext_audioRecorder',
   effect: ({ trace }) => {
     // =========================================================================
-    // CONFIGURATION
+    // CONFIGURATION — Thème Infortive
     // =========================================================================
     const config = {
       apiKey: trace.payload?.apiKey || '',
       language: trace.payload?.language || 'fr',
       eventName: trace.payload?.eventName || 'Inject_in_chat',
-      // Couleurs plus douces et modernes
-      primaryColor: trace.payload?.primaryColor || '#f59e0b',
-      backgroundColor: trace.payload?.backgroundColor || '#0f172a',
-      secondaryBg: trace.payload?.secondaryBg || '#1e293b',
-      textColor: trace.payload?.textColor || '#f8fafc',
-      accentColor: trace.payload?.accentColor || '#3b82f6',
+      
+      // Couleurs Infortive
+      primaryColor: trace.payload?.primaryColor || '#F08300',
+      primaryDark: trace.payload?.primaryDark || '#d46f00',
+      secondaryColor: trace.payload?.secondaryColor || '#073A59',
+      
+      // Couleurs de fond (thème clair)
+      backgroundColor: trace.payload?.backgroundColor || '#ffffff',
+      surfaceColor: trace.payload?.surfaceColor || '#f8fafc',
+      borderColor: trace.payload?.borderColor || 'rgba(0, 0, 0, 0.08)',
+      
+      // Texte
+      textPrimary: trace.payload?.textPrimary || '#1E293B',
+      textSecondary: trace.payload?.textSecondary || '#64748b',
+      textMuted: trace.payload?.textMuted || '#94a3b8',
+      
+      // Position
       position: trace.payload?.position || 'bottom',
       widgetOffset: trace.payload?.widgetOffset || 100,
-      // ElevenLabs specific
+      
+      // ElevenLabs
       modelId: trace.payload?.modelId || 'scribe_v2_realtime',
       sampleRate: 16000,
     };
@@ -58,7 +68,7 @@ export const AudioRecorderExtension = {
       return;
     }
 
-    console.log('[AudioRecorder] 🚀 Initialisation avec ElevenLabs STT...');
+    console.log('[AudioRecorder] 🚀 Initialisation v5.1 — Thème Infortive');
 
     // =========================================================================
     // STATE
@@ -86,65 +96,55 @@ export const AudioRecorderExtension = {
     };
 
     // =========================================================================
-    // SVG ICONS - Toutes les icônes en SVG pour éviter la conversion WordPress
+    // SVG ICONS
     // =========================================================================
     const ICONS = {
-      // Icône microphone (pour le toggle button et record)
       microphone: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
           <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
         </svg>`,
       
-      // Icône stop (carré arrondi)
       stop: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <rect x="6" y="6" width="12" height="12" rx="2"/>
         </svg>`,
       
-      // Icône pause
       pause: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
         </svg>`,
       
-      // Icône play
       play: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M8 5v14l11-7z"/>
         </svg>`,
       
-      // Icône download
       download: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
         </svg>`,
       
-      // Icône close (X)
       close: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
         </svg>`,
       
-      // Icône send
       send: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
         </svg>`,
       
-      // Icône copy
       copy: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
         </svg>`,
       
-      // Icône trash
-      trash: (color = '#f87171', size = 24) => `
+      trash: (color = '#ef4444', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
         </svg>`,
       
-      // Icône document/transcript
       document: (color = '#FFFFFF', size = 24) => `
         <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}">
           <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
@@ -152,70 +152,77 @@ export const AudioRecorderExtension = {
     };
 
     // =========================================================================
-    // STYLES - Design moderne et épuré
+    // STYLES — Thème Infortive (clair, épuré, aéré)
     // =========================================================================
     const styles = document.createElement('style');
     styles.id = 'vf-audio-recorder-styles';
     styles.textContent = `
-      /* Reset pour éviter les conflits avec le site hôte */
+      /* Import Plus Jakarta Sans */
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+      
+      /* Reset complet */
       #vf-audio-recorder-widget,
       #vf-audio-recorder-widget * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.4;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.5;
       }
       
       #vf-audio-recorder-widget {
         position: fixed;
         ${config.position === 'top' ? 'top' : 'bottom'}: ${config.widgetOffset}px;
-        right: 20px;
+        right: 24px;
         z-index: 10000;
       }
       
-      /* Bouton toggle principal */
+      /* ==========================================
+         Bouton toggle principal
+         ========================================== */
       .vf-ar-toggle {
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: linear-gradient(135deg, ${config.primaryColor} 0%, #d97706 100%);
+        background: linear-gradient(135deg, ${config.primaryColor} 0%, ${config.primaryDark} 100%);
         border: none;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(240, 131, 0, 0.3);
+        transition: all 0.3s ease;
       }
       
       .vf-ar-toggle:hover {
-        transform: scale(1.08);
-        box-shadow: 0 6px 25px rgba(245, 158, 11, 0.45);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(240, 131, 0, 0.4);
       }
       
       .vf-ar-toggle.recording {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         animation: vf-ar-pulse 2s ease-in-out infinite;
-        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
       }
       
       .vf-ar-toggle svg {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
         flex-shrink: 0;
       }
       
-      /* Panel principal */
+      /* ==========================================
+         Panel principal — Thème clair
+         ========================================== */
       .vf-ar-panel {
         position: absolute;
         ${config.position === 'top' ? 'top: 0' : 'bottom: 0'};
-        right: 70px;
-        width: 320px;
-        max-width: calc(100vw - 100px);
+        right: 72px;
+        width: 340px;
+        max-width: calc(100vw - 110px);
         background: ${config.backgroundColor};
         border-radius: 16px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px ${config.borderColor};
         overflow: hidden;
         opacity: 0;
         visibility: hidden;
@@ -229,22 +236,24 @@ export const AudioRecorderExtension = {
         transform: translateX(0) scale(1);
       }
       
-      /* Header */
+      /* ==========================================
+         Header
+         ========================================== */
       .vf-ar-header {
-        background: ${config.secondaryBg};
-        padding: 14px 16px;
+        background: ${config.surfaceColor};
+        padding: 16px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid ${config.borderColor};
       }
       
       .vf-ar-title {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: ${config.textColor};
-        font-weight: 600;
+        color: ${config.primaryColor};
+        font-weight: 700;
         font-size: 14px;
       }
       
@@ -258,10 +267,10 @@ export const AudioRecorderExtension = {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
         font-size: 9px;
-        padding: 3px 7px;
+        padding: 3px 8px;
         border-radius: 4px;
         font-weight: 700;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
       }
       
@@ -269,17 +278,19 @@ export const AudioRecorderExtension = {
         width: 32px;
         height: 32px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.06);
-        border: none;
+        background: transparent;
+        border: 1px solid ${config.borderColor};
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
+        color: ${config.textSecondary};
       }
       
       .vf-ar-close:hover {
-        background: rgba(255, 255, 255, 0.12);
+        background: ${config.surfaceColor};
+        border-color: ${config.textMuted};
       }
       
       .vf-ar-close svg {
@@ -287,29 +298,32 @@ export const AudioRecorderExtension = {
         height: 16px;
       }
       
-      /* Timer section */
+      /* ==========================================
+         Timer section
+         ========================================== */
       .vf-ar-timer-section {
-        padding: 24px 16px 16px;
+        padding: 28px 20px 20px;
         text-align: center;
+        background: ${config.backgroundColor};
       }
       
       .vf-ar-timer {
-        font-size: 40px;
+        font-size: 42px;
         font-weight: 700;
-        color: ${config.textColor};
+        color: ${config.textPrimary};
         font-variant-numeric: tabular-nums;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
+        gap: 14px;
         letter-spacing: -1px;
       }
       
       .vf-ar-status-dot {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
-        background: #475569;
+        background: ${config.textMuted};
         transition: all 0.3s;
         flex-shrink: 0;
       }
@@ -324,44 +338,50 @@ export const AudioRecorderExtension = {
       }
       
       .vf-ar-status-dot.connecting {
-        background: ${config.accentColor};
+        background: #3b82f6;
         animation: vf-ar-blink 0.5s ease-in-out infinite;
       }
       
       .vf-ar-status-label {
-        font-size: 12px;
-        color: #64748b;
-        margin-top: 8px;
+        font-size: 13px;
+        color: ${config.textSecondary};
+        margin-top: 10px;
         font-weight: 500;
       }
       
-      /* Visualizer */
+      /* ==========================================
+         Visualizer
+         ========================================== */
       .vf-ar-visualizer {
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        height: 48px;
+        height: 50px;
         gap: 3px;
-        padding: 0 20px;
-        margin-bottom: 8px;
+        padding: 0 24px;
+        margin-bottom: 12px;
+        background: ${config.backgroundColor};
       }
       
       .vf-ar-bar {
         width: 6px;
         min-height: 4px;
-        background: linear-gradient(180deg, ${config.primaryColor} 0%, #d97706 100%);
+        background: linear-gradient(180deg, ${config.primaryColor} 0%, ${config.primaryDark} 100%);
         border-radius: 3px;
         transition: height 0.05s ease-out;
       }
       
-      /* Controls */
+      /* ==========================================
+         Controls
+         ========================================== */
       .vf-ar-controls {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 16px;
-        padding: 16px;
-        background: rgba(0, 0, 0, 0.15);
+        gap: 20px;
+        padding: 20px;
+        background: ${config.surfaceColor};
+        border-top: 1px solid ${config.borderColor};
       }
       
       .vf-ar-btn {
@@ -374,22 +394,23 @@ export const AudioRecorderExtension = {
         flex-shrink: 0;
       }
       
+      /* Bouton record principal */
       .vf-ar-btn-record {
-        width: 64px;
-        height: 64px;
+        width: 68px;
+        height: 68px;
         border-radius: 50%;
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
       }
       
       .vf-ar-btn-record:hover {
-        transform: scale(1.08);
-        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+        transform: scale(1.06);
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45);
       }
       
       .vf-ar-btn-record.recording {
-        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-        box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+        background: linear-gradient(135deg, ${config.secondaryColor} 0%, #052e47 100%);
+        box-shadow: 0 4px 12px rgba(7, 58, 89, 0.35);
       }
       
       .vf-ar-btn-record svg {
@@ -397,21 +418,24 @@ export const AudioRecorderExtension = {
         height: 28px;
       }
       
+      /* Boutons secondaires */
       .vf-ar-btn-secondary {
-        width: 48px;
-        height: 48px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
-        background: ${config.secondaryBg};
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: ${config.backgroundColor};
+        border: 1px solid ${config.borderColor};
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
       }
       
       .vf-ar-btn-secondary:hover:not(:disabled) {
-        background: #334155;
+        background: ${config.surfaceColor};
+        border-color: ${config.textMuted};
         transform: scale(1.05);
       }
       
       .vf-ar-btn-secondary:disabled {
-        opacity: 0.35;
+        opacity: 0.4;
         cursor: not-allowed;
       }
       
@@ -420,51 +444,54 @@ export const AudioRecorderExtension = {
         height: 22px;
       }
       
-      /* Transcript section */
+      /* ==========================================
+         Transcript section
+         ========================================== */
       .vf-ar-transcript-section {
-        padding: 16px;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 20px;
+        background: ${config.backgroundColor};
+        border-top: 1px solid ${config.borderColor};
       }
       
       .vf-ar-transcript-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 12px;
-        gap: 8px;
+        margin-bottom: 14px;
+        gap: 12px;
       }
       
       .vf-ar-transcript-title {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 11px;
+        gap: 8px;
+        font-size: 12px;
         font-weight: 600;
-        color: #94a3b8;
+        color: ${config.textSecondary};
         text-transform: uppercase;
         letter-spacing: 0.5px;
         flex-shrink: 0;
       }
       
       .vf-ar-transcript-title svg {
-        width: 14px;
-        height: 14px;
+        width: 16px;
+        height: 16px;
       }
       
       .vf-ar-transcript-actions {
         display: flex;
-        gap: 6px;
+        gap: 8px;
         flex-shrink: 0;
       }
       
       .vf-ar-action-btn {
         display: flex;
         align-items: center;
-        gap: 4px;
-        padding: 6px 10px;
+        gap: 6px;
+        padding: 8px 12px;
         border-radius: 6px;
         border: none;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
@@ -472,87 +499,98 @@ export const AudioRecorderExtension = {
       }
       
       .vf-ar-action-btn svg {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
         flex-shrink: 0;
       }
       
       .vf-ar-btn-copy {
-        background: ${config.accentColor};
+        background: ${config.secondaryColor};
         color: white;
       }
       
       .vf-ar-btn-copy:hover {
-        background: #2563eb;
+        background: #052e47;
       }
       
       .vf-ar-btn-clear {
-        background: rgba(239, 68, 68, 0.15);
-        color: #f87171;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
       }
       
       .vf-ar-btn-clear:hover {
-        background: rgba(239, 68, 68, 0.25);
+        background: rgba(239, 68, 68, 0.18);
       }
       
-      /* Transcript area */
+      /* Zone de transcription */
       .vf-ar-transcript {
-        background: rgba(0, 0, 0, 0.25);
+        background: ${config.surfaceColor};
         border-radius: 10px;
-        padding: 12px;
-        min-height: 70px;
-        max-height: 120px;
+        padding: 14px 16px;
+        min-height: 80px;
+        max-height: 140px;
         overflow-y: auto;
-        color: ${config.textColor};
-        font-size: 13px;
+        color: ${config.textPrimary};
+        font-size: 14px;
         line-height: 1.6;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid ${config.borderColor};
       }
       
       .vf-ar-transcript:empty::before {
         content: 'La transcription apparaîtra ici...';
-        color: #64748b;
+        color: ${config.textMuted};
         font-style: italic;
-        font-size: 12px;
+        font-size: 13px;
       }
       
       .vf-ar-transcript .interim {
-        color: #94a3b8;
+        color: ${config.textSecondary};
         font-style: italic;
       }
       
       .vf-ar-transcript::-webkit-scrollbar {
-        width: 4px;
+        width: 6px;
       }
       
       .vf-ar-transcript::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 2px;
+        background: ${config.primaryColor};
+        border-radius: 3px;
       }
       
-      /* Inject button */
+      .vf-ar-transcript::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      /* ==========================================
+         Bouton Injecter
+         ========================================== */
       .vf-ar-inject {
         width: 100%;
-        margin-top: 12px;
-        padding: 12px 16px;
+        margin-top: 14px;
+        padding: 14px 20px;
         border-radius: 10px;
         border: none;
-        background: linear-gradient(135deg, ${config.primaryColor} 0%, #d97706 100%);
+        background: linear-gradient(135deg, ${config.primaryColor} 0%, ${config.primaryDark} 100%);
         color: white;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        gap: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(240, 131, 0, 0.3);
       }
       
       .vf-ar-inject:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+        box-shadow: 0 6px 16px rgba(240, 131, 0, 0.4);
+      }
+      
+      .vf-ar-inject:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3);
       }
       
       .vf-ar-inject:disabled {
@@ -562,25 +600,27 @@ export const AudioRecorderExtension = {
       }
       
       .vf-ar-inject svg {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
       }
       
-      /* Toast notifications */
+      /* ==========================================
+         Toast notifications
+         ========================================== */
       .vf-ar-toast {
         position: fixed;
         bottom: 100px;
         left: 50%;
         transform: translateX(-50%) translateY(20px);
-        padding: 12px 20px;
+        padding: 12px 24px;
         border-radius: 10px;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 500;
         z-index: 10001;
         opacity: 0;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       }
       
       .vf-ar-toast.show {
@@ -599,17 +639,19 @@ export const AudioRecorderExtension = {
       }
       
       .vf-ar-toast.info {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        background: linear-gradient(135deg, ${config.secondaryColor} 0%, #052e47 100%);
         color: white;
       }
       
-      /* Animations */
+      /* ==========================================
+         Animations
+         ========================================== */
       @keyframes vf-ar-pulse {
         0%, 100% {
-          box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
         50% {
-          box-shadow: 0 4px 30px rgba(239, 68, 68, 0.6), 0 0 0 8px rgba(239, 68, 68, 0.1);
+          box-shadow: 0 4px 24px rgba(239, 68, 68, 0.6), 0 0 0 8px rgba(239, 68, 68, 0.1);
         }
       }
       
@@ -618,20 +660,26 @@ export const AudioRecorderExtension = {
         50% { opacity: 0.3; }
       }
       
-      /* Responsive */
+      /* ==========================================
+         Responsive
+         ========================================== */
       @media (max-width: 480px) {
+        #vf-audio-recorder-widget {
+          right: 16px;
+        }
+        
         .vf-ar-panel {
-          width: 280px;
-          right: 65px;
+          width: 300px;
+          right: 68px;
         }
         
         .vf-ar-timer {
-          font-size: 32px;
+          font-size: 36px;
         }
         
         .vf-ar-btn-record {
-          width: 56px;
-          height: 56px;
+          width: 60px;
+          height: 60px;
         }
         
         .vf-ar-btn-record svg {
@@ -640,30 +688,30 @@ export const AudioRecorderExtension = {
         }
         
         .vf-ar-btn-secondary {
-          width: 42px;
-          height: 42px;
+          width: 44px;
+          height: 44px;
         }
         
         .vf-ar-btn-secondary svg {
-          width: 18px;
-          height: 18px;
+          width: 20px;
+          height: 20px;
         }
         
-        .vf-ar-transcript-header {
-          flex-wrap: wrap;
+        .vf-ar-controls {
+          gap: 16px;
         }
       }
     `;
     document.head.appendChild(styles);
 
     // =========================================================================
-    // HTML - Construction du widget avec SVG
+    // HTML
     // =========================================================================
     const widget = document.createElement('div');
     widget.id = 'vf-audio-recorder-widget';
     widget.innerHTML = `
       <button class="vf-ar-toggle" id="vf-ar-toggle" title="Enregistreur audio">
-        ${ICONS.microphone('#FFFFFF', 26)}
+        ${ICONS.microphone('#FFFFFF', 24)}
       </button>
       
       <div class="vf-ar-panel" id="vf-ar-panel">
@@ -674,7 +722,7 @@ export const AudioRecorderExtension = {
             <span class="vf-ar-badge">ElevenLabs</span>
           </div>
           <button class="vf-ar-close" id="vf-ar-close" title="Fermer">
-            ${ICONS.close('#94a3b8', 16)}
+            ${ICONS.close(config.textSecondary, 16)}
           </button>
         </div>
         
@@ -692,7 +740,7 @@ export const AudioRecorderExtension = {
         
         <div class="vf-ar-controls">
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger l'audio" disabled>
-            ${ICONS.download('#FFFFFF', 22)}
+            ${ICONS.download(config.textSecondary, 22)}
           </button>
           
           <button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Démarrer l'enregistrement">
@@ -700,29 +748,29 @@ export const AudioRecorderExtension = {
           </button>
           
           <button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-pause" title="Pause" disabled>
-            ${ICONS.pause('#FFFFFF', 22)}
+            ${ICONS.pause(config.textSecondary, 22)}
           </button>
         </div>
         
         <div class="vf-ar-transcript-section">
           <div class="vf-ar-transcript-header">
             <div class="vf-ar-transcript-title">
-              ${ICONS.document('#94a3b8', 14)}
+              ${ICONS.document(config.textSecondary, 16)}
               <span>Transcription</span>
             </div>
             <div class="vf-ar-transcript-actions">
               <button class="vf-ar-action-btn vf-ar-btn-copy" id="vf-ar-copy" title="Copier">
-                ${ICONS.copy('#FFFFFF', 12)}
+                ${ICONS.copy('#FFFFFF', 14)}
                 <span>Copier</span>
               </button>
               <button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">
-                ${ICONS.trash('#f87171', 12)}
+                ${ICONS.trash('#ef4444', 14)}
               </button>
             </div>
           </div>
           <div class="vf-ar-transcript" id="vf-ar-transcript" contenteditable="true"></div>
           <button class="vf-ar-inject" id="vf-ar-inject" disabled>
-            ${ICONS.send('#FFFFFF', 16)}
+            ${ICONS.send('#FFFFFF', 18)}
             <span>Injecter dans le chat</span>
           </button>
         </div>
@@ -795,11 +843,11 @@ export const AudioRecorderExtension = {
       switch(mode) {
         case 'idle':
           toggle.classList.remove('recording');
-          toggle.innerHTML = ICONS.microphone('#FFFFFF', 26);
+          toggle.innerHTML = ICONS.microphone('#FFFFFF', 24);
           record.classList.remove('recording');
           record.innerHTML = ICONS.microphone('#FFFFFF', 28);
           pause.disabled = true;
-          pause.innerHTML = ICONS.pause('#FFFFFF', 22);
+          pause.innerHTML = ICONS.pause(config.textSecondary, 22);
           dot.classList.remove('recording', 'paused', 'connecting');
           label.textContent = 'Prêt à enregistrer';
           if (state.audioChunks.length) download.disabled = false;
@@ -813,13 +861,14 @@ export const AudioRecorderExtension = {
           
         case 'recording':
           toggle.classList.add('recording');
-          toggle.innerHTML = ICONS.microphone('#FFFFFF', 26);
+          toggle.innerHTML = ICONS.microphone('#FFFFFF', 24);
           record.classList.add('recording');
           record.innerHTML = ICONS.stop('#FFFFFF', 28);
           pause.disabled = false;
+          pause.innerHTML = ICONS.pause('#FFFFFF', 22);
           dot.classList.add('recording');
           dot.classList.remove('paused', 'connecting');
-          label.textContent = 'Enregistrement + Transcription...';
+          label.textContent = 'Enregistrement en cours...';
           break;
           
         case 'paused':
@@ -833,13 +882,13 @@ export const AudioRecorderExtension = {
           pause.innerHTML = ICONS.pause('#FFFFFF', 22);
           dot.classList.add('recording');
           dot.classList.remove('paused', 'connecting');
-          label.textContent = 'Enregistrement + Transcription...';
+          label.textContent = 'Enregistrement en cours...';
           break;
       }
     }
 
     // =========================================================================
-    // ELEVENLABS API - GET SINGLE USE TOKEN
+    // ELEVENLABS API
     // =========================================================================
     async function getElevenLabsToken() {
       console.log('[AudioRecorder] 🔑 Demande de token ElevenLabs...');
@@ -858,12 +907,12 @@ export const AudioRecorderExtension = {
       }
 
       const data = await response.json();
-      console.log('[AudioRecorder] ✅ Token obtenu:', data.token?.substring(0, 20) + '...');
+      console.log('[AudioRecorder] ✅ Token obtenu');
       return data.token;
     }
 
     // =========================================================================
-    // ELEVENLABS WEBSOCKET - SPEECH TO TEXT
+    // ELEVENLABS WEBSOCKET
     // =========================================================================
     
     function connectElevenLabsWebSocket(token) {
@@ -882,8 +931,6 @@ export const AudioRecorderExtension = {
         });
         
         const wsUrl = `wss://api.elevenlabs.io/v1/speech-to-text/realtime?${wsParams.toString()}`;
-        console.log('[AudioRecorder] 🔗 URL WebSocket (token masqué)');
-        
         const ws = new WebSocket(wsUrl);
 
         const connectionTimeout = setTimeout(() => {
@@ -895,7 +942,7 @@ export const AudioRecorderExtension = {
         }, 10000);
 
         ws.onopen = () => {
-          console.log('[AudioRecorder] ✅ WebSocket ouvert, attente session...');
+          console.log('[AudioRecorder] ✅ WebSocket ouvert');
         };
 
         ws.onmessage = (event) => {
@@ -906,13 +953,12 @@ export const AudioRecorderExtension = {
               case 'session_started':
                 clearTimeout(connectionTimeout);
                 state.sessionId = data.session_id;
-                console.log('[AudioRecorder] ✅ Session ElevenLabs démarrée:', data.session_id);
+                console.log('[AudioRecorder] ✅ Session démarrée');
                 resolve(ws);
                 break;
                 
               case 'partial_transcript':
                 if (data.text) {
-                  console.log('[AudioRecorder] 📝 Partiel:', data.text);
                   state.interimTranscript = data.text;
                   updateDisplay();
                 }
@@ -921,7 +967,6 @@ export const AudioRecorderExtension = {
               case 'committed_transcript':
               case 'committed_transcript_with_timestamps':
                 if (data.text && data.text.trim()) {
-                  console.log('[AudioRecorder] ✅ Final:', data.text);
                   state.transcript += data.text + ' ';
                   state.interimTranscript = '';
                   updateDisplay();
@@ -930,12 +975,12 @@ export const AudioRecorderExtension = {
                 
               default:
                 if (data.message_type?.includes('error') || data.error) {
-                  console.error('[AudioRecorder] ❌ Erreur ElevenLabs:', data);
+                  console.error('[AudioRecorder] ❌ Erreur:', data);
                   toast('Erreur: ' + (data.message || data.error || 'Erreur inconnue'), 'error');
                 }
             }
           } catch (e) {
-            console.error('[AudioRecorder] ❌ Erreur parsing:', e, event.data);
+            console.error('[AudioRecorder] ❌ Erreur parsing:', e);
           }
         };
 
@@ -946,7 +991,7 @@ export const AudioRecorderExtension = {
         };
 
         ws.onclose = (event) => {
-          console.log('[AudioRecorder] 🔌 WebSocket fermé:', event.code, event.reason);
+          console.log('[AudioRecorder] 🔌 WebSocket fermé:', event.code);
           clearTimeout(connectionTimeout);
           
           if (state.isRecording && event.code !== 1000) {
@@ -959,7 +1004,7 @@ export const AudioRecorderExtension = {
     }
 
     // =========================================================================
-    // AUDIO PROCESSING - PCM 16-bit 16kHz
+    // AUDIO PROCESSING
     // =========================================================================
     function float32ToPCM16(float32Array) {
       const pcm16 = new Int16Array(float32Array.length);
@@ -971,9 +1016,7 @@ export const AudioRecorderExtension = {
     }
 
     function resampleTo16kHz(audioData, originalSampleRate) {
-      if (originalSampleRate === 16000) {
-        return audioData;
-      }
+      if (originalSampleRate === 16000) return audioData;
       const ratio = originalSampleRate / 16000;
       const newLength = Math.round(audioData.length / ratio);
       const result = new Float32Array(newLength);
@@ -999,29 +1042,20 @@ export const AudioRecorderExtension = {
     }
 
     function sendAudioChunk(audioData, sampleRate) {
-      if (!state.websocket || state.websocket.readyState !== WebSocket.OPEN) {
-        return;
-      }
-      if (state.isPaused) {
+      if (!state.websocket || state.websocket.readyState !== WebSocket.OPEN || state.isPaused) {
         return;
       }
 
-      let processedAudio = audioData;
-      if (sampleRate !== 16000) {
-        processedAudio = resampleTo16kHz(audioData, sampleRate);
-      }
-
+      let processedAudio = sampleRate !== 16000 ? resampleTo16kHz(audioData, sampleRate) : audioData;
       const pcm16 = float32ToPCM16(processedAudio);
       const base64Audio = arrayBufferToBase64(pcm16.buffer);
 
-      const message = {
-        message_type: 'input_audio_chunk',
-        audio_base_64: base64Audio,
-        sample_rate: 16000
-      };
-
       try {
-        state.websocket.send(JSON.stringify(message));
+        state.websocket.send(JSON.stringify({
+          message_type: 'input_audio_chunk',
+          audio_base_64: base64Audio,
+          sample_rate: 16000
+        }));
       } catch (e) {
         console.error('[AudioRecorder] ❌ Erreur envoi audio:', e);
       }
@@ -1032,7 +1066,7 @@ export const AudioRecorderExtension = {
     // =========================================================================
     
     async function startRecording() {
-      console.log('[AudioRecorder] 🚀 DÉMARRAGE...');
+      console.log('[AudioRecorder] 🚀 Démarrage...');
       
       if (!config.apiKey) {
         toast('Clé API ElevenLabs manquante!', 'error');
@@ -1049,11 +1083,9 @@ export const AudioRecorderExtension = {
       updateDisplay();
 
       try {
-        console.log('[AudioRecorder] 🔑 Obtention du token...');
         const token = await getElevenLabsToken();
         state.sttToken = token;
 
-        console.log('[AudioRecorder] 🎤 Demande accès micro...');
         state.stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: 1,
@@ -1063,11 +1095,9 @@ export const AudioRecorderExtension = {
             autoGainControl: true
           }
         });
-        console.log('[AudioRecorder] ✅ Micro OK');
 
         state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const actualSampleRate = state.audioContext.sampleRate;
-        console.log('[AudioRecorder] 🎵 Sample rate navigateur:', actualSampleRate);
 
         state.analyser = state.audioContext.createAnalyser();
         state.analyser.fftSize = 64;
@@ -1076,9 +1106,7 @@ export const AudioRecorderExtension = {
         state.microphone = state.audioContext.createMediaStreamSource(state.stream);
         state.microphone.connect(state.analyser);
 
-        console.log('[AudioRecorder] 🔌 Connexion ElevenLabs...');
         await connectElevenLabsWebSocket(token);
-        console.log('[AudioRecorder] ✅ ElevenLabs connecté!');
 
         const bufferSize = 4096;
         state.scriptProcessor = state.audioContext.createScriptProcessor(bufferSize, 1, 1);
@@ -1086,13 +1114,11 @@ export const AudioRecorderExtension = {
         state.scriptProcessor.onaudioprocess = (event) => {
           if (!state.isRecording || state.isPaused) return;
           const inputData = event.inputBuffer.getChannelData(0);
-          const audioData = new Float32Array(inputData);
-          sendAudioChunk(audioData, actualSampleRate);
+          sendAudioChunk(new Float32Array(inputData), actualSampleRate);
         };
 
         state.microphone.connect(state.scriptProcessor);
         state.scriptProcessor.connect(state.audioContext.destination);
-        console.log('[AudioRecorder] ✅ Audio pipeline OK');
 
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') 
           ? 'audio/webm;codecs=opus' : 'audio/webm';
@@ -1101,7 +1127,6 @@ export const AudioRecorderExtension = {
           if (e.data.size > 0) state.audioChunks.push(e.data);
         };
         state.mediaRecorder.start(500);
-        console.log('[AudioRecorder] ✅ MediaRecorder OK');
 
         state.recordingStartTime = Date.now();
         state.pausedDuration = 0;
@@ -1113,9 +1138,8 @@ export const AudioRecorderExtension = {
         }, 100);
 
         visualize();
-        
         setUI('recording');
-        toast('Enregistrement + Transcription actifs', 'success');
+        toast('Enregistrement démarré', 'success');
 
       } catch (err) {
         console.error('[AudioRecorder] ❌ Erreur:', err);
@@ -1140,28 +1164,22 @@ export const AudioRecorderExtension = {
         try { state.websocket.close(1000, 'Cleanup'); } catch(e) {}
         state.websocket = null;
       }
-
       if (state.scriptProcessor) {
         try { state.scriptProcessor.disconnect(); } catch(e) {}
         state.scriptProcessor = null;
       }
-
       if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
         try { state.mediaRecorder.stop(); } catch(e) {}
       }
-
       if (state.audioContext && state.audioContext.state !== 'closed') {
         try { state.audioContext.close(); } catch(e) {}
       }
-
       if (state.stream) {
         state.stream.getTracks().forEach(t => t.stop());
       }
-
       if (state.timerInterval) {
         clearInterval(state.timerInterval);
       }
-
       if (state.animationFrameId) {
         cancelAnimationFrame(state.animationFrameId);
       }
@@ -1169,11 +1187,9 @@ export const AudioRecorderExtension = {
 
     function stopRecording() {
       console.log('[AudioRecorder] ⏹️ Arrêt...');
-      
       state.isRecording = false;
       state.isPaused = false;
       cleanupResources();
-
       els.bars.forEach(b => b.style.height = '4px');
       setUI('idle');
       toast('Enregistrement terminé', 'success');
@@ -1235,11 +1251,7 @@ export const AudioRecorderExtension = {
     });
 
     els.record.addEventListener('click', () => {
-      if (state.isRecording) {
-        stopRecording();
-      } else {
-        startRecording();
-      }
+      state.isRecording ? stopRecording() : startRecording();
     });
 
     els.pause.addEventListener('click', togglePause);
@@ -1253,18 +1265,16 @@ export const AudioRecorderExtension = {
       a.download = `enregistrement-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.webm`;
       a.click();
       URL.revokeObjectURL(url);
-      toast('Téléchargé', 'success');
+      toast('Audio téléchargé', 'success');
     });
 
     els.copy.addEventListener('click', () => {
       const text = els.transcript.innerText || els.transcript.textContent;
       if (!text.trim()) {
-        toast('Aucun texte', 'error');
+        toast('Aucun texte à copier', 'error');
         return;
       }
-      navigator.clipboard.writeText(text).then(() => {
-        toast('Copié!', 'success');
-      });
+      navigator.clipboard.writeText(text).then(() => toast('Copié!', 'success'));
     });
 
     els.clear.addEventListener('click', () => {
@@ -1272,32 +1282,30 @@ export const AudioRecorderExtension = {
       state.interimTranscript = '';
       els.transcript.innerHTML = '';
       els.inject.disabled = true;
-      toast('Effacé', 'info');
+      toast('Transcription effacée', 'info');
     });
 
     // =========================================================================
-    // INJECTION DANS VOICEFLOW
+    // INJECTION VOICEFLOW
     // =========================================================================
     els.inject.addEventListener('click', () => {
       const text = els.transcript.innerText || els.transcript.textContent;
       if (!text.trim()) {
-        toast('Aucun texte', 'error');
+        toast('Aucun texte à injecter', 'error');
         return;
       }
 
       const interactPayload = {
         type: 'event',
         payload: {
-          event: {
-            name: config.eventName
-          },
+          event: { name: config.eventName },
           call_transcript: text.trim(),
           duration: els.timer.textContent,
           timestamp: new Date().toISOString()
         }
       };
 
-      console.log('[AudioRecorder] 📤 Injection dans Voiceflow:', interactPayload);
+      console.log('[AudioRecorder] 📤 Injection Voiceflow:', interactPayload);
 
       if (window.voiceflow?.chat?.interact) {
         window.voiceflow.chat.interact(interactPayload);
@@ -1308,7 +1316,7 @@ export const AudioRecorderExtension = {
         els.transcript.innerHTML = '';
         els.inject.disabled = true;
       } else {
-        console.error('[AudioRecorder] ❌ window.voiceflow.chat.interact non disponible');
+        console.error('[AudioRecorder] ❌ Voiceflow non disponible');
         toast('Chat Voiceflow non trouvé', 'error');
       }
     });
@@ -1319,10 +1327,7 @@ export const AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] ✅ Extension ElevenLabs v5.0 prête');
-    console.log('[AudioRecorder] 📋 Modèle:', config.modelId);
-    console.log('[AudioRecorder] 🌍 Langue:', config.language);
-    console.log('[AudioRecorder] 📨 Event:', config.eventName);
+    console.log('[AudioRecorder] ✅ Extension v5.1 Infortive Theme prête');
   }
 };
 
