@@ -1,12 +1,13 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v7.5
+ * VOICEFLOW AUDIO RECORDER EXTENSION v7.7
  * =============================================================================
- * FIXES v7.5:
- * - Panel stays open when clicking outside
- * - Only closes via X button or Escape key
+ * FIXES v7.7:
+ * - Renamed "Injecter dans le chat" to "Injecter dans l'agent"
+ * - Inject button disabled during active recording
+ * - Inject button enabled only when paused or stopped (with transcript)
  * 
- * @version 7.5.0
+ * @version 7.7.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -369,7 +370,7 @@ export var AudioRecorderExtension = {
     html += '<button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">' + iconTrash('#dc2626', 12) + '</button>';
     html += '</div></div>';
     html += '<div class="vf-ar-transcript" id="vf-ar-transcript" contenteditable="true"></div>';
-    html += '<button class="vf-ar-inject" id="vf-ar-inject" disabled>' + iconSend('#FFFFFF', 16) + '<span>Injecter dans le chat</span></button>';
+    html += '<button class="vf-ar-inject" id="vf-ar-inject" disabled>' + iconSend('#FFFFFF', 16) + '<span>Injecter dans l\'agent</span></button>';
     html += '</div>';
     
     panel.innerHTML = html;
@@ -600,7 +601,9 @@ export var AudioRecorderExtension = {
         }
         els.transcript.innerHTML = content;
         els.transcript.scrollTop = els.transcript.scrollHeight;
-        els.inject.disabled = false;
+        // Only enable inject if NOT actively recording (paused or stopped is OK)
+        var canInject = !state.isRecording || state.isPaused;
+        els.inject.disabled = !canInject;
       } else {
         els.transcript.innerHTML = '';
         els.inject.disabled = true;
@@ -608,6 +611,9 @@ export var AudioRecorderExtension = {
     }
     
     function setUI(mode) {
+      // Helper to check if inject should be enabled
+      var hasTranscript = state.transcript && state.transcript.trim().length > 0;
+      
       switch (mode) {
         case 'idle':
           els.toggle.classList.remove('recording');
@@ -619,10 +625,13 @@ export var AudioRecorderExtension = {
           els.dot.className = 'vf-ar-status-dot';
           els.label.textContent = 'Prêt à enregistrer';
           if (state.audioChunks.length) els.download.disabled = false;
+          // Enable inject if there's transcript (recording stopped)
+          els.inject.disabled = !hasTranscript;
           break;
         case 'connecting':
           els.dot.className = 'vf-ar-status-dot connecting';
           els.label.textContent = 'Connexion...';
+          els.inject.disabled = true;
           break;
         case 'recording':
           els.toggle.classList.add('recording');
@@ -632,16 +641,22 @@ export var AudioRecorderExtension = {
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
           els.label.textContent = 'Enregistrement...';
+          // Disable inject during active recording
+          els.inject.disabled = true;
           break;
         case 'paused':
           els.pause.innerHTML = iconPlay('#374151', 22);
           els.dot.className = 'vf-ar-status-dot paused';
           els.label.textContent = 'En pause';
+          // Enable inject when paused (if there's transcript)
+          els.inject.disabled = !hasTranscript;
           break;
         case 'resumed':
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
           els.label.textContent = 'Enregistrement...';
+          // Disable inject when resumed recording
+          els.inject.disabled = true;
           break;
       }
     }
@@ -869,10 +884,9 @@ export var AudioRecorderExtension = {
     // EVENT LISTENERS
     // =========================================================================
     els.toggle.onclick = function() {
-      var isOpening = !panel.classList.contains('open');
-      panel.classList.toggle('open');
-      
-      if (isOpening) {
+      // Only OPEN the panel, never close it (use X button or Escape to close)
+      if (!panel.classList.contains('open')) {
+        panel.classList.add('open');
         if (!restoreSavedPosition()) {
           positionPanel();
         }
@@ -951,7 +965,8 @@ export var AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] v7.5 Ready');
+    console.log('[AudioRecorder] v7.7 Ready');
+    console.log('[AudioRecorder] Inject button only enabled when paused or stopped');
   }
 };
 
