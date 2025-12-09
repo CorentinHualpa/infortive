@@ -1,15 +1,15 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v7.1
+ * VOICEFLOW AUDIO RECORDER EXTENSION v7.2
  * =============================================================================
- * FIXES:
- * - Icons properly visible (dark on light, white on colored)
- * - Panel starts in viewport at all zoom levels
- * - Smooth drag & drop
- * - Modern border (orange) for visibility
- * - Based on working v5.0 icon pattern
+ * FIXES v7.2:
+ * - SVGs now have display:block and proper sizing
+ * - Panel positioned fully within viewport
+ * - Thinner border (2px)
+ * - All buttons properly sized with visible icons
+ * - Clear button no longer cut off
  * 
- * @version 7.1.0
+ * @version 7.2.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -22,7 +22,6 @@ export var AudioRecorderExtension = {
     var trace = args.trace;
     var payload = trace.payload || {};
     
-    // Configuration
     var config = {
       apiKey: payload.apiKey || '',
       language: payload.language || 'fr',
@@ -32,19 +31,16 @@ export var AudioRecorderExtension = {
       secondaryColor: '#073A59',
       dangerColor: '#dc2626',
       successColor: '#10b981',
-      accentColor: '#3b82f6',
       modelId: payload.modelId || 'scribe_v2_realtime'
     };
 
-    // Prevent duplicates
     if (document.getElementById('vf-audio-recorder-widget')) {
       console.log('[AudioRecorder] Already initialized');
       return;
     }
 
-    console.log('[AudioRecorder] v7.1 Starting...');
+    console.log('[AudioRecorder] v7.2 Starting...');
 
-    // State
     var state = {
       isRecording: false,
       isPaused: false,
@@ -69,50 +65,50 @@ export var AudioRecorderExtension = {
     };
 
     // =========================================================================
-    // SVG ICONS - Direct strings, no escaping issues
+    // SVG ICONS - Simple functions returning SVG strings
     // =========================================================================
     function iconMic(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>';
     }
     
     function iconStop(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
     }
     
     function iconPause(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
     }
     
     function iconPlay(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M8 5v14l11-7z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M8 5v14l11-7z"/></svg>';
     }
     
     function iconDownload(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
     }
     
     function iconClose(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
     }
     
     function iconSend(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
     }
     
     function iconCopy(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
     }
     
     function iconTrash(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
     }
     
     function iconGrip(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><circle cx="9" cy="15" r="1.5"/><circle cx="15" cy="15" r="1.5"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="10" r="1.5"/><circle cx="15" cy="10" r="1.5"/><circle cx="9" cy="15" r="1.5"/><circle cx="15" cy="15" r="1.5"/></svg>';
     }
     
     function iconDoc(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
     }
 
     // =========================================================================
@@ -122,105 +118,176 @@ export var AudioRecorderExtension = {
     styleEl.id = 'vf-audio-recorder-styles';
     var css = '';
     
-    // Font import
     css += '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");';
     
-    // Reset
+    // Reset - IMPORTANT: ensure SVGs display properly
     css += '#vf-audio-recorder-widget,#vf-audio-recorder-widget *,.vf-ar-panel,.vf-ar-panel *{';
-    css += 'box-sizing:border-box;margin:0;padding:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;}';
+    css += 'box-sizing:border-box;margin:0;padding:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;';
+    css += '}';
+    
+    // Ensure SVGs are visible
+    css += '#vf-audio-recorder-widget svg,.vf-ar-panel svg{';
+    css += 'display:block;flex-shrink:0;pointer-events:none;';
+    css += '}';
     
     // Widget container
     css += '#vf-audio-recorder-widget{position:fixed;bottom:100px;right:20px;z-index:10000;}';
     
     // Toggle button
-    css += '.vf-ar-toggle{width:56px;height:56px;border-radius:16px;';
+    css += '.vf-ar-toggle{';
+    css += 'width:56px;height:56px;border-radius:16px;';
     css += 'background:linear-gradient(135deg,' + config.primaryColor + ',' + config.primaryDark + ');';
-    css += 'border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;';
-    css += 'box-shadow:0 4px 20px rgba(240,131,0,0.4);transition:all 0.3s ease;}';
+    css += 'border:none;cursor:pointer;';
+    css += 'display:flex;align-items:center;justify-content:center;';
+    css += 'box-shadow:0 4px 20px rgba(240,131,0,0.4);';
+    css += 'transition:all 0.3s ease;';
+    css += '}';
     css += '.vf-ar-toggle:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 25px rgba(240,131,0,0.5);}';
     css += '.vf-ar-toggle.recording{background:linear-gradient(135deg,#ef4444,#dc2626);animation:vf-pulse 2s infinite;}';
-    css += '.vf-ar-toggle svg{width:26px;height:26px;}';
     
-    // Panel
-    css += '.vf-ar-panel{position:fixed;width:360px;max-width:calc(100vw - 40px);';
-    css += 'background:#ffffff;border-radius:20px;';
-    css += 'border:3px solid ' + config.primaryColor + ';';
-    css += 'box-shadow:0 25px 60px -15px rgba(0,0,0,0.3);';
+    // Panel - thinner border, proper width
+    css += '.vf-ar-panel{';
+    css += 'position:fixed;';
+    css += 'width:340px;max-width:calc(100vw - 40px);';
+    css += 'background:#ffffff;border-radius:16px;';
+    css += 'border:2px solid ' + config.primaryColor + ';';
+    css += 'box-shadow:0 20px 50px -10px rgba(0,0,0,0.25);';
     css += 'overflow:hidden;opacity:0;visibility:hidden;transform:scale(0.95);';
-    css += 'transition:opacity 0.25s,visibility 0.25s,transform 0.25s;z-index:10001;}';
+    css += 'transition:opacity 0.25s,visibility 0.25s,transform 0.25s;';
+    css += 'z-index:10001;';
+    css += '}';
     css += '.vf-ar-panel.open{opacity:1;visibility:visible;transform:scale(1);}';
     
-    // Header (draggable)
-    css += '.vf-ar-header{background:linear-gradient(135deg,' + config.secondaryColor + ',#0a4d6e);';
-    css += 'padding:14px 18px;display:flex;justify-content:space-between;align-items:center;';
-    css += 'cursor:grab;user-select:none;-webkit-user-select:none;}';
+    // Header
+    css += '.vf-ar-header{';
+    css += 'background:linear-gradient(135deg,' + config.secondaryColor + ',#0a4d6e);';
+    css += 'padding:12px 16px;';
+    css += 'display:flex;justify-content:space-between;align-items:center;';
+    css += 'cursor:grab;user-select:none;-webkit-user-select:none;';
+    css += '}';
     css += '.vf-ar-header:active{cursor:grabbing;}';
-    css += '.vf-ar-header-left{display:flex;align-items:center;gap:10px;}';
+    css += '.vf-ar-header-left{display:flex;align-items:center;gap:8px;}';
     css += '.vf-ar-grip{opacity:0.6;display:flex;align-items:center;transition:opacity 0.2s;}';
     css += '.vf-ar-header:hover .vf-ar-grip{opacity:1;}';
-    css += '.vf-ar-title-group{display:flex;align-items:center;gap:10px;}';
-    css += '.vf-ar-title{color:#fff;font-weight:600;font-size:15px;}';
-    css += '.vf-ar-badge{background:' + config.successColor + ';color:#fff;font-size:9px;padding:4px 8px;border-radius:20px;font-weight:700;text-transform:uppercase;}';
-    css += '.vf-ar-close{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}';
+    css += '.vf-ar-title-group{display:flex;align-items:center;gap:8px;}';
+    css += '.vf-ar-title{color:#fff;font-weight:600;font-size:14px;}';
+    css += '.vf-ar-badge{background:' + config.successColor + ';color:#fff;font-size:8px;padding:3px 6px;border-radius:10px;font-weight:700;text-transform:uppercase;}';
+    
+    // Close button
+    css += '.vf-ar-close{';
+    css += 'width:32px;height:32px;border-radius:8px;';
+    css += 'background:rgba(255,255,255,0.15);border:none;cursor:pointer;';
+    css += 'display:flex;align-items:center;justify-content:center;';
+    css += 'transition:background 0.2s;';
+    css += '}';
     css += '.vf-ar-close:hover{background:rgba(255,255,255,0.25);}';
     
-    // Timer
-    css += '.vf-ar-timer-section{padding:28px 20px 20px;text-align:center;background:#fff;}';
-    css += '.vf-ar-timer-display{display:flex;align-items:center;justify-content:center;gap:14px;}';
-    css += '.vf-ar-status-dot{width:14px;height:14px;border-radius:50%;background:#d1d5db;transition:all 0.3s;flex-shrink:0;}';
+    // Timer section
+    css += '.vf-ar-timer-section{padding:24px 16px 16px;text-align:center;background:#fff;}';
+    css += '.vf-ar-timer-display{display:flex;align-items:center;justify-content:center;gap:12px;}';
+    css += '.vf-ar-status-dot{width:12px;height:12px;border-radius:50%;background:#d1d5db;transition:all 0.3s;flex-shrink:0;}';
     css += '.vf-ar-status-dot.recording{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,0.2);animation:vf-blink 1s infinite;}';
     css += '.vf-ar-status-dot.paused{background:' + config.primaryColor + ';box-shadow:0 0 0 4px rgba(240,131,0,0.2);}';
     css += '.vf-ar-status-dot.connecting{background:#3b82f6;animation:vf-blink 0.5s infinite;}';
-    css += '.vf-ar-timer{font-size:46px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums;letter-spacing:-2px;}';
-    css += '.vf-ar-status-label{font-size:14px;color:#6b7280;margin-top:10px;font-weight:500;}';
+    css += '.vf-ar-timer{font-size:42px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums;letter-spacing:-2px;}';
+    css += '.vf-ar-status-label{font-size:13px;color:#6b7280;margin-top:8px;font-weight:500;}';
     
     // Visualizer
-    css += '.vf-ar-visualizer{display:flex;align-items:flex-end;justify-content:center;height:56px;gap:3px;padding:0 24px 16px;background:#fff;}';
-    css += '.vf-ar-bar{width:5px;min-height:5px;background:linear-gradient(180deg,' + config.primaryColor + ',' + config.primaryDark + ');border-radius:3px;transition:height 0.05s ease-out;}';
+    css += '.vf-ar-visualizer{display:flex;align-items:flex-end;justify-content:center;height:50px;gap:2px;padding:0 16px 12px;background:#fff;}';
+    css += '.vf-ar-bar{width:4px;min-height:4px;background:linear-gradient(180deg,' + config.primaryColor + ',' + config.primaryDark + ');border-radius:2px;transition:height 0.05s ease-out;}';
     
-    // Controls
-    css += '.vf-ar-controls{display:flex;justify-content:center;align-items:center;gap:18px;padding:20px;background:#f8fafc;border-top:1px solid #e5e7eb;}';
-    css += '.vf-ar-btn{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;}';
+    // Controls - IMPORTANT: proper button sizing
+    css += '.vf-ar-controls{';
+    css += 'display:flex;justify-content:center;align-items:center;';
+    css += 'gap:16px;padding:16px;background:#f8fafc;border-top:1px solid #e5e7eb;';
+    css += '}';
     
-    // Record button (red with white icon)
-    css += '.vf-ar-btn-record{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 6px 20px rgba(239,68,68,0.4);}';
-    css += '.vf-ar-btn-record:hover{transform:scale(1.08);box-shadow:0 8px 28px rgba(239,68,68,0.5);}';
-    css += '.vf-ar-btn-record.recording{background:linear-gradient(135deg,#4b5563,#374151);box-shadow:0 6px 20px rgba(75,85,99,0.4);}';
-    css += '.vf-ar-btn-record svg{width:30px;height:30px;}';
+    // Base button styles
+    css += '.vf-ar-btn{';
+    css += 'border:none;cursor:pointer;';
+    css += 'display:flex;align-items:center;justify-content:center;';
+    css += 'transition:all 0.2s ease;';
+    css += 'flex-shrink:0;';
+    css += '}';
     
-    // Secondary buttons (light with DARK icons and border)
-    css += '.vf-ar-btn-secondary{width:52px;height:52px;border-radius:50%;background:#ffffff;border:2px solid #d1d5db;box-shadow:0 2px 8px rgba(0,0,0,0.08);}';
-    css += '.vf-ar-btn-secondary:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af;transform:scale(1.08);box-shadow:0 4px 12px rgba(0,0,0,0.12);}';
+    // Record button (big red button with WHITE icon)
+    css += '.vf-ar-btn-record{';
+    css += 'width:64px;height:64px;border-radius:50%;';
+    css += 'background:linear-gradient(135deg,#ef4444,#dc2626);';
+    css += 'box-shadow:0 4px 16px rgba(239,68,68,0.4);';
+    css += '}';
+    css += '.vf-ar-btn-record:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(239,68,68,0.5);}';
+    css += '.vf-ar-btn-record.recording{background:linear-gradient(135deg,#4b5563,#374151);box-shadow:0 4px 16px rgba(75,85,99,0.4);}';
+    
+    // Secondary buttons (white with border, DARK icons)
+    css += '.vf-ar-btn-secondary{';
+    css += 'width:48px;height:48px;border-radius:50%;';
+    css += 'background:#ffffff;';
+    css += 'border:2px solid #d1d5db;';
+    css += 'box-shadow:0 2px 6px rgba(0,0,0,0.08);';
+    css += '}';
+    css += '.vf-ar-btn-secondary:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af;transform:scale(1.06);}';
     css += '.vf-ar-btn-secondary:disabled{opacity:0.4;cursor:not-allowed;}';
-    css += '.vf-ar-btn-secondary svg{width:24px;height:24px;}';
     
     // Transcript section
-    css += '.vf-ar-transcript-section{padding:20px;background:#fff;border-top:1px solid #e5e7eb;}';
-    css += '.vf-ar-transcript-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}';
-    css += '.vf-ar-transcript-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;}';
-    css += '.vf-ar-transcript-actions{display:flex;gap:8px;}';
-    css += '.vf-ar-action-btn{display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}';
+    css += '.vf-ar-transcript-section{padding:16px;background:#fff;border-top:1px solid #e5e7eb;}';
+    
+    // Transcript header with proper layout
+    css += '.vf-ar-transcript-header{';
+    css += 'display:flex;align-items:center;justify-content:space-between;';
+    css += 'margin-bottom:12px;gap:8px;flex-wrap:nowrap;';
+    css += '}';
+    css += '.vf-ar-transcript-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;}';
+    
+    // Action buttons container - ensure no overflow
+    css += '.vf-ar-transcript-actions{display:flex;gap:6px;flex-shrink:0;}';
+    
+    // Action buttons
+    css += '.vf-ar-action-btn{';
+    css += 'display:flex;align-items:center;justify-content:center;gap:4px;';
+    css += 'padding:8px 12px;border-radius:8px;border:none;';
+    css += 'font-size:12px;font-weight:600;cursor:pointer;';
+    css += 'transition:all 0.2s;white-space:nowrap;flex-shrink:0;';
+    css += '}';
     css += '.vf-ar-btn-copy{background:' + config.secondaryColor + ';color:#fff;}';
     css += '.vf-ar-btn-copy:hover{background:#052e47;transform:translateY(-1px);}';
-    css += '.vf-ar-btn-clear{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}';
+    css += '.vf-ar-btn-clear{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:8px;}';
     css += '.vf-ar-btn-clear:hover{background:#fee2e2;}';
     
     // Transcript area
-    css += '.vf-ar-transcript{background:#f9fafb;border-radius:12px;padding:16px;min-height:90px;max-height:140px;overflow-y:auto;color:#111827;font-size:14px;line-height:1.6;border:2px solid #e5e7eb;transition:border-color 0.2s;}';
+    css += '.vf-ar-transcript{';
+    css += 'background:#f9fafb;border-radius:10px;padding:12px;';
+    css += 'min-height:80px;max-height:120px;overflow-y:auto;';
+    css += 'color:#111827;font-size:13px;line-height:1.6;';
+    css += 'border:2px solid #e5e7eb;transition:border-color 0.2s;';
+    css += '}';
     css += '.vf-ar-transcript:focus{outline:none;border-color:' + config.primaryColor + ';}';
     css += '.vf-ar-transcript:empty::before{content:"La transcription apparaîtra ici...";color:#9ca3af;font-style:italic;}';
     css += '.vf-ar-transcript .interim{color:#9ca3af;font-style:italic;}';
     
     // Inject button
-    css += '.vf-ar-inject{width:100%;margin-top:14px;padding:16px 20px;border-radius:12px;border:none;';
+    css += '.vf-ar-inject{';
+    css += 'width:100%;margin-top:12px;padding:14px 16px;';
+    css += 'border-radius:10px;border:none;';
     css += 'background:linear-gradient(135deg,' + config.primaryColor + ',' + config.primaryDark + ');';
-    css += 'color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;';
-    css += 'box-shadow:0 4px 16px rgba(240,131,0,0.35);transition:all 0.3s ease;}';
-    css += '.vf-ar-inject:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 24px rgba(240,131,0,0.45);}';
+    css += 'color:#fff;font-size:14px;font-weight:600;cursor:pointer;';
+    css += 'display:flex;align-items:center;justify-content:center;gap:8px;';
+    css += 'box-shadow:0 4px 14px rgba(240,131,0,0.35);';
+    css += 'transition:all 0.3s ease;';
+    css += '}';
+    css += '.vf-ar-inject:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,131,0,0.45);}';
     css += '.vf-ar-inject:disabled{opacity:0.5;cursor:not-allowed;}';
     
     // Toast
-    css += '.vf-ar-toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:10002;opacity:0;transition:all 0.3s;box-shadow:0 10px 40px rgba(0,0,0,0.2);font-family:"Inter",sans-serif;}';
+    css += '.vf-ar-toast{';
+    css += 'position:fixed;bottom:120px;left:50%;';
+    css += 'transform:translateX(-50%) translateY(20px);';
+    css += 'padding:12px 20px;border-radius:10px;';
+    css += 'font-size:13px;font-weight:600;z-index:10002;';
+    css += 'opacity:0;transition:all 0.3s;';
+    css += 'box-shadow:0 8px 30px rgba(0,0,0,0.2);';
+    css += 'font-family:"Inter",sans-serif;';
+    css += '}';
     css += '.vf-ar-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}';
     css += '.vf-ar-toast.success{background:' + config.successColor + ';color:#fff;}';
     css += '.vf-ar-toast.error{background:' + config.dangerColor + ';color:#fff;}';
@@ -231,7 +298,12 @@ export var AudioRecorderExtension = {
     css += '@keyframes vf-blink{0%,100%{opacity:1;}50%{opacity:0.4;}}';
     
     // Responsive
-    css += '@media(max-width:480px){.vf-ar-panel{width:calc(100vw - 32px);}.vf-ar-timer{font-size:38px;}.vf-ar-btn-record{width:64px;height:64px;}.vf-ar-btn-secondary{width:46px;height:46px;}}';
+    css += '@media(max-width:400px){';
+    css += '.vf-ar-panel{width:calc(100vw - 24px);}';
+    css += '.vf-ar-timer{font-size:36px;}';
+    css += '.vf-ar-btn-record{width:56px;height:56px;}';
+    css += '.vf-ar-btn-secondary{width:42px;height:42px;}';
+    css += '}';
     
     styleEl.textContent = css;
     document.head.appendChild(styleEl);
@@ -253,24 +325,24 @@ export var AudioRecorderExtension = {
     
     // Build visualizer bars
     var barsHtml = '';
-    for (var b = 0; b < 32; b++) {
+    for (var b = 0; b < 28; b++) {
       barsHtml += '<div class="vf-ar-bar"></div>';
     }
     
-    // Build panel HTML with CORRECT icon colors:
-    // - White icons on colored/dark backgrounds
-    // - Dark icons (#374151) on white/light backgrounds
     var html = '';
+    
+    // Header
     html += '<div class="vf-ar-header" id="vf-ar-header">';
     html += '<div class="vf-ar-header-left">';
-    html += '<div class="vf-ar-grip">' + iconGrip('rgba(255,255,255,0.7)', 16) + '</div>';
+    html += '<div class="vf-ar-grip">' + iconGrip('rgba(255,255,255,0.7)', 14) + '</div>';
     html += '<div class="vf-ar-title-group">';
-    html += '<span class="vf-ar-title">Enregistreur d\'appel</span>';
+    html += '<span class="vf-ar-title">Enregistreur</span>';
     html += '<span class="vf-ar-badge">ElevenLabs</span>';
     html += '</div></div>';
-    html += '<button class="vf-ar-close" id="vf-ar-close" title="Fermer">' + iconClose('#FFFFFF', 18) + '</button>';
+    html += '<button class="vf-ar-close" id="vf-ar-close" title="Fermer">' + iconClose('#FFFFFF', 16) + '</button>';
     html += '</div>';
     
+    // Timer
     html += '<div class="vf-ar-timer-section">';
     html += '<div class="vf-ar-timer-display">';
     html += '<div class="vf-ar-status-dot" id="vf-ar-dot"></div>';
@@ -279,26 +351,26 @@ export var AudioRecorderExtension = {
     html += '<div class="vf-ar-status-label" id="vf-ar-label">Prêt à enregistrer</div>';
     html += '</div>';
     
+    // Visualizer
     html += '<div class="vf-ar-visualizer" id="vf-ar-visualizer">' + barsHtml + '</div>';
     
+    // Controls with properly colored icons
     html += '<div class="vf-ar-controls">';
-    // DARK icons (#374151) on light buttons
-    html += '<button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger" disabled>' + iconDownload('#374151', 24) + '</button>';
-    // WHITE icon on red button
-    html += '<button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Enregistrer">' + iconMic('#FFFFFF', 30) + '</button>';
-    // DARK icon on light button
-    html += '<button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-pause" title="Pause" disabled>' + iconPause('#374151', 24) + '</button>';
+    html += '<button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger" disabled>' + iconDownload('#374151', 22) + '</button>';
+    html += '<button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Enregistrer">' + iconMic('#FFFFFF', 28) + '</button>';
+    html += '<button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-pause" title="Pause" disabled>' + iconPause('#374151', 22) + '</button>';
     html += '</div>';
     
+    // Transcript section
     html += '<div class="vf-ar-transcript-section">';
     html += '<div class="vf-ar-transcript-header">';
-    html += '<div class="vf-ar-transcript-title">' + iconDoc('#6b7280', 16) + '<span>Transcription</span></div>';
+    html += '<div class="vf-ar-transcript-title">' + iconDoc('#6b7280', 14) + '<span>Transcription</span></div>';
     html += '<div class="vf-ar-transcript-actions">';
-    html += '<button class="vf-ar-action-btn vf-ar-btn-copy" id="vf-ar-copy">' + iconCopy('#FFFFFF', 14) + '<span>Copier</span></button>';
-    html += '<button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear">' + iconTrash('#dc2626', 14) + '</button>';
+    html += '<button class="vf-ar-action-btn vf-ar-btn-copy" id="vf-ar-copy">' + iconCopy('#FFFFFF', 12) + '<span>Copier</span></button>';
+    html += '<button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">' + iconTrash('#dc2626', 14) + '</button>';
     html += '</div></div>';
     html += '<div class="vf-ar-transcript" id="vf-ar-transcript" contenteditable="true"></div>';
-    html += '<button class="vf-ar-inject" id="vf-ar-inject" disabled>' + iconSend('#FFFFFF', 18) + '<span>Injecter dans le chat</span></button>';
+    html += '<button class="vf-ar-inject" id="vf-ar-inject" disabled>' + iconSend('#FFFFFF', 16) + '<span>Injecter dans le chat</span></button>';
     html += '</div>';
     
     panel.innerHTML = html;
@@ -326,32 +398,35 @@ export var AudioRecorderExtension = {
     };
 
     // =========================================================================
-    // PANEL POSITIONING
+    // PANEL POSITIONING - Ensure fully in viewport
     // =========================================================================
-    function positionPanelInitial() {
-      // Position panel to the LEFT of the toggle button, within viewport
+    function positionPanel() {
       var toggleRect = els.toggle.getBoundingClientRect();
-      var panelWidth = 360;
-      var panelHeight = 650; // Approximate
+      var panelWidth = 340;
+      var panelHeight = panel.offsetHeight || 550;
       var margin = 20;
       
-      // Calculate position
+      // Try to position to the LEFT of the toggle
       var left = toggleRect.left - panelWidth - 15;
-      var top = toggleRect.top - panelHeight + toggleRect.height + 50;
+      var top = window.innerHeight - panelHeight - margin;
       
-      // Ensure within viewport
+      // If not enough space on the left, position above the toggle
       if (left < margin) {
         left = margin;
-      }
-      if (top < margin) {
-        top = margin;
-      }
-      if (top + panelHeight > window.innerHeight - margin) {
-        top = window.innerHeight - panelHeight - margin;
+        top = toggleRect.top - panelHeight - 15;
+        
+        // If not enough space above, position below
+        if (top < margin) {
+          top = toggleRect.bottom + 15;
+        }
       }
       
+      // Final constraints
+      left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
+      top = Math.max(margin, Math.min(top, window.innerHeight - panelHeight - margin));
+      
       panel.style.left = left + 'px';
-      panel.style.top = Math.max(margin, top) + 'px';
+      panel.style.top = top + 'px';
       panel.style.right = 'auto';
       panel.style.bottom = 'auto';
     }
@@ -381,18 +456,18 @@ export var AudioRecorderExtension = {
       }
       
       if (changed) {
-        panel.style.left = left + 'px';
-        panel.style.top = top + 'px';
+        panel.style.left = Math.max(margin, left) + 'px';
+        panel.style.top = Math.max(margin, top) + 'px';
       }
     }
 
     // =========================================================================
-    // SMOOTH DRAG & DROP
+    // DRAG & DROP
     // =========================================================================
     function initDrag() {
       var headerEl = els.header;
       
-      function onDragStart(e) {
+      function onStart(e) {
         if (e.target.closest('.vf-ar-close')) return;
         
         e.preventDefault();
@@ -405,19 +480,18 @@ export var AudioRecorderExtension = {
         state.dragOffsetX = clientX - rect.left;
         state.dragOffsetY = clientY - rect.top;
         
-        // Ensure we're using left/top positioning
         panel.style.left = rect.left + 'px';
         panel.style.top = rect.top + 'px';
         panel.style.right = 'auto';
         panel.style.bottom = 'auto';
         
-        document.addEventListener('mousemove', onDragMove);
-        document.addEventListener('mouseup', onDragEnd);
-        document.addEventListener('touchmove', onDragMove, { passive: false });
-        document.addEventListener('touchend', onDragEnd);
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
       }
       
-      function onDragMove(e) {
+      function onMove(e) {
         if (!state.isDragging) return;
         e.preventDefault();
         
@@ -427,7 +501,6 @@ export var AudioRecorderExtension = {
         var newLeft = clientX - state.dragOffsetX;
         var newTop = clientY - state.dragOffsetY;
         
-        // Constrain to viewport
         var panelWidth = panel.offsetWidth;
         var panelHeight = panel.offsetHeight;
         var margin = 10;
@@ -439,22 +512,21 @@ export var AudioRecorderExtension = {
         panel.style.top = newTop + 'px';
       }
       
-      function onDragEnd() {
+      function onEnd() {
         state.isDragging = false;
-        document.removeEventListener('mousemove', onDragMove);
-        document.removeEventListener('mouseup', onDragEnd);
-        document.removeEventListener('touchmove', onDragMove);
-        document.removeEventListener('touchend', onDragEnd);
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
         
-        // Save position
         var rect = panel.getBoundingClientRect();
         try {
           localStorage.setItem('vf-ar-pos', JSON.stringify({ left: rect.left, top: rect.top }));
         } catch (err) {}
       }
       
-      headerEl.addEventListener('mousedown', onDragStart);
-      headerEl.addEventListener('touchstart', onDragStart, { passive: false });
+      headerEl.addEventListener('mousedown', onStart);
+      headerEl.addEventListener('touchstart', onStart, { passive: false });
     }
     
     function restoreSavedPosition() {
@@ -462,6 +534,9 @@ export var AudioRecorderExtension = {
         var saved = localStorage.getItem('vf-ar-pos');
         if (saved) {
           var pos = JSON.parse(saved);
+          var panelWidth = 340;
+          var panelHeight = 550;
+          
           if (pos.left >= 0 && pos.top >= 0 && 
               pos.left < window.innerWidth - 100 && 
               pos.top < window.innerHeight - 100) {
@@ -528,9 +603,9 @@ export var AudioRecorderExtension = {
           els.toggle.classList.remove('recording');
           els.toggle.innerHTML = iconMic('#FFFFFF', 26);
           els.record.classList.remove('recording');
-          els.record.innerHTML = iconMic('#FFFFFF', 30);
+          els.record.innerHTML = iconMic('#FFFFFF', 28);
           els.pause.disabled = true;
-          els.pause.innerHTML = iconPause('#374151', 24);
+          els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot';
           els.label.textContent = 'Prêt à enregistrer';
           if (state.audioChunks.length) els.download.disabled = false;
@@ -542,21 +617,21 @@ export var AudioRecorderExtension = {
         case 'recording':
           els.toggle.classList.add('recording');
           els.record.classList.add('recording');
-          els.record.innerHTML = iconStop('#FFFFFF', 30);
+          els.record.innerHTML = iconStop('#FFFFFF', 28);
           els.pause.disabled = false;
-          els.pause.innerHTML = iconPause('#374151', 24);
+          els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
-          els.label.textContent = 'Enregistrement en cours...';
+          els.label.textContent = 'Enregistrement...';
           break;
         case 'paused':
-          els.pause.innerHTML = iconPlay('#374151', 24);
+          els.pause.innerHTML = iconPlay('#374151', 22);
           els.dot.className = 'vf-ar-status-dot paused';
           els.label.textContent = 'En pause';
           break;
         case 'resumed':
-          els.pause.innerHTML = iconPause('#374151', 24);
+          els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
-          els.label.textContent = 'Enregistrement en cours...';
+          els.label.textContent = 'Enregistrement...';
           break;
       }
     }
@@ -741,7 +816,7 @@ export var AudioRecorderExtension = {
     function stopRecording() {
       state.isRecording = false;
       cleanup();
-      for (var i = 0; i < els.bars.length; i++) els.bars[i].style.height = '5px';
+      for (var i = 0; i < els.bars.length; i++) els.bars[i].style.height = '4px';
       setUI('idle');
       toast('Enregistrement terminé', 'success');
     }
@@ -766,14 +841,14 @@ export var AudioRecorderExtension = {
       
       function draw() {
         if (!state.isRecording) {
-          for (var i = 0; i < els.bars.length; i++) els.bars[i].style.height = '5px';
+          for (var i = 0; i < els.bars.length; i++) els.bars[i].style.height = '4px';
           return;
         }
         state.animationFrameId = requestAnimationFrame(draw);
         if (!state.isPaused) {
           state.analyser.getByteFrequencyData(data);
           for (var i = 0; i < els.bars.length; i++) {
-            els.bars[i].style.height = Math.max(5, (data[i] || 0) / 255 * 100) + '%';
+            els.bars[i].style.height = Math.max(4, (data[i] || 0) / 255 * 100) + '%';
           }
         }
       }
@@ -789,9 +864,9 @@ export var AudioRecorderExtension = {
       
       if (isOpening) {
         if (!restoreSavedPosition()) {
-          positionPanelInitial();
+          positionPanel();
         }
-        setTimeout(constrainToViewport, 50);
+        setTimeout(constrainToViewport, 100);
       }
     };
     
@@ -871,7 +946,7 @@ export var AudioRecorderExtension = {
       }
     });
 
-    console.log('[AudioRecorder] v7.1 Ready');
+    console.log('[AudioRecorder] v7.2 Ready');
   }
 };
 
