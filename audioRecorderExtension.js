@@ -1,13 +1,15 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v7.7
+ * VOICEFLOW AUDIO RECORDER EXTENSION v8.0
  * =============================================================================
- * FIXES v7.7:
- * - Renamed "Injecter dans le chat" to "Injecter dans l'agent"
- * - Inject button disabled during active recording
- * - Inject button enabled only when paused or stopped (with transcript)
+ * NEW IN v8.0:
+ * - System audio capture mode for video calls (Google Meet, Zoom web, etc.)
+ * - Fixed "Inject" button staying disabled bug
+ * - Toggle switch to enable/disable system audio capture
+ * - Improved transcript state synchronization
+ * - Better error handling for getDisplayMedia
  * 
- * @version 7.7.0
+ * @version 8.0.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -31,14 +33,14 @@ export var AudioRecorderExtension = {
       successColor: '#10b981',
       modelId: payload.modelId || 'scribe_v2_realtime'
     };
-
+    
     if (document.getElementById('vf-audio-recorder-widget')) {
       console.log('[AudioRecorder] Already initialized');
       return;
     }
-
-    console.log('[AudioRecorder] v7.2 Starting...');
-
+    
+    console.log('[AudioRecorder] v8.0 Starting...');
+    
     var state = {
       isRecording: false,
       isPaused: false,
@@ -46,10 +48,14 @@ export var AudioRecorderExtension = {
       interimTranscript: '',
       audioChunks: [],
       stream: null,
+      systemStream: null,
+      mixedStream: null,
       mediaRecorder: null,
       audioContext: null,
       analyser: null,
       microphone: null,
+      systemSource: null,
+      mixedDestination: null,
       scriptProcessor: null,
       websocket: null,
       timerInterval: null,
@@ -59,11 +65,12 @@ export var AudioRecorderExtension = {
       animationFrameId: null,
       isDragging: false,
       dragOffsetX: 0,
-      dragOffsetY: 0
+      dragOffsetY: 0,
+      captureSystemAudio: false // New: toggle for system audio capture
     };
 
     // =========================================================================
-    // SVG ICONS - Simple functions returning SVG strings
+    // SVG ICONS
     // =========================================================================
     function iconMic(color, size) {
       return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>';
@@ -108,6 +115,10 @@ export var AudioRecorderExtension = {
     function iconDoc(color, size) {
       return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
     }
+    
+    function iconVideo(color, size) {
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
+    }
 
     // =========================================================================
     // STYLES
@@ -118,20 +129,16 @@ export var AudioRecorderExtension = {
     
     css += '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");';
     
-    // Reset - IMPORTANT: ensure SVGs display properly
     css += '#vf-audio-recorder-widget,#vf-audio-recorder-widget *,.vf-ar-panel,.vf-ar-panel *{';
     css += 'box-sizing:border-box;margin:0;padding:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;';
     css += '}';
     
-    // Ensure SVGs are visible
     css += '#vf-audio-recorder-widget svg,.vf-ar-panel svg{';
     css += 'display:block;flex-shrink:0;pointer-events:none;';
     css += '}';
     
-    // Widget container
     css += '#vf-audio-recorder-widget{position:fixed;bottom:100px;right:20px;z-index:10000;}';
     
-    // Toggle button
     css += '.vf-ar-toggle{';
     css += 'width:56px;height:56px;border-radius:16px;';
     css += 'background:linear-gradient(135deg,' + config.primaryColor + ',' + config.primaryDark + ');';
@@ -143,7 +150,6 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-toggle:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 25px rgba(240,131,0,0.5);}';
     css += '.vf-ar-toggle.recording{background:linear-gradient(135deg,#ef4444,#dc2626);animation:vf-pulse 2s infinite;}';
     
-    // Panel - thinner border, proper width, NO overflow hidden
     css += '.vf-ar-panel{';
     css += 'position:fixed;';
     css += 'width:360px;max-width:calc(100vw - 40px);';
@@ -156,7 +162,6 @@ export var AudioRecorderExtension = {
     css += '}';
     css += '.vf-ar-panel.open{opacity:1;visibility:visible;transform:scale(1);}';
     
-    // Header
     css += '.vf-ar-header{';
     css += 'background:linear-gradient(135deg,' + config.secondaryColor + ',#0a4d6e);';
     css += 'padding:12px 16px;';
@@ -172,7 +177,6 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-title{color:#fff;font-weight:600;font-size:14px;}';
     css += '.vf-ar-badge{background:' + config.successColor + ';color:#fff;font-size:8px;padding:3px 6px;border-radius:10px;font-weight:700;text-transform:uppercase;}';
     
-    // Close button
     css += '.vf-ar-close{';
     css += 'width:32px;height:32px;border-radius:8px;';
     css += 'background:rgba(255,255,255,0.15);border:none;cursor:pointer;';
@@ -181,7 +185,31 @@ export var AudioRecorderExtension = {
     css += '}';
     css += '.vf-ar-close:hover{background:rgba(255,255,255,0.25);}';
     
-    // Timer section
+    // System audio toggle section
+    css += '.vf-ar-mode-section{';
+    css += 'padding:12px 16px;background:#f0f9ff;border-bottom:1px solid #e0f2fe;';
+    css += 'display:flex;align-items:center;justify-content:space-between;gap:12px;';
+    css += '}';
+    css += '.vf-ar-mode-label{display:flex;align-items:center;gap:8px;font-size:12px;color:#0369a1;font-weight:500;}';
+    css += '.vf-ar-mode-label svg{flex-shrink:0;}';
+    css += '.vf-ar-mode-hint{font-size:10px;color:#0284c7;margin-top:2px;}';
+    
+    // Toggle switch
+    css += '.vf-ar-switch{position:relative;width:44px;height:24px;flex-shrink:0;}';
+    css += '.vf-ar-switch input{opacity:0;width:0;height:0;}';
+    css += '.vf-ar-switch-slider{';
+    css += 'position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;';
+    css += 'background-color:#cbd5e1;border-radius:24px;transition:0.3s;';
+    css += '}';
+    css += '.vf-ar-switch-slider:before{';
+    css += 'position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;';
+    css += 'background-color:white;border-radius:50%;transition:0.3s;';
+    css += 'box-shadow:0 2px 4px rgba(0,0,0,0.2);';
+    css += '}';
+    css += '.vf-ar-switch input:checked + .vf-ar-switch-slider{background-color:' + config.successColor + ';}';
+    css += '.vf-ar-switch input:checked + .vf-ar-switch-slider:before{transform:translateX(20px);}';
+    css += '.vf-ar-switch input:disabled + .vf-ar-switch-slider{opacity:0.5;cursor:not-allowed;}';
+    
     css += '.vf-ar-timer-section{padding:24px 16px 16px;text-align:center;background:#fff;}';
     css += '.vf-ar-timer-display{display:flex;align-items:center;justify-content:center;gap:12px;}';
     css += '.vf-ar-status-dot{width:12px;height:12px;border-radius:50%;background:#d1d5db;transition:all 0.3s;flex-shrink:0;}';
@@ -191,17 +219,14 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-timer{font-size:42px;font-weight:700;color:#111827;font-variant-numeric:tabular-nums;letter-spacing:-2px;}';
     css += '.vf-ar-status-label{font-size:13px;color:#6b7280;margin-top:8px;font-weight:500;}';
     
-    // Visualizer
     css += '.vf-ar-visualizer{display:flex;align-items:flex-end;justify-content:center;height:50px;gap:2px;padding:0 16px 12px;background:#fff;}';
     css += '.vf-ar-bar{width:4px;min-height:4px;background:linear-gradient(180deg,' + config.primaryColor + ',' + config.primaryDark + ');border-radius:2px;transition:height 0.05s ease-out;}';
     
-    // Controls - IMPORTANT: proper button sizing
     css += '.vf-ar-controls{';
     css += 'display:flex;justify-content:center;align-items:center;';
     css += 'gap:16px;padding:16px;background:#f8fafc;border-top:1px solid #e5e7eb;';
     css += '}';
     
-    // Base button styles
     css += '.vf-ar-btn{';
     css += 'border:none;cursor:pointer;';
     css += 'display:flex;align-items:center;justify-content:center;';
@@ -209,7 +234,6 @@ export var AudioRecorderExtension = {
     css += 'flex-shrink:0;';
     css += '}';
     
-    // Record button (big red button with WHITE icon)
     css += '.vf-ar-btn-record{';
     css += 'width:64px;height:64px;border-radius:50%;';
     css += 'background:linear-gradient(135deg,#ef4444,#dc2626);';
@@ -218,7 +242,6 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-btn-record:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(239,68,68,0.5);}';
     css += '.vf-ar-btn-record.recording{background:linear-gradient(135deg,#4b5563,#374151);box-shadow:0 4px 16px rgba(75,85,99,0.4);}';
     
-    // Secondary buttons (white with border, DARK icons)
     css += '.vf-ar-btn-secondary{';
     css += 'width:48px;height:48px;border-radius:50%;';
     css += 'background:#ffffff;';
@@ -228,10 +251,8 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-btn-secondary:hover:not(:disabled){background:#f3f4f6;border-color:#9ca3af;transform:scale(1.06);}';
     css += '.vf-ar-btn-secondary:disabled{opacity:0.4;cursor:not-allowed;}';
     
-    // Transcript section - ensure visible overflow
     css += '.vf-ar-transcript-section{padding:16px;background:#fff;border-top:1px solid #e5e7eb;overflow:visible;border-radius:0 0 14px 14px;}';
     
-    // Transcript header - compact layout that fits
     css += '.vf-ar-transcript-header{';
     css += 'display:flex;align-items:center;justify-content:space-between;';
     css += 'margin-bottom:12px;gap:6px;';
@@ -239,10 +260,8 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-transcript-title{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.03em;flex-shrink:1;min-width:0;}';
     css += '.vf-ar-transcript-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}';
     
-    // Action buttons container - flex end
     css += '.vf-ar-transcript-actions{display:flex;gap:6px;flex-shrink:0;}';
     
-    // Action buttons - compact
     css += '.vf-ar-action-btn{';
     css += 'display:flex;align-items:center;justify-content:center;gap:4px;';
     css += 'padding:6px 10px;border-radius:6px;border:none;';
@@ -254,7 +273,6 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-btn-clear{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:6px 8px;min-width:32px;}';
     css += '.vf-ar-btn-clear:hover{background:#fee2e2;}';
     
-    // Transcript area
     css += '.vf-ar-transcript{';
     css += 'background:#f9fafb;border-radius:10px;padding:12px;';
     css += 'min-height:80px;max-height:120px;overflow-y:auto;';
@@ -265,7 +283,6 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-transcript:empty::before{content:"La transcription apparaîtra ici...";color:#9ca3af;font-style:italic;}';
     css += '.vf-ar-transcript .interim{color:#9ca3af;font-style:italic;}';
     
-    // Inject button
     css += '.vf-ar-inject{';
     css += 'width:100%;margin-top:12px;padding:14px 16px;';
     css += 'border-radius:10px;border:none;';
@@ -278,7 +295,6 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-inject:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,131,0,0.45);}';
     css += '.vf-ar-inject:disabled{opacity:0.5;cursor:not-allowed;}';
     
-    // Toast
     css += '.vf-ar-toast{';
     css += 'position:fixed;bottom:120px;left:50%;';
     css += 'transform:translateX(-50%) translateY(20px);';
@@ -293,11 +309,9 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-toast.error{background:' + config.dangerColor + ';color:#fff;}';
     css += '.vf-ar-toast.info{background:' + config.secondaryColor + ';color:#fff;}';
     
-    // Animations
     css += '@keyframes vf-pulse{0%,100%{box-shadow:0 4px 20px rgba(239,68,68,0.4);}50%{box-shadow:0 4px 30px rgba(239,68,68,0.6),0 0 0 8px rgba(239,68,68,0.1);}}';
     css += '@keyframes vf-blink{0%,100%{opacity:1;}50%{opacity:0.4;}}';
     
-    // Responsive
     css += '@media(max-width:400px){';
     css += '.vf-ar-panel{width:calc(100vw - 24px);}';
     css += '.vf-ar-timer{font-size:36px;}';
@@ -323,7 +337,6 @@ export var AudioRecorderExtension = {
     panel.className = 'vf-ar-panel';
     panel.id = 'vf-ar-panel';
     
-    // Build visualizer bars
     var barsHtml = '';
     for (var b = 0; b < 28; b++) {
       barsHtml += '<div class="vf-ar-bar"></div>';
@@ -342,6 +355,18 @@ export var AudioRecorderExtension = {
     html += '<button class="vf-ar-close" id="vf-ar-close" title="Fermer">' + iconClose('#FFFFFF', 16) + '</button>';
     html += '</div>';
     
+    // System audio mode toggle
+    html += '<div class="vf-ar-mode-section">';
+    html += '<div class="vf-ar-mode-info">';
+    html += '<div class="vf-ar-mode-label">' + iconVideo('#0369a1', 16) + '<span>Mode Appel Visio</span></div>';
+    html += '<div class="vf-ar-mode-hint">Capture le son de l\'interlocuteur (Google Meet, Zoom...)</div>';
+    html += '</div>';
+    html += '<label class="vf-ar-switch">';
+    html += '<input type="checkbox" id="vf-ar-system-toggle">';
+    html += '<span class="vf-ar-switch-slider"></span>';
+    html += '</label>';
+    html += '</div>';
+    
     // Timer
     html += '<div class="vf-ar-timer-section">';
     html += '<div class="vf-ar-timer-display">';
@@ -354,7 +379,7 @@ export var AudioRecorderExtension = {
     // Visualizer
     html += '<div class="vf-ar-visualizer" id="vf-ar-visualizer">' + barsHtml + '</div>';
     
-    // Controls with properly colored icons
+    // Controls
     html += '<div class="vf-ar-controls">';
     html += '<button class="vf-ar-btn vf-ar-btn-secondary" id="vf-ar-download" title="Télécharger" disabled>' + iconDownload('#374151', 22) + '</button>';
     html += '<button class="vf-ar-btn vf-ar-btn-record" id="vf-ar-record" title="Enregistrer">' + iconMic('#FFFFFF', 28) + '</button>';
@@ -394,39 +419,34 @@ export var AudioRecorderExtension = {
       transcript: document.getElementById('vf-ar-transcript'),
       copy: document.getElementById('vf-ar-copy'),
       clear: document.getElementById('vf-ar-clear'),
-      inject: document.getElementById('vf-ar-inject')
+      inject: document.getElementById('vf-ar-inject'),
+      systemToggle: document.getElementById('vf-ar-system-toggle')
     };
 
     // =========================================================================
-    // PANEL POSITIONING - Ensure fully in viewport
+    // PANEL POSITIONING
     // =========================================================================
     function positionPanel() {
       var toggleRect = els.toggle.getBoundingClientRect();
       var panelWidth = 360;
-      var panelHeight = panel.offsetHeight || 550;
+      var panelHeight = panel.offsetHeight || 600;
       var margin = 25;
       
-      // Calculate position - prefer LEFT of toggle
       var left = toggleRect.left - panelWidth - 20;
       var top = window.innerHeight - panelHeight - margin;
       
-      // If not enough space on the left, try to fit on screen
       if (left < margin) {
-        // Center horizontally or position from left edge
         left = Math.min(margin, window.innerWidth - panelWidth - margin);
       }
       
-      // Ensure right edge is within viewport
       if (left + panelWidth > window.innerWidth - margin) {
         left = window.innerWidth - panelWidth - margin;
       }
       
-      // Ensure top is within viewport
       if (top < margin) {
         top = margin;
       }
       
-      // Final safety: absolute constraints
       left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
       top = Math.max(margin, Math.min(top, window.innerHeight - panelHeight - margin));
       
@@ -435,7 +455,7 @@ export var AudioRecorderExtension = {
       panel.style.right = 'auto';
       panel.style.bottom = 'auto';
     }
-
+    
     function constrainToViewport() {
       var rect = panel.getBoundingClientRect();
       var margin = 20;
@@ -443,22 +463,18 @@ export var AudioRecorderExtension = {
       var top = rect.top;
       var changed = false;
       
-      // Ensure right edge is inside viewport
       if (rect.right > window.innerWidth - margin) {
         left = window.innerWidth - rect.width - margin;
         changed = true;
       }
-      // Ensure left edge is inside viewport
       if (left < margin) {
         left = margin;
         changed = true;
       }
-      // Ensure bottom is inside viewport
       if (rect.bottom > window.innerHeight - margin) {
         top = window.innerHeight - rect.height - margin;
         changed = true;
       }
-      // Ensure top is inside viewport
       if (top < margin) {
         top = margin;
         changed = true;
@@ -547,7 +563,6 @@ export var AudioRecorderExtension = {
           var pos = JSON.parse(saved);
           var panelWidth = 360;
           
-          // Validate position is within viewport
           if (pos.left >= 0 && pos.top >= 0 && 
               pos.left < window.innerWidth - panelWidth && 
               pos.top < window.innerHeight - 100) {
@@ -593,6 +608,19 @@ export var AudioRecorderExtension = {
       }, 2500);
     }
     
+    // FIX: Check actual DOM content for transcript, not just state
+    function getTranscriptText() {
+      var text = els.transcript.innerText || els.transcript.textContent || '';
+      // Remove interim text styling artifacts
+      return text.replace(/\s+/g, ' ').trim();
+    }
+    
+    function hasTranscriptContent() {
+      var text = getTranscriptText();
+      return text.length > 0;
+    }
+    
+    // FIX: Updated updateDisplay to properly sync inject button state
     function updateDisplay() {
       if (state.transcript || state.interimTranscript) {
         var content = state.transcript;
@@ -601,19 +629,19 @@ export var AudioRecorderExtension = {
         }
         els.transcript.innerHTML = content;
         els.transcript.scrollTop = els.transcript.scrollHeight;
-        // Only enable inject if NOT actively recording (paused or stopped is OK)
-        var canInject = !state.isRecording || state.isPaused;
-        els.inject.disabled = !canInject;
-      } else {
-        els.transcript.innerHTML = '';
-        els.inject.disabled = true;
       }
+      // Always update inject button based on actual conditions
+      updateInjectButton();
+    }
+    
+    // FIX: Dedicated function to update inject button state
+    // Button is ONLY disabled when there's no text - user can inject anytime
+    function updateInjectButton() {
+      var hasContent = hasTranscriptContent();
+      els.inject.disabled = !hasContent;
     }
     
     function setUI(mode) {
-      // Helper to check if inject should be enabled
-      var hasTranscript = state.transcript && state.transcript.trim().length > 0;
-      
       switch (mode) {
         case 'idle':
           els.toggle.classList.remove('recording');
@@ -624,14 +652,13 @@ export var AudioRecorderExtension = {
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot';
           els.label.textContent = 'Prêt à enregistrer';
+          els.systemToggle.disabled = false;
           if (state.audioChunks.length) els.download.disabled = false;
-          // Enable inject if there's transcript (recording stopped)
-          els.inject.disabled = !hasTranscript;
           break;
         case 'connecting':
           els.dot.className = 'vf-ar-status-dot connecting';
-          els.label.textContent = 'Connexion...';
-          els.inject.disabled = true;
+          els.label.textContent = state.captureSystemAudio ? 'Sélectionnez l\'onglet à capturer...' : 'Connexion...';
+          els.systemToggle.disabled = true;
           break;
         case 'recording':
           els.toggle.classList.add('recording');
@@ -640,25 +667,22 @@ export var AudioRecorderExtension = {
           els.pause.disabled = false;
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
-          els.label.textContent = 'Enregistrement...';
-          // Disable inject during active recording
-          els.inject.disabled = true;
+          els.label.textContent = state.captureSystemAudio ? 'Enregistrement (Visio)...' : 'Enregistrement...';
+          els.systemToggle.disabled = true;
           break;
         case 'paused':
           els.pause.innerHTML = iconPlay('#374151', 22);
           els.dot.className = 'vf-ar-status-dot paused';
           els.label.textContent = 'En pause';
-          // Enable inject when paused (if there's transcript)
-          els.inject.disabled = !hasTranscript;
           break;
         case 'resumed':
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
-          els.label.textContent = 'Enregistrement...';
-          // Disable inject when resumed recording
-          els.inject.disabled = true;
+          els.label.textContent = state.captureSystemAudio ? 'Enregistrement (Visio)...' : 'Enregistrement...';
           break;
       }
+      // FIX: Always update inject button after UI state change
+      updateInjectButton();
     }
 
     // =========================================================================
@@ -680,7 +704,7 @@ export var AudioRecorderExtension = {
       return new Promise(function(resolve, reject) {
         var params = 'model_id=' + config.modelId + '&language_code=' + config.language + '&token=' + token + '&audio_format=pcm_16000&commit_strategy=vad&vad_silence_threshold_secs=1.0&vad_threshold=0.3';
         var ws = new WebSocket('wss://api.elevenlabs.io/v1/speech-to-text/realtime?' + params);
-        var timeout = setTimeout(function() { ws.close(); reject(new Error('Timeout')); }, 10000);
+        var timeout = setTimeout(function() { ws.close(); reject(new Error('Timeout')); }, 15000);
         
         ws.onmessage = function(e) {
           var d = JSON.parse(e.data);
@@ -753,6 +777,79 @@ export var AudioRecorderExtension = {
     }
 
     // =========================================================================
+    // SYSTEM AUDIO CAPTURE (NEW)
+    // =========================================================================
+    function getSystemAudioStream() {
+      return navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: 'browser' // Prefer browser tab
+        },
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          suppressLocalAudioPlayback: false // Don't mute the tab
+        },
+        preferCurrentTab: false,
+        selfBrowserSurface: 'exclude',
+        systemAudio: 'include'
+      }).then(function(stream) {
+        // Check if audio track is present
+        var audioTracks = stream.getAudioTracks();
+        if (audioTracks.length === 0) {
+          // Stop video track since we don't need it
+          stream.getVideoTracks().forEach(function(track) { track.stop(); });
+          throw new Error('NO_AUDIO');
+        }
+        
+        // Stop video track - we only need audio
+        stream.getVideoTracks().forEach(function(track) { track.stop(); });
+        
+        // Return audio-only stream
+        return new MediaStream(audioTracks);
+      });
+    }
+    
+    function getMicrophoneStream() {
+      return navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+    }
+    
+    // Mix microphone and system audio into one stream
+    function mixAudioStreams(micStream, systemStream, audioContext) {
+      var destination = audioContext.createMediaStreamDestination();
+      
+      // Create gain nodes for volume control
+      var micGain = audioContext.createGain();
+      var systemGain = audioContext.createGain();
+      
+      // Set gains (can be adjusted)
+      micGain.gain.value = 1.0;
+      systemGain.gain.value = 1.0;
+      
+      // Connect microphone
+      var micSource = audioContext.createMediaStreamSource(micStream);
+      micSource.connect(micGain);
+      micGain.connect(destination);
+      
+      // Connect system audio
+      var systemSource = audioContext.createMediaStreamSource(systemStream);
+      systemSource.connect(systemGain);
+      systemGain.connect(destination);
+      
+      state.systemSource = systemSource;
+      state.mixedDestination = destination;
+      
+      return destination.stream;
+    }
+
+    // =========================================================================
     // RECORDING
     // =========================================================================
     function startRecording() {
@@ -766,25 +863,71 @@ export var AudioRecorderExtension = {
       state.transcript = '';
       state.interimTranscript = '';
       state.audioChunks = [];
+      state.captureSystemAudio = els.systemToggle.checked;
+      
       setUI('connecting');
       updateDisplay();
       
+      var audioSetupPromise;
+      
+      if (state.captureSystemAudio) {
+        // Mode visio: capture mic + system audio
+        audioSetupPromise = Promise.all([
+          getMicrophoneStream(),
+          getSystemAudioStream().catch(function(err) {
+            console.warn('[AudioRecorder] System audio not available:', err.message);
+            if (err.message === 'NO_AUDIO') {
+              toast('Cochez "Partager l\'audio" dans la popup Chrome', 'error');
+            }
+            return null;
+          })
+        ]).then(function(streams) {
+          var micStream = streams[0];
+          var systemStream = streams[1];
+          
+          state.stream = micStream;
+          state.systemStream = systemStream;
+          
+          return { micStream: micStream, systemStream: systemStream };
+        });
+      } else {
+        // Mode standard: mic only
+        audioSetupPromise = getMicrophoneStream().then(function(stream) {
+          state.stream = stream;
+          return { micStream: stream, systemStream: null };
+        });
+      }
+      
       getToken()
         .then(function(token) {
-          return navigator.mediaDevices.getUserMedia({
-            audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true }
-          })
-          .then(function(stream) {
-            state.stream = stream;
+          return audioSetupPromise.then(function(streams) {
+            var micStream = streams.micStream;
+            var systemStream = streams.systemStream;
+            
             state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             var rate = state.audioContext.sampleRate;
             
+            // Determine which stream to use for processing
+            var processingStream;
+            if (systemStream) {
+              // Mix both streams
+              processingStream = mixAudioStreams(micStream, systemStream, state.audioContext);
+              toast('Mode visio activé', 'success');
+            } else {
+              processingStream = micStream;
+              if (state.captureSystemAudio) {
+                toast('Mode micro uniquement', 'info');
+              }
+            }
+            
+            // Setup analyser for visualization
             state.analyser = state.audioContext.createAnalyser();
             state.analyser.fftSize = 64;
-            state.microphone = state.audioContext.createMediaStreamSource(stream);
+            state.microphone = state.audioContext.createMediaStreamSource(processingStream);
             state.microphone.connect(state.analyser);
             
             return connectWS(token).then(function() {
+              // Setup audio processing for ElevenLabs
               state.scriptProcessor = state.audioContext.createScriptProcessor(4096, 1, 1);
               state.scriptProcessor.onaudioprocess = function(e) {
                 if (state.isRecording && !state.isPaused) {
@@ -794,13 +937,16 @@ export var AudioRecorderExtension = {
               state.microphone.connect(state.scriptProcessor);
               state.scriptProcessor.connect(state.audioContext.destination);
               
+              // Setup MediaRecorder for file download
+              var recordingStream = processingStream;
               var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-              state.mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+              state.mediaRecorder = new MediaRecorder(recordingStream, { mimeType: mime });
               state.mediaRecorder.ondataavailable = function(e) {
                 if (e.data.size) state.audioChunks.push(e.data);
               };
               state.mediaRecorder.start(500);
               
+              // Setup timer
               state.recordingStartTime = Date.now();
               state.pausedDuration = 0;
               state.timerInterval = setInterval(function() {
@@ -809,17 +955,36 @@ export var AudioRecorderExtension = {
                 }
               }, 100);
               
+              // Handle system stream ending (user stops sharing)
+              if (systemStream) {
+                systemStream.getAudioTracks()[0].onended = function() {
+                  console.log('[AudioRecorder] System audio track ended');
+                  toast('Partage audio terminé', 'info');
+                  // Continue with mic only
+                };
+              }
+              
               visualize();
               setUI('recording');
-              toast('Enregistrement démarré', 'success');
+              if (!state.captureSystemAudio || !systemStream) {
+                toast('Enregistrement démarré', 'success');
+              }
             });
           });
         })
         .catch(function(err) {
+          console.error('[AudioRecorder] Error:', err);
           state.isRecording = false;
           setUI('idle');
           cleanup();
-          toast(err.name === 'NotAllowedError' ? 'Accès micro refusé' : err.message, 'error');
+          
+          if (err.name === 'NotAllowedError') {
+            toast('Accès micro/partage refusé', 'error');
+          } else if (err.message === 'NO_AUDIO') {
+            toast('Cochez "Partager l\'audio" dans Chrome', 'error');
+          } else {
+            toast(err.message || 'Erreur', 'error');
+          }
         });
     }
     
@@ -828,14 +993,25 @@ export var AudioRecorderExtension = {
       if (state.scriptProcessor) try { state.scriptProcessor.disconnect(); } catch (e) {}
       if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') try { state.mediaRecorder.stop(); } catch (e) {}
       if (state.audioContext && state.audioContext.state !== 'closed') try { state.audioContext.close(); } catch (e) {}
+      
+      // Stop all tracks
       if (state.stream) {
         var tracks = state.stream.getTracks();
         for (var i = 0; i < tracks.length; i++) tracks[i].stop();
       }
+      if (state.systemStream) {
+        var systemTracks = state.systemStream.getTracks();
+        for (var j = 0; j < systemTracks.length; j++) systemTracks[j].stop();
+      }
+      
       if (state.timerInterval) clearInterval(state.timerInterval);
       if (state.animationFrameId) cancelAnimationFrame(state.animationFrameId);
+      
       state.websocket = null;
       state.scriptProcessor = null;
+      state.systemStream = null;
+      state.systemSource = null;
+      state.mixedDestination = null;
     }
     
     function stopRecording() {
@@ -843,6 +1019,10 @@ export var AudioRecorderExtension = {
       cleanup();
       for (var i = 0; i < els.bars.length; i++) els.bars[i].style.height = '4px';
       setUI('idle');
+      // FIX: Delay to ensure final transcript is processed
+      setTimeout(function() {
+        updateInjectButton();
+      }, 100);
       toast('Enregistrement terminé', 'success');
     }
     
@@ -884,7 +1064,6 @@ export var AudioRecorderExtension = {
     // EVENT LISTENERS
     // =========================================================================
     els.toggle.onclick = function() {
-      // Only OPEN the panel, never close it (use X button or Escape to close)
       if (!panel.classList.contains('open')) {
         panel.classList.add('open');
         if (!restoreSavedPosition()) {
@@ -898,8 +1077,6 @@ export var AudioRecorderExtension = {
       e.stopPropagation();
       panel.classList.remove('open');
     };
-    
-    // Panel stays open - only closes via X button or Escape key
     
     els.record.onclick = function() {
       if (state.isRecording) stopRecording();
@@ -918,7 +1095,7 @@ export var AudioRecorderExtension = {
     };
     
     els.copy.onclick = function() {
-      var txt = els.transcript.innerText ? els.transcript.innerText.trim() : '';
+      var txt = getTranscriptText();
       if (!txt) { toast('Aucun texte', 'error'); return; }
       navigator.clipboard.writeText(txt).then(function() { toast('Copié!', 'success'); });
     };
@@ -927,12 +1104,19 @@ export var AudioRecorderExtension = {
       state.transcript = '';
       state.interimTranscript = '';
       els.transcript.innerHTML = '';
-      els.inject.disabled = true;
+      updateInjectButton();
       toast('Effacé', 'info');
     };
     
+    // FIX: Listen to transcript edits to update inject button
+    els.transcript.addEventListener('input', function() {
+      // Sync state with DOM when user edits
+      state.transcript = getTranscriptText();
+      updateInjectButton();
+    });
+    
     els.inject.onclick = function() {
-      var txt = els.transcript.innerText ? els.transcript.innerText.trim() : '';
+      var txt = getTranscriptText();
       if (!txt) { toast('Aucun texte', 'error'); return; }
       
       if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
@@ -942,14 +1126,20 @@ export var AudioRecorderExtension = {
             event: { name: config.eventName },
             call_transcript: txt,
             duration: els.timer.textContent,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            mode: state.captureSystemAudio ? 'visio' : 'mic_only'
           }
         });
         toast('Injecté!', 'success');
+        
+        // Clear transcript for new sequence but KEEP recording running
         state.transcript = '';
         state.interimTranscript = '';
         els.transcript.innerHTML = '';
-        els.inject.disabled = true;
+        updateInjectButton();
+        
+        // Recording continues - no stopRecording() call
+        // Next injection will only send new text since this point
       } else {
         toast('Voiceflow non trouvé', 'error');
       }
@@ -964,9 +1154,9 @@ export var AudioRecorderExtension = {
         constrainToViewport();
       }
     });
-
-    console.log('[AudioRecorder] v7.7 Ready');
-    console.log('[AudioRecorder] Inject button only enabled when paused or stopped');
+    
+    console.log('[AudioRecorder] v8.0 Ready');
+    console.log('[AudioRecorder] System audio capture mode available');
   }
 };
 
