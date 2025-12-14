@@ -1,15 +1,21 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v8.0
+ * VOICEFLOW AUDIO RECORDER EXTENSION v8.1
  * =============================================================================
+ * NEW IN v8.1:
+ * - Added help tooltip explaining visio mode compatibility
+ * - Shows which platforms work (Google Meet, Zoom web, Teams web)
+ * - Shows which don't work (Zoom app, Teams app)
+ * - Touch-friendly: click to toggle on mobile
+ * 
  * NEW IN v8.0:
  * - System audio capture mode for video calls (Google Meet, Zoom web, etc.)
  * - Fixed "Inject" button staying disabled bug
  * - Toggle switch to enable/disable system audio capture
- * - Improved transcript state synchronization
- * - Better error handling for getDisplayMedia
+ * - Inject clears transcript but continues recording (sequences)
+ * - Inject button enabled whenever there's text (not dependent on recording state)
  * 
- * @version 8.0.0
+ * @version 8.1.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -119,6 +125,10 @@ export var AudioRecorderExtension = {
     function iconVideo(color, size) {
       return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
     }
+    
+    function iconInfo(color, size) {
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>';
+    }
 
     // =========================================================================
     // STYLES
@@ -209,6 +219,38 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-switch input:checked + .vf-ar-switch-slider{background-color:' + config.successColor + ';}';
     css += '.vf-ar-switch input:checked + .vf-ar-switch-slider:before{transform:translateX(20px);}';
     css += '.vf-ar-switch input:disabled + .vf-ar-switch-slider{opacity:0.5;cursor:not-allowed;}';
+    
+    // Info tooltip
+    css += '.vf-ar-info-wrapper{position:relative;display:inline-flex;align-items:center;}';
+    css += '.vf-ar-info-btn{';
+    css += 'background:none;border:none;cursor:pointer;padding:2px;';
+    css += 'display:flex;align-items:center;justify-content:center;';
+    css += 'opacity:0.6;transition:opacity 0.2s;';
+    css += '}';
+    css += '.vf-ar-info-btn:hover{opacity:1;}';
+    css += '.vf-ar-tooltip{';
+    css += 'position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);';
+    css += 'width:260px;padding:12px;';
+    css += 'background:#1e293b;color:#f1f5f9;';
+    css += 'border-radius:10px;font-size:11px;line-height:1.5;';
+    css += 'box-shadow:0 10px 25px rgba(0,0,0,0.25);';
+    css += 'opacity:0;visibility:hidden;transition:all 0.2s;';
+    css += 'z-index:10010;pointer-events:none;';
+    css += '}';
+    css += '.vf-ar-tooltip::after{';
+    css += 'content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);';
+    css += 'border:6px solid transparent;border-top-color:#1e293b;';
+    css += '}';
+    css += '.vf-ar-info-wrapper:hover .vf-ar-tooltip,.vf-ar-tooltip.show{opacity:1;visibility:visible;}';
+    css += '.vf-ar-tooltip-title{font-weight:600;margin-bottom:8px;color:#fff;font-size:12px;}';
+    css += '.vf-ar-tooltip-list{margin:0;padding:0 0 0 14px;}';
+    css += '.vf-ar-tooltip-list li{margin-bottom:4px;}';
+    css += '.vf-ar-tooltip-ok{color:#4ade80;}';
+    css += '.vf-ar-tooltip-no{color:#f87171;}';
+    css += '.vf-ar-tooltip-tip{';
+    css += 'margin-top:10px;padding-top:8px;border-top:1px solid #334155;';
+    css += 'font-style:italic;color:#94a3b8;';
+    css += '}';
     
     css += '.vf-ar-timer-section{padding:24px 16px 16px;text-align:center;background:#fff;}';
     css += '.vf-ar-timer-display{display:flex;align-items:center;justify-content:center;gap:12px;}';
@@ -355,11 +397,28 @@ export var AudioRecorderExtension = {
     html += '<button class="vf-ar-close" id="vf-ar-close" title="Fermer">' + iconClose('#FFFFFF', 16) + '</button>';
     html += '</div>';
     
-    // System audio mode toggle
+    // System audio mode toggle with help tooltip
     html += '<div class="vf-ar-mode-section">';
     html += '<div class="vf-ar-mode-info">';
-    html += '<div class="vf-ar-mode-label">' + iconVideo('#0369a1', 16) + '<span>Mode Appel Visio</span></div>';
-    html += '<div class="vf-ar-mode-hint">Capture le son de l\'interlocuteur (Google Meet, Zoom...)</div>';
+    html += '<div class="vf-ar-mode-label">';
+    html += iconVideo('#0369a1', 16);
+    html += '<span>Mode Appel Visio</span>';
+    html += '<div class="vf-ar-info-wrapper">';
+    html += '<button class="vf-ar-info-btn" type="button" id="vf-ar-info-btn">' + iconInfo('#0369a1', 14) + '</button>';
+    html += '<div class="vf-ar-tooltip" id="vf-ar-tooltip">';
+    html += '<div class="vf-ar-tooltip-title">💡 Compatibilité</div>';
+    html += '<ul class="vf-ar-tooltip-list">';
+    html += '<li class="vf-ar-tooltip-ok">✓ Google Meet</li>';
+    html += '<li class="vf-ar-tooltip-ok">✓ Zoom <strong>web</strong> (zoom.us/wc/)</li>';
+    html += '<li class="vf-ar-tooltip-ok">✓ Teams <strong>web</strong></li>';
+    html += '<li class="vf-ar-tooltip-no">✗ Zoom application</li>';
+    html += '<li class="vf-ar-tooltip-no">✗ Teams application</li>';
+    html += '</ul>';
+    html += '<div class="vf-ar-tooltip-tip">Astuce : Pour Zoom, rejoignez via zoom.us/wc/ dans Chrome</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="vf-ar-mode-hint">Capture le son de l\'interlocuteur</div>';
     html += '</div>';
     html += '<label class="vf-ar-switch">';
     html += '<input type="checkbox" id="vf-ar-system-toggle">';
@@ -420,7 +479,9 @@ export var AudioRecorderExtension = {
       copy: document.getElementById('vf-ar-copy'),
       clear: document.getElementById('vf-ar-clear'),
       inject: document.getElementById('vf-ar-inject'),
-      systemToggle: document.getElementById('vf-ar-system-toggle')
+      systemToggle: document.getElementById('vf-ar-system-toggle'),
+      infoBtn: document.getElementById('vf-ar-info-btn'),
+      tooltip: document.getElementById('vf-ar-tooltip')
     };
 
     // =========================================================================
@@ -1073,6 +1134,20 @@ export var AudioRecorderExtension = {
       }
     };
     
+    // Info tooltip toggle for touch devices
+    els.infoBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      els.tooltip.classList.toggle('show');
+    };
+    
+    // Close tooltip when clicking elsewhere
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.vf-ar-info-wrapper')) {
+        els.tooltip.classList.remove('show');
+      }
+    });
+    
     els.close.onclick = function(e) {
       e.stopPropagation();
       panel.classList.remove('open');
@@ -1155,8 +1230,9 @@ export var AudioRecorderExtension = {
       }
     });
     
-    console.log('[AudioRecorder] v8.0 Ready');
+    console.log('[AudioRecorder] v8.1 Ready');
     console.log('[AudioRecorder] System audio capture mode available');
+    console.log('[AudioRecorder] Help tooltip added for compatibility info');
   }
 };
 
