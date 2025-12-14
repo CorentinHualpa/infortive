@@ -1,7 +1,11 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v8.1
+ * VOICEFLOW AUDIO RECORDER EXTENSION v8.2
  * =============================================================================
+ * NEW IN v8.2:
+ * - More subtle compatibility indicator (small text "⚠ compatibilité")
+ * - Cleaner tooltip design
+ * 
  * NEW IN v8.1:
  * - Added help tooltip explaining visio mode compatibility
  * - Shows which platforms work (Google Meet, Zoom web, Teams web)
@@ -15,7 +19,7 @@
  * - Inject clears transcript but continues recording (sequences)
  * - Inject button enabled whenever there's text (not dependent on recording state)
  * 
- * @version 8.1.0
+ * @version 8.2.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -125,10 +129,6 @@ export var AudioRecorderExtension = {
     function iconVideo(color, size) {
       return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
     }
-    
-    function iconInfo(color, size) {
-      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="' + color + '" style="display:block;flex-shrink:0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>';
-    }
 
     // =========================================================================
     // STYLES
@@ -220,19 +220,20 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-switch input:checked + .vf-ar-switch-slider:before{transform:translateX(20px);}';
     css += '.vf-ar-switch input:disabled + .vf-ar-switch-slider{opacity:0.5;cursor:not-allowed;}';
     
-    // Info tooltip
-    css += '.vf-ar-info-wrapper{position:relative;display:inline-flex;align-items:center;}';
+    // Subtle info indicator
+    css += '.vf-ar-info-wrapper{position:relative;display:inline-flex;align-items:center;margin-left:4px;}';
     css += '.vf-ar-info-btn{';
-    css += 'background:none;border:none;cursor:pointer;padding:2px;';
-    css += 'display:flex;align-items:center;justify-content:center;';
-    css += 'opacity:0.6;transition:opacity 0.2s;';
+    css += 'background:none;border:none;cursor:pointer;padding:0;';
+    css += 'font-size:10px;color:#64748b;';
+    css += 'opacity:0.7;transition:opacity 0.2s,color 0.2s;';
+    css += 'text-decoration:none;font-weight:500;';
     css += '}';
-    css += '.vf-ar-info-btn:hover{opacity:1;}';
+    css += '.vf-ar-info-btn:hover{opacity:1;color:#0369a1;}';
     css += '.vf-ar-tooltip{';
     css += 'position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);';
-    css += 'width:260px;padding:12px;';
+    css += 'width:240px;padding:10px 12px;';
     css += 'background:#1e293b;color:#f1f5f9;';
-    css += 'border-radius:10px;font-size:11px;line-height:1.5;';
+    css += 'border-radius:8px;font-size:11px;line-height:1.5;';
     css += 'box-shadow:0 10px 25px rgba(0,0,0,0.25);';
     css += 'opacity:0;visibility:hidden;transition:all 0.2s;';
     css += 'z-index:10010;pointer-events:none;';
@@ -242,14 +243,14 @@ export var AudioRecorderExtension = {
     css += 'border:6px solid transparent;border-top-color:#1e293b;';
     css += '}';
     css += '.vf-ar-info-wrapper:hover .vf-ar-tooltip,.vf-ar-tooltip.show{opacity:1;visibility:visible;}';
-    css += '.vf-ar-tooltip-title{font-weight:600;margin-bottom:8px;color:#fff;font-size:12px;}';
-    css += '.vf-ar-tooltip-list{margin:0;padding:0 0 0 14px;}';
-    css += '.vf-ar-tooltip-list li{margin-bottom:4px;}';
+    css += '.vf-ar-tooltip-title{font-weight:600;margin-bottom:6px;color:#fbbf24;font-size:11px;}';
+    css += '.vf-ar-tooltip-list{margin:0;padding:0 0 0 12px;font-size:10px;}';
+    css += '.vf-ar-tooltip-list li{margin-bottom:2px;}';
     css += '.vf-ar-tooltip-ok{color:#4ade80;}';
     css += '.vf-ar-tooltip-no{color:#f87171;}';
     css += '.vf-ar-tooltip-tip{';
-    css += 'margin-top:10px;padding-top:8px;border-top:1px solid #334155;';
-    css += 'font-style:italic;color:#94a3b8;';
+    css += 'margin-top:8px;padding-top:6px;border-top:1px solid #334155;';
+    css += 'font-size:10px;color:#94a3b8;';
     css += '}';
     
     css += '.vf-ar-timer-section{padding:24px 16px 16px;text-align:center;background:#fff;}';
@@ -404,9 +405,9 @@ export var AudioRecorderExtension = {
     html += iconVideo('#0369a1', 16);
     html += '<span>Mode Appel Visio</span>';
     html += '<div class="vf-ar-info-wrapper">';
-    html += '<button class="vf-ar-info-btn" type="button" id="vf-ar-info-btn">' + iconInfo('#0369a1', 14) + '</button>';
+    html += '<button class="vf-ar-info-btn" type="button" id="vf-ar-info-btn">⚠ compatibilité</button>';
     html += '<div class="vf-ar-tooltip" id="vf-ar-tooltip">';
-    html += '<div class="vf-ar-tooltip-title">💡 Compatibilité</div>';
+    html += '<div class="vf-ar-tooltip-title">⚠️ Fonctionne uniquement avec :</div>';
     html += '<ul class="vf-ar-tooltip-list">';
     html += '<li class="vf-ar-tooltip-ok">✓ Google Meet</li>';
     html += '<li class="vf-ar-tooltip-ok">✓ Zoom <strong>web</strong> (zoom.us/wc/)</li>';
@@ -414,7 +415,7 @@ export var AudioRecorderExtension = {
     html += '<li class="vf-ar-tooltip-no">✗ Zoom application</li>';
     html += '<li class="vf-ar-tooltip-no">✗ Teams application</li>';
     html += '</ul>';
-    html += '<div class="vf-ar-tooltip-tip">Astuce : Pour Zoom, rejoignez via zoom.us/wc/ dans Chrome</div>';
+    html += '<div class="vf-ar-tooltip-tip">💡 Pour Zoom, rejoignez via zoom.us/wc/ dans Chrome</div>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -1230,9 +1231,8 @@ export var AudioRecorderExtension = {
       }
     });
     
-    console.log('[AudioRecorder] v8.1 Ready');
+    console.log('[AudioRecorder] v8.2 Ready');
     console.log('[AudioRecorder] System audio capture mode available');
-    console.log('[AudioRecorder] Help tooltip added for compatibility info');
   }
 };
 
