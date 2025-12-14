@@ -1,13 +1,14 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v8.3
+ * VOICEFLOW AUDIO RECORDER EXTENSION v8.4
  * =============================================================================
- * NEW IN v8.3:
- * - Ultra minimal "?" indicator (12px circle)
- * - Cleaner tooltip, more compact
- * - Fixed layout issues
+ * FIXES IN v8.4:
+ * - Fixed transcript not updating after injection
+ * - Added WebSocket state verification after inject
+ * - Added programmatic update flag to prevent input listener interference
+ * - Added debug logging for troubleshooting
  * 
- * @version 8.3.0
+ * @version 8.4.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -672,15 +673,22 @@ export var AudioRecorderExtension = {
     }
     
     // FIX: Updated updateDisplay to properly sync inject button state
+    var isProgrammaticUpdate = false;
+    
     function updateDisplay() {
-      if (state.transcript || state.interimTranscript) {
-        var content = state.transcript;
-        if (state.interimTranscript) {
-          content += '<span class="interim">' + state.interimTranscript + '</span>';
-        }
+      var content = state.transcript;
+      if (state.interimTranscript) {
+        content += '<span class="interim">' + state.interimTranscript + '</span>';
+      }
+      
+      // Always update the DOM, even if content is empty (to clear old content)
+      if (content) {
+        isProgrammaticUpdate = true;
         els.transcript.innerHTML = content;
         els.transcript.scrollTop = els.transcript.scrollHeight;
+        isProgrammaticUpdate = false;
       }
+      
       // Always update inject button based on actual conditions
       updateInjectButton();
     }
@@ -761,18 +769,26 @@ export var AudioRecorderExtension = {
           var d = JSON.parse(e.data);
           if (d.message_type === 'session_started') {
             clearTimeout(timeout);
+            console.log('[AudioRecorder] WebSocket session started');
             resolve(ws);
           } else if (d.message_type === 'partial_transcript' && d.text) {
             state.interimTranscript = d.text;
+            console.log('[AudioRecorder] Partial:', d.text.substring(0, 50) + '...');
             updateDisplay();
           } else if ((d.message_type === 'committed_transcript' || d.message_type === 'committed_transcript_with_timestamps') && d.text && d.text.trim()) {
             state.transcript += d.text + ' ';
             state.interimTranscript = '';
+            console.log('[AudioRecorder] Committed:', d.text);
             updateDisplay();
           }
         };
-        ws.onerror = function() { clearTimeout(timeout); reject(new Error('WS Error')); };
+        ws.onerror = function(err) { 
+          console.error('[AudioRecorder] WebSocket error:', err);
+          clearTimeout(timeout); 
+          reject(new Error('WS Error')); 
+        };
         ws.onclose = function(e) {
+          console.log('[AudioRecorder] WebSocket closed, code:', e.code, 'reason:', e.reason);
           if (state.isRecording && e.code !== 1000) toast('Connexion perdue', 'error');
         };
         state.websocket = ws;
@@ -1174,9 +1190,12 @@ export var AudioRecorderExtension = {
     };
     
     // FIX: Listen to transcript edits to update inject button
+    // But ignore programmatic updates
     els.transcript.addEventListener('input', function() {
-      // Sync state with DOM when user edits
+      if (isProgrammaticUpdate) return;
+      // Sync state with DOM when user manually edits
       state.transcript = getTranscriptText();
+      state.interimTranscript = ''; // Clear interim since user is editing
       updateInjectButton();
     });
     
@@ -1185,6 +1204,10 @@ export var AudioRecorderExtension = {
       if (!txt) { toast('Aucun texte', 'error'); return; }
       
       if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        // Store recording state before interact (in case it causes issues)
+        var wasRecording = state.isRecording;
+        var wasPaused = state.isPaused;
+        
         window.voiceflow.chat.interact({
           type: 'event',
           payload: {
@@ -1195,6 +1218,7 @@ export var AudioRecorderExtension = {
             mode: state.captureSystemAudio ? 'visio' : 'mic_only'
           }
         });
+        
         toast('Injecté!', 'success');
         
         // Clear transcript for new sequence but KEEP recording running
@@ -1203,8 +1227,18 @@ export var AudioRecorderExtension = {
         els.transcript.innerHTML = '';
         updateInjectButton();
         
+        // Verify WebSocket is still connected
+        if (wasRecording && state.websocket) {
+          if (state.websocket.readyState !== WebSocket.OPEN) {
+            console.warn('[AudioRecorder] WebSocket closed after inject, state:', state.websocket.readyState);
+            toast('Connexion perdue - relancez l\'enregistrement', 'error');
+            stopRecording();
+          } else {
+            console.log('[AudioRecorder] Injection OK - WebSocket still connected, continuing recording');
+          }
+        }
+        
         // Recording continues - no stopRecording() call
-        // Next injection will only send new text since this point
       } else {
         toast('Voiceflow non trouvé', 'error');
       }
@@ -1220,7 +1254,7 @@ export var AudioRecorderExtension = {
       }
     });
     
-    console.log('[AudioRecorder] v8.3 Ready');
+    console.log('[AudioRecorder] v8.4 Ready - with injection fix');
   }
 };
 
