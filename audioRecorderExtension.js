@@ -1,14 +1,14 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v8.4
+ * VOICEFLOW AUDIO RECORDER EXTENSION v9.0
  * =============================================================================
- * FIXES IN v8.4:
- * - Fixed transcript not updating after injection
- * - Added WebSocket state verification after inject
- * - Added programmatic update flag to prevent input listener interference
- * - Added debug logging for troubleshooting
+ * MAJOR CHANGES IN v9.0:
+ * - Merged "Inject" button with "Stop" button
+ * - Stop button now: Injects transcript + Clears it + Continues recording
+ * - Recording only stops when clicking X (close) or pressing Escape
+ * - Removed separate inject button for cleaner UI
  * 
- * @version 8.4.0
+ * @version 9.0.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -274,7 +274,7 @@ export var AudioRecorderExtension = {
     css += 'box-shadow:0 4px 16px rgba(239,68,68,0.4);';
     css += '}';
     css += '.vf-ar-btn-record:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(239,68,68,0.5);}';
-    css += '.vf-ar-btn-record.recording{background:linear-gradient(135deg,#4b5563,#374151);box-shadow:0 4px 16px rgba(75,85,99,0.4);}';
+    css += '.vf-ar-btn-record.recording{background:linear-gradient(135deg,' + config.primaryColor + ',' + config.primaryDark + ');box-shadow:0 4px 16px rgba(240,131,0,0.4);}';
     
     css += '.vf-ar-btn-secondary{';
     css += 'width:48px;height:48px;border-radius:50%;';
@@ -317,20 +317,8 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-transcript:empty::before{content:"La transcription apparaîtra ici...";color:#9ca3af;font-style:italic;}';
     css += '.vf-ar-transcript .interim{color:#9ca3af;font-style:italic;}';
     
-    css += '.vf-ar-inject{';
-    css += 'width:100%;margin-top:12px;padding:14px 16px;';
-    css += 'border-radius:10px;border:none;';
-    css += 'background:linear-gradient(135deg,' + config.primaryColor + ',' + config.primaryDark + ');';
-    css += 'color:#fff;font-size:14px;font-weight:600;cursor:pointer;';
-    css += 'display:flex;align-items:center;justify-content:center;gap:8px;';
-    css += 'box-shadow:0 4px 14px rgba(240,131,0,0.35);';
-    css += 'transition:all 0.3s ease;';
-    css += '}';
-    css += '.vf-ar-inject:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,131,0,0.45);}';
-    css += '.vf-ar-inject:disabled{opacity:0.5;cursor:not-allowed;}';
-    
     css += '.vf-ar-toast{';
-    css += 'position:fixed;bottom:120px;left:50%;';
+   css += 'position:fixed;bottom:120px;left:50%;';
     css += 'transform:translateX(-50%) translateY(20px);';
     css += 'padding:12px 20px;border-radius:10px;';
     css += 'font-size:13px;font-weight:600;z-index:10002;';
@@ -445,7 +433,6 @@ export var AudioRecorderExtension = {
     html += '<button class="vf-ar-action-btn vf-ar-btn-clear" id="vf-ar-clear" title="Effacer">' + iconTrash('#dc2626', 12) + '</button>';
     html += '</div></div>';
     html += '<div class="vf-ar-transcript" id="vf-ar-transcript" contenteditable="true"></div>';
-    html += '<button class="vf-ar-inject" id="vf-ar-inject" disabled>' + iconSend('#FFFFFF', 16) + '<span>Injecter dans l\'agent</span></button>';
     html += '</div>';
     
     panel.innerHTML = html;
@@ -469,7 +456,6 @@ export var AudioRecorderExtension = {
       transcript: document.getElementById('vf-ar-transcript'),
       copy: document.getElementById('vf-ar-copy'),
       clear: document.getElementById('vf-ar-clear'),
-      inject: document.getElementById('vf-ar-inject'),
       systemToggle: document.getElementById('vf-ar-system-toggle'),
       infoBtn: document.getElementById('vf-ar-info-btn'),
       tooltip: document.getElementById('vf-ar-tooltip')
@@ -688,16 +674,6 @@ export var AudioRecorderExtension = {
         els.transcript.scrollTop = els.transcript.scrollHeight;
         isProgrammaticUpdate = false;
       }
-      
-      // Always update inject button based on actual conditions
-      updateInjectButton();
-    }
-    
-    // FIX: Dedicated function to update inject button state
-    // Button is ONLY disabled when there's no text - user can inject anytime
-    function updateInjectButton() {
-      var hasContent = hasTranscriptContent();
-      els.inject.disabled = !hasContent;
     }
     
     function setUI(mode) {
@@ -707,6 +683,7 @@ export var AudioRecorderExtension = {
           els.toggle.innerHTML = iconMic('#FFFFFF', 26);
           els.record.classList.remove('recording');
           els.record.innerHTML = iconMic('#FFFFFF', 28);
+          els.record.title = 'Démarrer l\'enregistrement';
           els.pause.disabled = true;
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot';
@@ -722,7 +699,8 @@ export var AudioRecorderExtension = {
         case 'recording':
           els.toggle.classList.add('recording');
           els.record.classList.add('recording');
-          els.record.innerHTML = iconStop('#FFFFFF', 28);
+          els.record.innerHTML = iconSend('#FFFFFF', 24);
+          els.record.title = 'Injecter le transcript';
           els.pause.disabled = false;
           els.pause.innerHTML = iconPause('#374151', 22);
           els.dot.className = 'vf-ar-status-dot recording';
@@ -740,8 +718,6 @@ export var AudioRecorderExtension = {
           els.label.textContent = state.captureSystemAudio ? 'Enregistrement (Visio)...' : 'Enregistrement...';
           break;
       }
-      // FIX: Always update inject button after UI state change
-      updateInjectButton();
     }
 
     // =========================================================================
@@ -1086,11 +1062,50 @@ export var AudioRecorderExtension = {
       cleanup();
       for (var i = 0; i < els.bars.length; i++) els.bars[i].style.height = '4px';
       setUI('idle');
-      // FIX: Delay to ensure final transcript is processed
-      setTimeout(function() {
-        updateInjectButton();
-      }, 100);
       toast('Enregistrement terminé', 'success');
+    }
+    
+    // Inject transcript and continue recording
+    function injectAndContinue() {
+      var txt = getTranscriptText();
+      
+      if (!txt) {
+        toast('Aucun texte à injecter', 'info');
+        return;
+      }
+      
+      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
+        window.voiceflow.chat.interact({
+          type: 'event',
+          payload: {
+            event: { name: config.eventName },
+            call_transcript: txt,
+            duration: els.timer.textContent,
+            timestamp: new Date().toISOString(),
+            mode: state.captureSystemAudio ? 'visio' : 'mic_only'
+          }
+        });
+        
+        toast('Transcript injecté!', 'success');
+        
+        // Clear transcript for new sequence
+        state.transcript = '';
+        state.interimTranscript = '';
+        els.transcript.innerHTML = '';
+        
+        // Verify WebSocket is still connected
+        if (state.websocket && state.websocket.readyState !== WebSocket.OPEN) {
+          console.warn('[AudioRecorder] WebSocket closed after inject');
+          toast('Connexion perdue - relancez', 'error');
+          stopRecording();
+        } else {
+          console.log('[AudioRecorder] Injection OK - continuing recording');
+        }
+        
+        // Recording continues automatically
+      } else {
+        toast('Voiceflow non trouvé', 'error');
+      }
     }
     
     function togglePause() {
@@ -1156,12 +1171,22 @@ export var AudioRecorderExtension = {
     
     els.close.onclick = function(e) {
       e.stopPropagation();
+      // Stop recording if active before closing
+      if (state.isRecording) {
+        stopRecording();
+      }
       panel.classList.remove('open');
     };
     
+    // Record button: Start recording OR Inject + Continue
     els.record.onclick = function() {
-      if (state.isRecording) stopRecording();
-      else startRecording();
+      if (state.isRecording) {
+        // INJECT + CONTINUE (not stop)
+        injectAndContinue();
+      } else {
+        // Start new recording
+        startRecording();
+      }
     };
     
     els.pause.onclick = togglePause;
@@ -1185,67 +1210,24 @@ export var AudioRecorderExtension = {
       state.transcript = '';
       state.interimTranscript = '';
       els.transcript.innerHTML = '';
-      updateInjectButton();
       toast('Effacé', 'info');
     };
     
-    // FIX: Listen to transcript edits to update inject button
-    // But ignore programmatic updates
+    // Sync state with DOM when user manually edits transcript
     els.transcript.addEventListener('input', function() {
       if (isProgrammaticUpdate) return;
-      // Sync state with DOM when user manually edits
       state.transcript = getTranscriptText();
-      state.interimTranscript = ''; // Clear interim since user is editing
-      updateInjectButton();
+      state.interimTranscript = '';
     });
     
-    els.inject.onclick = function() {
-      var txt = getTranscriptText();
-      if (!txt) { toast('Aucun texte', 'error'); return; }
-      
-      if (window.voiceflow && window.voiceflow.chat && window.voiceflow.chat.interact) {
-        // Store recording state before interact (in case it causes issues)
-        var wasRecording = state.isRecording;
-        var wasPaused = state.isPaused;
-        
-        window.voiceflow.chat.interact({
-          type: 'event',
-          payload: {
-            event: { name: config.eventName },
-            call_transcript: txt,
-            duration: els.timer.textContent,
-            timestamp: new Date().toISOString(),
-            mode: state.captureSystemAudio ? 'visio' : 'mic_only'
-          }
-        });
-        
-        toast('Injecté!', 'success');
-        
-        // Clear transcript for new sequence but KEEP recording running
-        state.transcript = '';
-        state.interimTranscript = '';
-        els.transcript.innerHTML = '';
-        updateInjectButton();
-        
-        // Verify WebSocket is still connected
-        if (wasRecording && state.websocket) {
-          if (state.websocket.readyState !== WebSocket.OPEN) {
-            console.warn('[AudioRecorder] WebSocket closed after inject, state:', state.websocket.readyState);
-            toast('Connexion perdue - relancez l\'enregistrement', 'error');
-            stopRecording();
-          } else {
-            console.log('[AudioRecorder] Injection OK - WebSocket still connected, continuing recording');
-          }
-        }
-        
-        // Recording continues - no stopRecording() call
-      } else {
-        toast('Voiceflow non trouvé', 'error');
-      }
-    };
-    
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && panel.classList.contains('open')) panel.classList.remove('open');
+      if (e.key === 'Escape' && panel.classList.contains('open')) {
+        // Stop recording if active when closing with Escape
+        if (state.isRecording) {
+          stopRecording();
+        }
+        panel.classList.remove('open');
+      }
     });
     
     window.addEventListener('resize', function() {
@@ -1254,7 +1236,7 @@ export var AudioRecorderExtension = {
       }
     });
     
-    console.log('[AudioRecorder] v8.4 Ready - with injection fix');
+    console.log('[AudioRecorder] v9.0 Ready - Stop button now injects transcript');
   }
 };
 
