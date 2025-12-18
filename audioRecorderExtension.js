@@ -1,14 +1,18 @@
 /**
  * =============================================================================
- * VOICEFLOW AUDIO RECORDER EXTENSION v9.0
+ * VOICEFLOW AUDIO RECORDER EXTENSION v9.1
  * =============================================================================
- * MAJOR CHANGES IN v9.0:
- * - Merged "Inject" button with "Stop" button
- * - Stop button now: Injects transcript + Clears it + Continues recording
- * - Recording only stops when clicking X (close) or pressing Escape
- * - Removed separate inject button for cleaner UI
+ * CHANGES IN v9.1:
+ * - Updated compatibility info: Zoom app and Teams app now work
+ * - Added reminder banner when Mode Visio is enabled
+ * - Reminds user to check "Share tab audio" in Chrome popup
  * 
- * @version 9.0.0
+ * MAJOR CHANGES IN v9.0:
+ * - Merged "Inject" button with central button
+ * - Central button: Injects transcript + Clears it + Continues recording
+ * - Recording only stops when clicking X (close) or pressing Escape
+ * 
+ * @version 9.1.0
  */
 export var AudioRecorderExtension = {
   name: 'AudioRecorder',
@@ -209,6 +213,17 @@ export var AudioRecorderExtension = {
     css += '.vf-ar-switch input:checked + .vf-ar-switch-slider:before{transform:translateX(20px);}';
     css += '.vf-ar-switch input:disabled + .vf-ar-switch-slider{opacity:0.5;cursor:not-allowed;}';
     
+    // Reminder banner
+    css += '.vf-ar-reminder{';
+    css += 'display:flex;align-items:center;gap:8px;';
+    css += 'padding:10px 14px;margin:0;';
+    css += 'background:linear-gradient(135deg,#fef3c7,#fde68a);';
+    css += 'border-bottom:1px solid #f59e0b;';
+    css += 'font-size:11px;font-weight:500;color:#92400e;';
+    css += 'line-height:1.3;';
+    css += '}';
+    css += '.vf-ar-reminder-icon{font-size:14px;flex-shrink:0;}';
+    
     // Tiny ? info indicator
     css += '.vf-ar-info-wrapper{position:relative;display:inline-flex;align-items:center;margin-left:2px;}';
     css += '.vf-ar-info-btn{';
@@ -386,14 +401,13 @@ export var AudioRecorderExtension = {
     html += '<div class="vf-ar-info-wrapper">';
     html += '<button class="vf-ar-info-btn" type="button" id="vf-ar-info-btn">?</button>';
     html += '<div class="vf-ar-tooltip" id="vf-ar-tooltip">';
-    html += '<div class="vf-ar-tooltip-title">⚠️ Compatibilité</div>';
+    html += '<div class="vf-ar-tooltip-title">💡 Information</div>';
     html += '<ul class="vf-ar-tooltip-list">';
-    html += '<li class="vf-ar-tooltip-ok">✓ Google Meet</li>';
-    html += '<li class="vf-ar-tooltip-ok">✓ Zoom web (zoom.us/wc/)</li>';
-    html += '<li class="vf-ar-tooltip-ok">✓ Teams web</li>';
-    html += '<li class="vf-ar-tooltip-no">✗ Apps desktop (Zoom, Teams...)</li>';
+    html += '<li class="vf-ar-tooltip-ok">✓ Zoom application</li>';
+    html += '<li class="vf-ar-tooltip-ok">✓ Teams application</li>';
+    html += '<li class="vf-ar-tooltip-ok">✓ Google Meet (partager l\'audio)</li>';
     html += '</ul>';
-    html += '<div class="vf-ar-tooltip-tip">💡 Utilisez la version navigateur</div>';
+    html += '<div class="vf-ar-tooltip-tip">⚠️ Pour Meet/Teams web : cochez "Partager l\'audio de l\'onglet" dans Chrome</div>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -403,6 +417,12 @@ export var AudioRecorderExtension = {
     html += '<input type="checkbox" id="vf-ar-system-toggle">';
     html += '<span class="vf-ar-switch-slider"></span>';
     html += '</label>';
+    html += '</div>';
+    
+    // Reminder banner for system audio mode
+    html += '<div class="vf-ar-reminder" id="vf-ar-reminder" style="display:none;">';
+    html += '<span class="vf-ar-reminder-icon">⚠️</span>';
+    html += '<span>Cochez "Partager l\'audio de l\'onglet" dans la popup Chrome</span>';
     html += '</div>';
     
     // Timer
@@ -457,6 +477,7 @@ export var AudioRecorderExtension = {
       copy: document.getElementById('vf-ar-copy'),
       clear: document.getElementById('vf-ar-clear'),
       systemToggle: document.getElementById('vf-ar-system-toggle'),
+      reminder: document.getElementById('vf-ar-reminder'),
       infoBtn: document.getElementById('vf-ar-info-btn'),
       tooltip: document.getElementById('vf-ar-tooltip')
     };
@@ -1169,6 +1190,11 @@ export var AudioRecorderExtension = {
       }
     });
     
+    // Show/hide reminder when system audio mode is toggled
+    els.systemToggle.onchange = function() {
+      els.reminder.style.display = els.systemToggle.checked ? 'flex' : 'none';
+    };
+    
     els.close.onclick = function(e) {
       e.stopPropagation();
       // Stop recording if active before closing
@@ -1236,7 +1262,7 @@ export var AudioRecorderExtension = {
       }
     });
     
-    console.log('[AudioRecorder] v9.0 Ready - Stop button now injects transcript');
+    console.log('[AudioRecorder] v9.1 Ready');
   }
 };
 
