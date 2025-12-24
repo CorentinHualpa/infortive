@@ -1,8 +1,8 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.4
+   Infortive × Voiceflow — Thème stable v7.5
    + Police Plus Jakarta Sans (tous niveaux typographiques)
-   + Boutons natifs Voiceflow stylés
-   + Amélioration du contraste bouton "Envoyer"
+   + Boutons natifs Voiceflow stylés (ghost/outline)
+   + Bouton "Envoyer" avec fond actif
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    + Hiérarchie typographique optimisée
@@ -100,6 +100,7 @@ div.vfrc-header--title::after,
 }
 /* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
+   ✅ OPTION A : Ghost button (outline) - Plus discret
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -110,22 +111,20 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   
-  /* Fond dégradé orange Infortive */
-  background: linear-gradient(135deg, #F08300, #d46f00) !important;
+  /* ✅ Fond transparent avec bordure orange */
+  background: transparent !important;
+  border: 1.5px solid #F08300 !important;
+  color: #F08300 !important;
   
-  /* Texte */
-  color: #ffffff !important;
+  /* ✅ Supprimer l'ombre bling-bling */
+  box-shadow: none !important;
   
   /* Forme */
-  border: none !important;
   border-radius: 6px !important;
   padding: 10px 18px !important;
   
-  /* Ombre */
-  box-shadow: 0 4px 12px rgba(240, 131, 0, 0.3) !important;
-  
-  /* Animation */
-  transition: all 0.3s ease !important;
+  /* Animation douce */
+  transition: all 0.25s ease !important;
   cursor: pointer !important;
   
   /* Espacement */
@@ -140,18 +139,21 @@ button.vfrc-button:not(.vfrc-header--button) {
   justify-content: center !important;
   gap: 8px !important;
 }
-/* Hover sur les boutons natifs */
+/* Hover sur les boutons natifs - remplissage léger */
 .vfrc-button:not(.vfrc-header--button):hover,
 button.vfrc-button:not(.vfrc-header--button):hover {
-  background: linear-gradient(135deg, #d46f00, #F08300) !important;
-  box-shadow: 0 6px 16px rgba(240, 131, 0, 0.4) !important;
-  transform: translateY(-2px) !important;
+  background: rgba(240, 131, 0, 0.1) !important;
+  border-color: #d46f00 !important;
+  color: #d46f00 !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 /* Active (clic) sur les boutons natifs */
 .vfrc-button:not(.vfrc-header--button):active,
 button.vfrc-button:not(.vfrc-header--button):active {
-  transform: translateY(0px) !important;
-  box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
+  background: rgba(240, 131, 0, 0.15) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 /* Conteneur des boutons */
 .vfrc-button-container,
@@ -161,7 +163,10 @@ button.vfrc-button:not(.vfrc-header--button):active {
   gap: 8px !important;
   padding: 8px 0 !important;
 }
-/* ---------- Bouton "Envoyer" ---------- */
+/* ==========================================================
+   Bouton "Envoyer"
+   ✅ OPTION A : Fond subtil inactif → Fond plein actif
+   ========================================================== */
 /* Cache complètement l'icône SVG */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
@@ -177,16 +182,16 @@ button.vfrc-button:not(.vfrc-header--button):active {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-/* Style général du bouton (état inactif) */
+/* ✅ État inactif : fond léger + bordure subtile */
 #vfrc-send-message,
 .vfrc-chat-input__send {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: rgba(240, 131, 0, 0.08) !important;
+  border: 1px solid rgba(240, 131, 0, 0.25) !important;
   border-radius: 6px !important;
-  padding: 8px 14px !important;
-  color: rgba(240, 131, 0, 0.35) !important;
-  transition: all 0.25s ease-in-out;
+  padding: 8px 16px !important;
+  color: rgba(240, 131, 0, 0.5) !important;
+  box-shadow: none !important;
+  transition: all 0.25s ease-in-out !important;
   cursor: not-allowed;
   display: flex !important;
   align-items: center;
@@ -196,18 +201,28 @@ button.vfrc-button:not(.vfrc-header--button):active {
   text-align: center;
   user-select: none;
 }
-/* État actif : orange vif + curseur clic */
+/* ✅ État actif : fond orange plein + texte blanc */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  color: #F08300 !important;
+  background: linear-gradient(135deg, #F08300, #d46f00) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
   cursor: pointer;
   opacity: 1;
 }
 /* Hover actif */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
-  color: #d46f00 !important;
-  text-decoration: underline;
+  background: linear-gradient(135deg, #d46f00, #c56200) !important;
+  box-shadow: 0 4px 12px rgba(240, 131, 0, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+/* Active (clic) */
+#vfrc-send-message:not([disabled]):active,
+.vfrc-chat-input__send:not([disabled]):active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(240, 131, 0, 0.3) !important;
 }
 /* Conteneur du bouton (évite clipping) */
 .vfrc-chat-input__actions {
