@@ -7,33 +7,50 @@
  *  ║  • Copie : Brut (HTML) / Formaté (texte propre)         ║
  *  ║  • Résumé exécutif max 180 mots (1 page)                ║
  *  ║  • Footer avec contacts Infortive                        ║
+ *  ║  • v2 - Fixes Word et HTML                               ║
  *  ╚═══════════════════════════════════════════════════════════╝
  */
+
+// ═══════════════════════════════════════════════════════════
+// LOG DE CHARGEMENT
+// ═══════════════════════════════════════════════════════════
+console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.1 - ' + new Date().toISOString());
 
 export const InfortiveExecutiveSummary = {
   name: 'InfortiveExecutiveSummary',
   type: 'response',
   
-  match: ({ trace }) => trace.type === 'infortive_summary' || trace.payload?.type === 'infortive_summary',
+  match: ({ trace }) => {
+    const isMatch = trace.type === 'infortive_summary' || trace.payload?.type === 'infortive_summary';
+    console.log('🔍 [InfortiveExecutiveSummary] match() appelé:', {
+      traceType: trace.type,
+      payloadType: trace.payload?.type,
+      isMatch: isMatch
+    });
+    return isMatch;
+  },
 
   render: ({ trace, element }) => {
+    console.log('🎨 [InfortiveExecutiveSummary] render() appelé');
+    console.log('📦 [InfortiveExecutiveSummary] Payload reçu:', trace.payload);
+    
     try {
       // ═══════════════════════════════════════════════════════════
       // CONFIGURATION INFORTIVE
       // ═══════════════════════════════════════════════════════════
       const INFORTIVE = {
         colors: {
-          primary: '#0B3954',      // Bleu marine
-          accent: '#E57C23',       // Orange
-          text: '#333333',         // Texte principal
-          textLight: '#666666',    // Texte secondaire
+          primary: '#0B3954',
+          accent: '#E57C23',
+          text: '#333333',
+          textLight: '#666666',
           white: '#FFFFFF',
           background: '#F8F9FA'
         },
         logos: {
-          main: 'https://i.imgur.com/VnAvdRW.png',           // Logo couleur
-          footer: 'https://i.imgur.com/p3SecSW.png',         // Bande footer
-          white: 'https://i.imgur.com/VnAvdRW.png'           // Logo blanc (à remplacer si disponible)
+          main: 'https://i.imgur.com/VnAvdRW.png',
+          footer: 'https://i.imgur.com/p3SecSW.png',
+          white: 'https://i.imgur.com/VnAvdRW.png'
         },
         contacts: [
           { name: 'Hajar ZINE EDDINE', role: 'Directrice Générale', phone: '+33 6 72 71 98 90', email: 'hzineeddine@infortive.com' },
@@ -50,7 +67,7 @@ export const InfortiveExecutiveSummary = {
         missionTitle: 'Résumé Exécutif',
         content: '',
         fileName: 'infortive_resume_executif',
-        clientLogo: '',                              // URL du logo client (optionnel)
+        clientLogo: '',
         showClientLogo: false,
         isConfidential: true,
         downloadIconText: '📥',
@@ -73,7 +90,6 @@ export const InfortiveExecutiveSummary = {
               const parsed = JSON.parse(cleanPayload);
               config = { ...defaultConfig, ...parsed };
             } catch (e) {
-              // Parsing manuel en cas d'échec
               const missionNameMatch = cleanPayload.match(/"missionName"\s*:\s*"([^"]+)"/);
               const missionTitleMatch = cleanPayload.match(/"missionTitle"\s*:\s*"([^"]+)"/);
               const fileNameMatch = cleanPayload.match(/"fileName"\s*:\s*"([^"]+)"/);
@@ -90,7 +106,6 @@ export const InfortiveExecutiveSummary = {
               }
             }
           } else {
-            // MODE TEXT avec options
             const parts = cleanPayload.split('###OPTIONS###');
             config.content = parts[0].trim();
             
@@ -122,13 +137,20 @@ export const InfortiveExecutiveSummary = {
         config = { ...defaultConfig, ...trace.payload };
       }
 
-      // Vérifier si on a du contenu
+      console.log('⚙️ [InfortiveExecutiveSummary] Config parsée:', {
+        missionName: config.missionName,
+        missionTitle: config.missionTitle,
+        contentLength: config.content?.length || 0,
+        formats: config.formats
+      });
+
       if (!config.content || config.content.trim() === '') {
-        console.warn('InfortiveExecutiveSummary: Aucun contenu fourni');
+        console.warn('⚠️ [InfortiveExecutiveSummary] Aucun contenu fourni');
         return;
       }
+      
+      console.log('✅ [InfortiveExecutiveSummary] Contenu valide, création des boutons...');
 
-      // Container principal pour les boutons
       const container = document.createElement('div');
       container.className = 'infortive-actions-container';
       
@@ -137,7 +159,6 @@ export const InfortiveExecutiveSummary = {
       // ═══════════════════════════════════════════════════════════
       const styleEl = document.createElement('style');
       styleEl.textContent = `
-        /* Container principal */
         .infortive-actions-container {
           display: inline-flex !important;
           gap: 8px !important;
@@ -174,9 +195,7 @@ export const InfortiveExecutiveSummary = {
           border-color: ${INFORTIVE.colors.accent} !important;
         }
 
-        .action-button.copied {
-          color: #4CAF50 !important;
-        }
+        .action-button.copied { color: #4CAF50 !important; }
 
         .action-button-icon {
           font-size: 16px !important;
@@ -185,9 +204,7 @@ export const InfortiveExecutiveSummary = {
           transition: all 0.2s ease !important;
         }
 
-        .action-button:hover .action-button-icon {
-          opacity: 1 !important;
-        }
+        .action-button:hover .action-button-icon { opacity: 1 !important; }
 
         .action-menu {
           position: absolute !important;
@@ -202,7 +219,6 @@ export const InfortiveExecutiveSummary = {
           opacity: 0 !important;
           visibility: hidden !important;
           transition: all 0.15s ease !important;
-          min-width: auto !important;
         }
 
         .action-menu.menu-below {
@@ -211,10 +227,7 @@ export const InfortiveExecutiveSummary = {
           box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
         }
 
-        .action-menu.show {
-          opacity: 1 !important;
-          visibility: visible !important;
-        }
+        .action-menu.show { opacity: 1 !important; visibility: visible !important; }
 
         .action-menu-option {
           display: flex !important;
@@ -227,38 +240,18 @@ export const InfortiveExecutiveSummary = {
           font-size: 12px !important;
           cursor: pointer !important;
           border-radius: 4px !important;
-          transition: all 0.1s ease !important;
           width: 100% !important;
           text-align: left !important;
           white-space: nowrap !important;
         }
 
-        .action-menu-option:hover {
-          background: rgba(11, 57, 84, 0.1) !important;
-        }
+        .action-menu-option:hover { background: rgba(11, 57, 84, 0.1) !important; }
+        .action-menu-option + .action-menu-option { border-top: 1px solid #f0f0f0 !important; }
 
-        .action-menu-option-icon {
-          opacity: 0.8 !important;
-          font-size: 14px !important;
-        }
+        .action-button.generating { opacity: 0.6 !important; cursor: wait !important; }
+        .action-button.generating .action-button-icon { animation: spin 1s linear infinite !important; }
 
-        .action-menu-option + .action-menu-option {
-          border-top: 1px solid #f0f0f0 !important;
-        }
-
-        .action-button.generating {
-          opacity: 0.6 !important;
-          cursor: wait !important;
-        }
-
-        .action-button.generating .action-button-icon {
-          animation: spin 1s linear infinite !important;
-        }
-
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .action-toast {
           position: fixed !important;
@@ -269,18 +262,13 @@ export const InfortiveExecutiveSummary = {
           padding: 8px 16px !important;
           border-radius: 6px !important;
           font-size: 13px !important;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
           z-index: 10000 !important;
           opacity: 0 !important;
           transform: translateY(10px) !important;
           transition: all 0.2s ease !important;
-          pointer-events: none !important;
         }
 
-        .action-toast.show {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-        }
+        .action-toast.show { opacity: 1 !important; transform: translateY(0) !important; }
 
         .vfrc-message--extension-InfortiveExecutiveSummary {
           background: transparent !important;
@@ -289,20 +277,10 @@ export const InfortiveExecutiveSummary = {
           border: none !important;
           box-shadow: none !important;
         }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        .action-button {
-          animation: fadeIn 0.3s ease-out !important;
-        }
       `;
 
       container.appendChild(styleEl);
 
-      // Toast de notification
       let toast = document.querySelector('.action-toast');
       if (!toast) {
         toast = document.createElement('div');
@@ -320,297 +298,207 @@ export const InfortiveExecutiveSummary = {
       let downloadMenuVisible = false;
 
       // ═══════════════════════════════════════════════════════════
-      // GÉNÉRATION HTML (Style Infortive)
+      // GÉNÉRATION HTML - VERSION CORRIGÉE
       // ═══════════════════════════════════════════════════════════
       const generateHTML = () => {
+        console.log('📄 [InfortiveExecutiveSummary] generateHTML() appelé');
         const date = new Date();
-        const dateStr = date.toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        });
+        const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
         
         let htmlContent = config.content;
         
-        // Convertir le texte simple en HTML si nécessaire
         if (!htmlContent.includes('<')) {
-          htmlContent = htmlContent
-            .split('\n')
-            .map(line => {
-              line = line.trim();
-              if (!line) return '';
-              if (line.startsWith('•') || line.startsWith('-')) {
-                return `<li>${line.substring(1).trim()}</li>`;
-              }
-              return `<p>${line}</p>`;
-            })
-            .join('\n')
-            .replace(/<li>/g, '<ul><li>')
-            .replace(/<\/li>\n(?!<li>)/g, '</li></ul>\n');
+          htmlContent = htmlContent.split('\n').map(line => {
+            line = line.trim();
+            if (!line) return '';
+            if (line.startsWith('•') || line.startsWith('-')) return `<li>${line.substring(1).trim()}</li>`;
+            return `<p>${line}</p>`;
+          }).join('\n').replace(/<li>/g, '<ul><li>').replace(/<\/li>\n(?!<li>)/g, '</li></ul>\n');
         }
         
-        const html = `<!DOCTYPE html>
+        return `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="ProgId" content="Word.Document">
   <title>${config.missionTitle} - ${config.missionName} - Infortive</title>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
-    @page {
-      size: A4;
-      margin: 0;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     
     html, body {
       background: white;
       font-family: 'Merriweather', Georgia, serif;
       font-size: 11pt;
       line-height: 1.6;
-      color: ${INFORTIVE.colors.text};
-      height: 100%;
+      color: #333;
     }
     
     .page {
-      width: 210mm;
-      min-height: 297mm;
-      padding: 15mm 20mm;
+      max-width: 800px;
       margin: 0 auto;
-      background: white;
+      padding: 40px 50px 120px 50px;
+      min-height: 100vh;
       position: relative;
-      display: flex;
-      flex-direction: column;
     }
     
-    /* ═══════════ HEADER ═══════════ */
+    /* HEADER */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20mm;
-      padding-bottom: 5mm;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
       border-bottom: 1px solid #e0e0e0;
     }
     
-    .header-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2mm;
-    }
-    
     .logo-infortive {
-      height: 35px;
+      height: 55px;
       width: auto;
     }
     
     .tagline {
-      font-size: 9pt;
-      color: ${INFORTIVE.colors.accent};
+      font-size: 11pt;
+      color: #E57C23;
       font-style: italic;
-      margin-top: 2mm;
+      margin-top: 10px;
     }
     
-    .header-right {
-      text-align: right;
-    }
-    
-    .client-logo {
-      max-height: 40px;
-      max-width: 120px;
-    }
-    
-    /* ═══════════ TITLE SECTION ═══════════ */
+    /* TITLE SECTION */
     .title-section {
-      border-left: 4px solid ${INFORTIVE.colors.accent};
-      padding-left: 15px;
-      margin-bottom: 15mm;
+      border-left: 4px solid #E57C23;
+      padding-left: 20px;
+      margin: 40px 0;
     }
     
     .document-type {
-      font-size: 14pt;
-      color: ${INFORTIVE.colors.primary};
+      font-size: 16pt;
+      color: #0B3954;
       font-weight: 700;
-      margin-bottom: 3mm;
+      margin-bottom: 8px;
     }
     
     .mission-name {
-      font-size: 16pt;
-      color: ${INFORTIVE.colors.accent};
+      font-size: 18pt;
+      color: #E57C23;
       font-weight: 700;
-      margin-bottom: 3mm;
+      margin-bottom: 8px;
     }
     
     .confidential {
-      font-size: 10pt;
-      color: ${INFORTIVE.colors.textLight};
+      font-size: 11pt;
+      color: #666;
       font-style: italic;
-      margin-bottom: 2mm;
+      margin-bottom: 5px;
     }
     
     .date {
-      font-size: 10pt;
-      color: ${INFORTIVE.colors.accent};
+      font-size: 11pt;
+      color: #E57C23;
     }
     
-    /* ═══════════ CONTENT ═══════════ */
-    .content {
-      flex: 1;
-    }
-    
+    /* CONTENT */
     .content h2 {
-      font-size: 13pt;
-      color: ${INFORTIVE.colors.primary};
+      font-size: 14pt;
+      color: #0B3954;
       font-weight: 700;
-      margin: 8mm 0 4mm 0;
-      padding-bottom: 2mm;
-      border-bottom: 1px solid ${INFORTIVE.colors.accent};
+      margin: 25px 0 12px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #E57C23;
     }
     
     .content h3 {
-      font-size: 11pt;
-      color: ${INFORTIVE.colors.accent};
+      font-size: 12pt;
+      color: #E57C23;
       font-weight: 700;
-      margin: 6mm 0 3mm 0;
+      margin: 20px 0 10px 0;
     }
     
     .content p {
-      margin-bottom: 4mm;
+      margin-bottom: 12px;
       text-align: justify;
-      color: ${INFORTIVE.colors.text};
     }
     
     .content ul {
-      margin: 3mm 0 5mm 5mm;
-      padding-left: 5mm;
+      margin: 12px 0 18px 0;
+      padding-left: 0;
+      list-style: none;
     }
     
     .content li {
-      margin-bottom: 2mm;
-      color: ${INFORTIVE.colors.text};
-    }
-    
-    .content li::marker {
-      color: ${INFORTIVE.colors.accent};
-    }
-    
-    .content strong {
-      color: ${INFORTIVE.colors.primary};
-    }
-    
-    /* ═══════════ FOOTER ═══════════ */
-    .footer {
-      margin-top: auto;
-      background: ${INFORTIVE.colors.primary};
-      margin-left: -20mm;
-      margin-right: -20mm;
-      margin-bottom: -15mm;
-      padding: 8mm 20mm;
+      margin-bottom: 8px;
+      padding-left: 20px;
       position: relative;
     }
     
-    .footer-triangle {
+    .content li::before {
+      content: "•";
+      color: #E57C23;
+      font-weight: bold;
       position: absolute;
-      left: 20mm;
-      top: 0;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 0 0 25mm 15mm;
-      border-color: transparent transparent ${INFORTIVE.colors.accent} transparent;
-      transform: translateY(-100%);
+      left: 0;
     }
     
-    .footer-content {
+    .content strong { color: #0B3954; }
+    
+    /* FOOTER - POSITIONNÉ EN BAS, SANS CHEVAUCHEMENT */
+    .footer {
+      background: #0B3954;
+      padding: 20px 50px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    
+    .footer-inner {
+      max-width: 800px;
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
     }
     
-    .footer-contacts {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5mm;
+    /* Triangle orange - attaché au footer, pas au contenu */
+    .footer::before {
+      content: "";
+      position: absolute;
+      left: 50px;
+      top: -30px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 0 30px 25px;
+      border-color: transparent transparent #E57C23 transparent;
     }
     
-    .contact-line {
-      font-size: 8pt;
-      color: white;
-      line-height: 1.4;
-    }
+    .footer-contacts { display: flex; flex-direction: column; gap: 6px; }
     
-    .contact-name {
-      font-weight: 700;
-    }
-    
-    .contact-role {
-      color: ${INFORTIVE.colors.accent};
-    }
-    
-    .contact-info {
-      opacity: 0.9;
-    }
-    
-    .contact-info a {
-      color: white;
-      text-decoration: none;
-    }
-    
-    .footer-logo {
-      text-align: right;
-    }
+    .contact-line { font-size: 9pt; color: white; line-height: 1.4; }
+    .contact-name { font-weight: 700; }
+    .contact-role { color: #E57C23; }
+    .contact-info a { color: white; text-decoration: none; }
     
     .footer-logo-text {
       font-family: 'Merriweather', serif;
-      font-size: 20pt;
+      font-size: 22pt;
       font-weight: 700;
       color: white;
-      letter-spacing: -0.5px;
     }
     
-    .footer-logo-text .i-accent {
-      color: ${INFORTIVE.colors.accent};
-    }
+    .footer-logo-text .i-accent { color: #E57C23; }
     
-    /* Print styles */
     @media print {
-      .page {
-        width: 100%;
-        min-height: 100vh;
-        page-break-after: always;
-      }
-      
-      .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
+      .page { padding-bottom: 150px; }
+      .footer { position: fixed; bottom: 0; }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <!-- Header -->
     <div class="header">
-      <div class="header-left">
-        <img src="${INFORTIVE.logos.main}" alt="Infortive" class="logo-infortive">
-        <div class="tagline">${INFORTIVE.tagline}</div>
-      </div>
-      ${config.showClientLogo && config.clientLogo ? `
-      <div class="header-right">
-        <img src="${config.clientLogo}" alt="Logo Client" class="client-logo">
-      </div>
-      ` : ''}
+      <img src="${INFORTIVE.logos.main}" alt="Infortive" class="logo-infortive">
+      <div class="tagline">${INFORTIVE.tagline}</div>
     </div>
     
-    <!-- Title Section -->
     <div class="title-section">
       <div class="document-type">${config.missionTitle}</div>
       <div class="mission-name">${config.missionName}</div>
@@ -618,40 +506,214 @@ export const InfortiveExecutiveSummary = {
       <div class="date">${dateStr}</div>
     </div>
     
-    <!-- Content -->
-    <div class="content">
-      ${htmlContent}
-    </div>
-    
-    <!-- Footer -->
-    <div class="footer">
-      <div class="footer-triangle"></div>
-      <div class="footer-content">
-        <div class="footer-contacts">
-          ${INFORTIVE.contacts.map(c => `
-            <div class="contact-line">
-              <span class="contact-name">${c.name}</span> – 
-              <span class="contact-role">${c.role}</span><br>
-              <span class="contact-info">${c.phone} – <a href="mailto:${c.email}">${c.email}</a></span>
-            </div>
-          `).join('')}
-        </div>
-        <div class="footer-logo">
-          <div class="footer-logo-text"><span class="i-accent">i</span>nfortive</div>
-        </div>
+    <div class="content">${htmlContent}</div>
+  </div>
+  
+  <div class="footer">
+    <div class="footer-inner">
+      <div class="footer-contacts">
+        ${INFORTIVE.contacts.map(c => `
+          <div class="contact-line">
+            <span class="contact-name">${c.name}</span> – 
+            <span class="contact-role">${c.role}</span><br>
+            <span class="contact-info">${c.phone} – <a href="mailto:${c.email}">${c.email}</a></span>
+          </div>
+        `).join('')}
       </div>
+      <div class="footer-logo-text"><span class="i-accent">i</span>nfortive</div>
     </div>
   </div>
 </body>
 </html>`;
-        
-        return html;
       };
 
       // ═══════════════════════════════════════════════════════════
-      // GÉNÉRATION PDF
+      // GÉNÉRATION WORD - VERSION CORRIGÉE
+      // ═══════════════════════════════════════════════════════════
+      const generateDOCX = async () => {
+        console.log('📝 [InfortiveExecutiveSummary] generateDOCX() appelé');
+        const date = new Date();
+        const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+        
+        let htmlContent = config.content;
+        
+        if (!htmlContent.includes('<')) {
+          htmlContent = htmlContent.split('\n').map(line => {
+            line = line.trim();
+            if (!line) return '';
+            if (line.startsWith('•') || line.startsWith('-')) return `<li>${line.substring(1).trim()}</li>`;
+            return `<p>${line}</p>`;
+          }).join('\n').replace(/<li>/g, '<ul><li>').replace(/<\/li>\n(?!<li>)/g, '</li></ul>\n');
+        }
+        
+        const wordHtml = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    @page { size: A4; margin: 2cm; }
+    
+    body {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #333;
+    }
+    
+    /* HEADER - LOGO TAILLE CONTRÔLÉE */
+    .header {
+      margin-bottom: 15pt;
+      padding-bottom: 10pt;
+      border-bottom: 1pt solid #e0e0e0;
+    }
+    
+    .header table { border-collapse: collapse; }
+    .header td { border: none; padding: 0; }
+    
+    .tagline {
+      font-size: 9pt;
+      color: #E57C23;
+      font-style: italic;
+      margin-top: 8pt;
+    }
+    
+    /* TITLE SECTION */
+    .title-section {
+      border-left: 3pt solid #E57C23;
+      padding-left: 12pt;
+      margin: 20pt 0;
+    }
+    
+    .document-type {
+      font-size: 14pt;
+      color: #0B3954;
+      font-weight: bold;
+      margin-bottom: 5pt;
+    }
+    
+    .mission-name {
+      font-size: 16pt;
+      color: #E57C23;
+      font-weight: bold;
+      margin-bottom: 5pt;
+    }
+    
+    .confidential {
+      font-size: 10pt;
+      color: #666;
+      font-style: italic;
+    }
+    
+    .date {
+      font-size: 10pt;
+      color: #E57C23;
+    }
+    
+    /* CONTENT */
+    .content h2 {
+      font-size: 13pt;
+      color: #0B3954;
+      font-weight: bold;
+      margin: 15pt 0 8pt 0;
+      border-bottom: 1pt solid #E57C23;
+      padding-bottom: 3pt;
+    }
+    
+    .content h3 {
+      font-size: 11pt;
+      color: #E57C23;
+      font-weight: bold;
+      margin: 12pt 0 6pt 0;
+    }
+    
+    .content p {
+      margin-bottom: 8pt;
+      text-align: justify;
+    }
+    
+    .content ul { margin: 8pt 0 12pt 20pt; }
+    .content li { margin-bottom: 4pt; }
+    .content strong { color: #0B3954; }
+    
+    /* FOOTER - TABLEAU SIMPLE POUR WORD */
+    .footer-table {
+      width: 100%;
+      background-color: #0B3954;
+      margin-top: 30pt;
+      border-collapse: collapse;
+    }
+    
+    .footer-table td {
+      padding: 12pt;
+      vertical-align: middle;
+    }
+    
+    .footer-contacts { font-size: 8pt; color: white; }
+    .contact-name { font-weight: bold; color: white; }
+    .contact-role { color: #E57C23; }
+    .contact-info { color: #cccccc; }
+    
+    .footer-logo {
+      font-size: 18pt;
+      font-weight: bold;
+      color: white;
+      text-align: right;
+    }
+    
+    .i-orange { color: #E57C23; }
+  </style>
+</head>
+<body>
+  <!-- HEADER avec logo de taille fixe -->
+  <div class="header">
+    <table><tr><td>
+      <img src="${INFORTIVE.logos.main}" width="150" height="52" style="width:150px;height:52px;">
+    </td></tr></table>
+    <div class="tagline">${INFORTIVE.tagline}</div>
+  </div>
+  
+  <!-- TITLE SECTION -->
+  <div class="title-section">
+    <div class="document-type">${config.missionTitle}</div>
+    <div class="mission-name">${config.missionName}</div>
+    ${config.isConfidential ? '<div class="confidential">Confidentiel</div>' : ''}
+    <div class="date">${dateStr}</div>
+  </div>
+  
+  <!-- CONTENT -->
+  <div class="content">${htmlContent}</div>
+  
+  <!-- FOOTER - Format tableau pour Word -->
+  <table class="footer-table">
+    <tr>
+      <td style="width:70%;">
+        <div class="footer-contacts">
+          ${INFORTIVE.contacts.map(c => `
+            <div style="margin-bottom:6pt;">
+              <span class="contact-name">${c.name}</span> – 
+              <span class="contact-role">${c.role}</span><br>
+              <span class="contact-info">${c.phone} – ${c.email}</span>
+            </div>
+          `).join('')}
+        </div>
+      </td>
+      <td style="width:30%;">
+        <div class="footer-logo"><span class="i-orange">i</span>nfortive</div>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+        return new Blob([wordHtml], { type: 'application/msword' });
+      };
+
+      // ═══════════════════════════════════════════════════════════
+      // GÉNÉRATION PDF (inchangé - fonctionne bien)
       // ═══════════════════════════════════════════════════════════
       const generatePDF = async () => {
+        console.log('📕 [InfortiveExecutiveSummary] generatePDF() appelé');
         if (!window.jspdf) {
           const script = document.createElement('script');
           script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -660,18 +722,13 @@ export const InfortiveExecutiveSummary = {
         }
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait'
-        });
+        const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
         
         const pageWidth = doc.internal.pageSize.width;
         const pageHeight = doc.internal.pageSize.height;
         const margin = 20;
         const contentWidth = pageWidth - 2 * margin;
         
-        // Charger le logo
         const loadImageAsBase64 = async (url) => {
           try {
             const response = await fetch(url);
@@ -682,53 +739,38 @@ export const InfortiveExecutiveSummary = {
               reader.onerror = reject;
               reader.readAsDataURL(blob);
             });
-          } catch (error) {
-            console.error('Erreur de chargement de l\'image:', error);
-            return null;
-          }
+          } catch (error) { return null; }
         };
         
         const logoBase64 = await loadImageAsBase64(INFORTIVE.logos.main);
-        
         let yPos = 15;
         
-        // ═══════ HEADER ═══════
-        if (logoBase64) {
-          doc.addImage(logoBase64, 'PNG', margin, yPos, 40, 14);
-        }
+        if (logoBase64) doc.addImage(logoBase64, 'PNG', margin, yPos, 40, 14);
         
-        // Tagline
         doc.setFontSize(9);
-        doc.setTextColor(229, 124, 35); // Orange
+        doc.setTextColor(229, 124, 35);
         doc.text(INFORTIVE.tagline, margin, yPos + 20);
         
-        // Ligne de séparation header
         yPos = 42;
         doc.setDrawColor(224, 224, 224);
         doc.setLineWidth(0.3);
         doc.line(margin, yPos, pageWidth - margin, yPos);
         
-        // ═══════ TITLE SECTION ═══════
         yPos = 55;
-        
-        // Barre orange à gauche
         doc.setFillColor(229, 124, 35);
         doc.rect(margin, yPos, 1.5, 35, 'F');
         
         const titleX = margin + 6;
         
-        // Document type
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
-        doc.setTextColor(11, 57, 84); // Bleu marine
+        doc.setTextColor(11, 57, 84);
         doc.text(config.missionTitle, titleX, yPos + 5);
         
-        // Mission name
         doc.setFontSize(16);
-        doc.setTextColor(229, 124, 35); // Orange
+        doc.setTextColor(229, 124, 35);
         doc.text(config.missionName, titleX, yPos + 15);
         
-        // Confidential
         if (config.isConfidential) {
           doc.setFontSize(10);
           doc.setFont(undefined, 'italic');
@@ -736,36 +778,22 @@ export const InfortiveExecutiveSummary = {
           doc.text('Confidentiel', titleX, yPos + 23);
         }
         
-        // Date
         const date = new Date();
-        const dateStr = date.toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        });
+        const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         doc.setTextColor(229, 124, 35);
         doc.text(dateStr, titleX, yPos + 30);
         
-        // ═══════ CONTENT ═══════
         yPos = 100;
         doc.setFontSize(11);
         doc.setFont(undefined, 'normal');
         doc.setTextColor(51, 51, 51);
         
-        // Parser et afficher le contenu
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = config.content;
         
-        const cleanText = (text) => {
-          return text
-            .replace(/•/g, '-')
-            .replace(/–/g, '-')
-            .replace(/'/g, "'")
-            .replace(/"/g, '"')
-            .replace(/"/g, '"');
-        };
+        const cleanText = (text) => text.replace(/•/g, '-').replace(/–/g, '-').replace(/'/g, "'").replace(/"/g, '"').replace(/"/g, '"');
         
         const processContent = (node) => {
           if (node.nodeType === Node.TEXT_NODE) {
@@ -773,10 +801,7 @@ export const InfortiveExecutiveSummary = {
             if (text) {
               const lines = doc.splitTextToSize(cleanText(text), contentWidth);
               lines.forEach(line => {
-                if (yPos > pageHeight - 50) {
-                  // Pas de nouvelle page pour un résumé court
-                  return;
-                }
+                if (yPos > pageHeight - 50) return;
                 doc.text(line, margin, yPos);
                 yPos += 6;
               });
@@ -812,29 +837,20 @@ export const InfortiveExecutiveSummary = {
                 break;
                 
               case 'p':
-                const pText = cleanText(node.textContent);
-                const pLines = doc.splitTextToSize(pText, contentWidth);
-                pLines.forEach(line => {
-                  doc.text(line, margin, yPos);
-                  yPos += 5;
-                });
+                const pLines = doc.splitTextToSize(cleanText(node.textContent), contentWidth);
+                pLines.forEach(line => { doc.text(line, margin, yPos); yPos += 5; });
                 yPos += 3;
                 break;
                 
               case 'ul':
               case 'ol':
-                const items = node.querySelectorAll('li');
-                items.forEach((li, idx) => {
+                node.querySelectorAll('li').forEach((li, idx) => {
                   const bullet = tag === 'ul' ? '•' : `${idx + 1}.`;
                   doc.setTextColor(229, 124, 35);
                   doc.text(bullet, margin, yPos);
                   doc.setTextColor(51, 51, 51);
-                  const liText = cleanText(li.textContent);
-                  const liLines = doc.splitTextToSize(liText, contentWidth - 8);
-                  liLines.forEach((line, lineIdx) => {
-                    doc.text(line, margin + 6, yPos);
-                    yPos += 5;
-                  });
+                  const liLines = doc.splitTextToSize(cleanText(li.textContent), contentWidth - 8);
+                  liLines.forEach(line => { doc.text(line, margin + 6, yPos); yPos += 5; });
                 });
                 yPos += 3;
                 break;
@@ -847,34 +863,29 @@ export const InfortiveExecutiveSummary = {
         
         tempDiv.childNodes.forEach(node => processContent(node));
         
-        // ═══════ FOOTER ═══════
+        // Footer
         const footerY = pageHeight - 30;
-        
-        // Rectangle bleu marine
         doc.setFillColor(11, 57, 84);
         doc.rect(0, footerY, pageWidth, 30, 'F');
         
-        // Triangle orange
         doc.setFillColor(229, 124, 35);
         doc.triangle(margin, footerY, margin + 15, footerY, margin, footerY - 25, 'F');
         
-        // Contacts
         doc.setFontSize(7);
         doc.setTextColor(255, 255, 255);
         
         let contactY = footerY + 6;
         INFORTIVE.contacts.forEach(contact => {
           doc.setFont(undefined, 'bold');
-          doc.text(`${contact.name}`, margin, contactY);
+          doc.text(contact.name, margin, contactY);
           doc.setFont(undefined, 'normal');
           doc.setTextColor(229, 124, 35);
-          doc.text(` – ${contact.role}`, margin + doc.getTextWidth(`${contact.name}`), contactY);
+          doc.text(` – ${contact.role}`, margin + doc.getTextWidth(contact.name), contactY);
           doc.setTextColor(255, 255, 255);
           doc.text(`${contact.phone} – ${contact.email}`, margin, contactY + 3);
           contactY += 8;
         });
         
-        // Logo texte "infortive"
         doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
         doc.setTextColor(229, 124, 35);
@@ -886,29 +897,14 @@ export const InfortiveExecutiveSummary = {
       };
 
       // ═══════════════════════════════════════════════════════════
-      // GÉNÉRATION DOCX (HTML avec extension .doc)
-      // ═══════════════════════════════════════════════════════════
-      const generateDOCX = async () => {
-        const html = generateHTML();
-        const blob = new Blob([html], { type: 'application/msword' });
-        return blob;
-      };
-
-      // ═══════════════════════════════════════════════════════════
-      // BOUTONS ET MENUS
+      // BOUTONS
       // ═══════════════════════════════════════════════════════════
       const checkMenuPosition = (menu, button) => {
-        const buttonRect = button.getBoundingClientRect();
-        const menuHeight = 150;
-        
-        if (buttonRect.top < menuHeight) {
-          menu.classList.add('menu-below');
-        } else {
-          menu.classList.remove('menu-below');
-        }
+        const rect = button.getBoundingClientRect();
+        if (rect.top < 150) menu.classList.add('menu-below');
+        else menu.classList.remove('menu-below');
       };
 
-      // BOUTON COPIER
       if (config.showCopyButton) {
         const copyWrapper = document.createElement('div');
         copyWrapper.className = 'action-button-wrapper';
@@ -921,57 +917,40 @@ export const InfortiveExecutiveSummary = {
         const copyMenu = document.createElement('div');
         copyMenu.className = 'action-menu';
         
-        const htmlOption = document.createElement('button');
-        htmlOption.className = 'action-menu-option';
-        htmlOption.innerHTML = `<span class="action-menu-option-icon">🎨</span><span>Formaté</span>`;
-        
-        const textOption = document.createElement('button');
-        textOption.className = 'action-menu-option';
-        textOption.innerHTML = `<span class="action-menu-option-icon">📝</span><span>Brut</span>`;
-        
-        copyMenu.appendChild(htmlOption);
-        copyMenu.appendChild(textOption);
-
-        const copyContent = async (format = 'formatted') => {
-          try {
-            let textToCopy = '';
-            
-            if (format === 'formatted') {
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = config.content;
-              textToCopy = tempDiv.textContent || tempDiv.innerText || '';
-            } else {
-              textToCopy = config.content;
-            }
-            
-            await navigator.clipboard.writeText(textToCopy);
-            
-            copyButton.classList.add('copied');
-            copyButton.querySelector('.action-button-icon').textContent = config.copiedIcon;
-            
-            showToast(format === 'formatted' ? 'Texte formaté copié' : 'HTML brut copié');
-            
-            setTimeout(() => {
-              copyButton.classList.remove('copied');
-              copyButton.querySelector('.action-button-icon').textContent = config.copyIconText;
-            }, 2000);
-            
-          } catch (err) {
-            console.error('Erreur de copie:', err);
-            showToast('Erreur lors de la copie');
-          }
-        };
+        ['Formaté', 'Brut'].forEach((label, i) => {
+          const opt = document.createElement('button');
+          opt.className = 'action-menu-option';
+          opt.innerHTML = `<span class="action-menu-option-icon">${i === 0 ? '🎨' : '📝'}</span><span>${label}</span>`;
+          opt.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            try {
+              const text = i === 0 
+                ? ((() => { const d = document.createElement('div'); d.innerHTML = config.content; return d.textContent; })())
+                : config.content;
+              await navigator.clipboard.writeText(text);
+              copyButton.classList.add('copied');
+              copyButton.querySelector('.action-button-icon').textContent = config.copiedIcon;
+              showToast(i === 0 ? 'Texte formaté copié' : 'HTML brut copié');
+              setTimeout(() => {
+                copyButton.classList.remove('copied');
+                copyButton.querySelector('.action-button-icon').textContent = config.copyIconText;
+              }, 2000);
+            } catch (err) { showToast('Erreur lors de la copie'); }
+            copyMenu.classList.remove('show');
+            copyMenuVisible = false;
+          });
+          copyMenu.appendChild(opt);
+        });
 
         copyButton.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          
           if (!copyMenuVisible) {
             checkMenuPosition(copyMenu, copyButton);
             copyMenu.classList.add('show');
             copyMenuVisible = true;
-            const downloadMenu = container.querySelector('.download-menu');
-            if (downloadMenu) downloadMenu.classList.remove('show');
+            container.querySelector('.download-menu')?.classList.remove('show');
             downloadMenuVisible = false;
           } else {
             copyMenu.classList.remove('show');
@@ -979,28 +958,11 @@ export const InfortiveExecutiveSummary = {
           }
         });
 
-        htmlOption.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          copyContent('formatted');
-          copyMenu.classList.remove('show');
-          copyMenuVisible = false;
-        });
-
-        textOption.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          copyContent('raw');
-          copyMenu.classList.remove('show');
-          copyMenuVisible = false;
-        });
-
         copyWrapper.appendChild(copyButton);
         copyWrapper.appendChild(copyMenu);
         container.appendChild(copyWrapper);
       }
 
-      // BOUTON TÉLÉCHARGER
       if (config.showDownloadButton) {
         const downloadWrapper = document.createElement('div');
         downloadWrapper.className = 'action-button-wrapper';
@@ -1008,84 +970,60 @@ export const InfortiveExecutiveSummary = {
         const downloadButton = document.createElement('button');
         downloadButton.className = 'action-button';
         downloadButton.innerHTML = `<span class="action-button-icon">${config.downloadIconText}</span>`;
-        downloadButton.title = 'Télécharger le résumé';
+        downloadButton.title = 'Télécharger';
 
         const downloadMenu = document.createElement('div');
         downloadMenu.className = 'action-menu download-menu';
 
-        const formatIcons = { html: '🌐', pdf: '📄', docx: '📃' };
-        const formatLabels = { html: 'HTML', pdf: 'PDF', docx: 'Word' };
+        const formats = { html: ['🌐', 'HTML'], pdf: ['📄', 'PDF'], docx: ['📃', 'Word'] };
 
         config.formats.forEach(format => {
-          const option = document.createElement('button');
-          option.className = 'action-menu-option';
-          option.innerHTML = `
-            <span class="action-menu-option-icon">${formatIcons[format]}</span>
-            <span>${formatLabels[format]}</span>
-          `;
-          option.addEventListener('click', () => downloadReport(format));
-          downloadMenu.appendChild(option);
-        });
-
-        const downloadReport = async (format) => {
-          downloadButton.classList.add('generating');
-          downloadButton.querySelector('.action-button-icon').textContent = '⏳';
-          downloadMenu.classList.remove('show');
-          downloadMenuVisible = false;
-          
-          try {
-            const date = new Date().toISOString().slice(0, 10);
-            const fileName = `${config.fileName}_${date}`;
+          const opt = document.createElement('button');
+          opt.className = 'action-menu-option';
+          opt.innerHTML = `<span class="action-menu-option-icon">${formats[format][0]}</span><span>${formats[format][1]}</span>`;
+          opt.addEventListener('click', async () => {
+            downloadButton.classList.add('generating');
+            downloadButton.querySelector('.action-button-icon').textContent = '⏳';
+            downloadMenu.classList.remove('show');
+            downloadMenuVisible = false;
             
-            switch(format) {
-              case 'html':
-                const htmlContent = generateHTML();
-                const htmlBlob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-                const htmlUrl = URL.createObjectURL(htmlBlob);
-                window.open(htmlUrl, '_blank');
-                setTimeout(() => URL.revokeObjectURL(htmlUrl), 1000);
-                showToast('Résumé ouvert dans un nouvel onglet');
-                break;
-                
-              case 'pdf':
-                const pdf = await generatePDF();
-                pdf.save(`${fileName}.pdf`);
-                showToast('PDF téléchargé avec succès');
-                break;
-                
-              case 'docx':
-                const docxBlob = await generateDOCX();
-                const docxUrl = URL.createObjectURL(docxBlob);
-                const docxLink = document.createElement('a');
-                docxLink.href = docxUrl;
-                docxLink.download = `${fileName}.doc`;
-                docxLink.click();
-                URL.revokeObjectURL(docxUrl);
-                showToast('Document Word téléchargé');
-                break;
+            try {
+              const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
+              
+              if (format === 'html') {
+                const blob = new Blob([generateHTML()], { type: 'text/html;charset=utf-8' });
+                window.open(URL.createObjectURL(blob), '_blank');
+                showToast('Résumé ouvert');
+              } else if (format === 'pdf') {
+                (await generatePDF()).save(`${fileName}.pdf`);
+                showToast('PDF téléchargé');
+              } else if (format === 'docx') {
+                const blob = await generateDOCX();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${fileName}.doc`;
+                link.click();
+                showToast('Word téléchargé');
+              }
+            } catch (error) {
+              console.error('Erreur:', error);
+              showToast('Erreur de génération');
+            } finally {
+              downloadButton.classList.remove('generating');
+              downloadButton.querySelector('.action-button-icon').textContent = config.downloadIconText;
             }
-            
-            console.log(`✅ Résumé ${format.toUpperCase()} généré : ${fileName}`);
-            
-          } catch (error) {
-            console.error('❌ Erreur de génération:', error);
-            showToast('Erreur lors de la génération');
-          } finally {
-            downloadButton.classList.remove('generating');
-            downloadButton.querySelector('.action-button-icon').textContent = config.downloadIconText;
-          }
-        };
+          });
+          downloadMenu.appendChild(opt);
+        });
 
         downloadButton.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          
           if (!downloadMenuVisible) {
             checkMenuPosition(downloadMenu, downloadButton);
             downloadMenu.classList.add('show');
             downloadMenuVisible = true;
-            const copyMenu = container.querySelector('.action-menu:not(.download-menu)');
-            if (copyMenu) copyMenu.classList.remove('show');
+            container.querySelector('.action-menu:not(.download-menu)')?.classList.remove('show');
             copyMenuVisible = false;
           } else {
             downloadMenu.classList.remove('show');
@@ -1098,32 +1036,25 @@ export const InfortiveExecutiveSummary = {
         container.appendChild(downloadWrapper);
       }
 
-      // Fermer les menus au clic extérieur
       document.addEventListener('click', (e) => {
         if (!container.contains(e.target)) {
-          container.querySelectorAll('.action-menu').forEach(menu => {
-            menu.classList.remove('show');
-          });
-          copyMenuVisible = false;
-          downloadMenuVisible = false;
+          container.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
+          copyMenuVisible = downloadMenuVisible = false;
         }
       });
 
       element.appendChild(container);
       
-      // Masquer le background Voiceflow
       setTimeout(() => {
-        const parentMessage = element.closest('.vfrc-message');
-        if (parentMessage) {
-          parentMessage.style.background = 'transparent';
-          parentMessage.style.padding = '0';
-          parentMessage.style.margin = '0';
-          parentMessage.style.border = 'none';
-          parentMessage.style.boxShadow = 'none';
+        const parent = element.closest('.vfrc-message');
+        if (parent) {
+          parent.style.background = 'transparent';
+          parent.style.padding = parent.style.margin = '0';
+          parent.style.border = parent.style.boxShadow = 'none';
         }
       }, 0);
       
-      console.log('✅ InfortiveExecutiveSummary prêt');
+      console.log('✅ InfortiveExecutiveSummary v2 prêt');
       
     } catch (error) {
       console.error('❌ InfortiveExecutiveSummary Error:', error);
