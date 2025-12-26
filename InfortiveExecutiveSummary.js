@@ -14,7 +14,7 @@
 // ═══════════════════════════════════════════════════════════
 // LOG DE CHARGEMENT
 // ═══════════════════════════════════════════════════════════
-console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.1 - ' + new Date().toISOString());
+console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.2 - ' + new Date().toISOString());
 
 export const InfortiveExecutiveSummary = {
   name: 'InfortiveExecutiveSummary',
@@ -337,7 +337,7 @@ export const InfortiveExecutiveSummary = {
     .page {
       max-width: 800px;
       margin: 0 auto;
-      padding: 40px 50px 120px 50px;
+      padding: 40px 50px 200px 50px; /* padding-bottom = hauteur footer + marge de sécurité */
       min-height: 100vh;
       position: relative;
     }
@@ -446,6 +446,8 @@ export const InfortiveExecutiveSummary = {
       bottom: 0;
       left: 0;
       right: 0;
+      height: auto;
+      min-height: 130px; /* Hauteur minimum pour le footer */
     }
     
     .footer-inner {
@@ -551,8 +553,19 @@ export const InfortiveExecutiveSummary = {
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
   <style>
-    @page { size: A4; margin: 2cm; }
+    @page { 
+      size: A4; 
+      margin: 2cm 2cm 3.5cm 2cm; /* Marge basse augmentée pour le footer */
+    }
     
     body {
       font-family: 'Merriweather', Georgia, serif;
@@ -636,11 +649,21 @@ export const InfortiveExecutiveSummary = {
     .content li { margin-bottom: 4pt; }
     .content strong { color: #0B3954; }
     
-    /* FOOTER - TABLEAU SIMPLE POUR WORD */
+    /* SPACER - Espace avant le footer */
+    .footer-spacer {
+      height: 50pt;
+      page-break-after: avoid;
+    }
+    
+    /* FOOTER WORD - SÉPARÉ DU CONTENU */
+    .footer-wrapper {
+      page-break-inside: avoid;
+      margin-top: 30pt;
+    }
+    
     .footer-table {
       width: 100%;
       background-color: #0B3954;
-      margin-top: 30pt;
       border-collapse: collapse;
     }
     
@@ -684,25 +707,30 @@ export const InfortiveExecutiveSummary = {
   <!-- CONTENT -->
   <div class="content">${htmlContent}</div>
   
-  <!-- FOOTER - Format tableau pour Word -->
-  <table class="footer-table">
-    <tr>
-      <td style="width:70%;">
-        <div class="footer-contacts">
-          ${INFORTIVE.contacts.map(c => `
-            <div style="margin-bottom:6pt;">
-              <span class="contact-name">${c.name}</span> – 
-              <span class="contact-role">${c.role}</span><br>
-              <span class="contact-info">${c.phone} – ${c.email}</span>
-            </div>
-          `).join('')}
-        </div>
-      </td>
-      <td style="width:30%;">
-        <div class="footer-logo"><span class="i-orange">i</span>nfortive</div>
-      </td>
-    </tr>
-  </table>
+  <!-- SPACER pour séparer le footer -->
+  <div class="footer-spacer"></div>
+  
+  <!-- FOOTER - Format tableau pour Word, dans un wrapper -->
+  <div class="footer-wrapper">
+    <table class="footer-table">
+      <tr>
+        <td style="width:70%;">
+          <div class="footer-contacts">
+            ${INFORTIVE.contacts.map(c => `
+              <div style="margin-bottom:6pt;">
+                <span class="contact-name">${c.name}</span> – 
+                <span class="contact-role">${c.role}</span><br>
+                <span class="contact-info">${c.phone} – ${c.email}</span>
+              </div>
+            `).join('')}
+          </div>
+        </td>
+        <td style="width:30%;">
+          <div class="footer-logo"><span class="i-orange">i</span>nfortive</div>
+        </td>
+      </tr>
+    </table>
+  </div>
 </body>
 </html>`;
 
