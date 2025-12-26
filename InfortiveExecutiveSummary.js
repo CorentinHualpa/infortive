@@ -14,7 +14,7 @@
 // ═══════════════════════════════════════════════════════════
 // LOG DE CHARGEMENT
 // ═══════════════════════════════════════════════════════════
-console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.3 - ' + new Date().toISOString());
+console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.4 - ' + new Date().toISOString());
 
 export const InfortiveExecutiveSummary = {
   name: 'InfortiveExecutiveSummary',
@@ -70,12 +70,8 @@ export const InfortiveExecutiveSummary = {
         clientLogo: '',
         showClientLogo: false,
         isConfidential: true,
-        downloadIconText: 'Télécharger',
-        copyIconText: 'Copier',
-        copiedIcon: '✓',
-        formats: ['html', 'pdf', 'docx'],
-        showCopyButton: true,
-        showDownloadButton: true
+        formats: ['html', 'pdf', 'docx'],  // Formats de téléchargement
+        copyFormats: ['text', 'html'],      // Formats de copie: 'text' et/ou 'html'
       };
 
       // Parser le payload
@@ -925,135 +921,142 @@ export const InfortiveExecutiveSummary = {
       // NOUVEAU DESIGN - BOUTONS DE TÉLÉCHARGEMENT DISTINCTS
       // ═══════════════════════════════════════════════════════════
       
-      // Titre de section
-      const sectionTitle = document.createElement('div');
-      sectionTitle.className = 'infortive-section-title';
-      sectionTitle.innerHTML = `📥 Télécharger le résumé exécutif`;
-      container.appendChild(sectionTitle);
+      // Section téléchargement (seulement si formats non vide)
+      if (config.formats && config.formats.length > 0) {
+        // Titre de section
+        const sectionTitle = document.createElement('div');
+        sectionTitle.className = 'infortive-section-title';
+        sectionTitle.innerHTML = `📥 Télécharger le résumé`;
+        container.appendChild(sectionTitle);
 
-      // Grille des boutons de téléchargement
-      const downloadGrid = document.createElement('div');
-      downloadGrid.className = 'infortive-download-grid';
+        // Grille des boutons de téléchargement
+        const downloadGrid = document.createElement('div');
+        downloadGrid.className = 'infortive-download-grid';
 
-      // Configuration des formats
-      const formatConfig = {
-        pdf: { 
-          icon: ICONS.pdf, 
-          label: 'PDF', 
-          class: 'pdf-btn',
-          action: async (btn) => {
-            const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
-            (await generatePDF()).save(`${fileName}.pdf`);
-            showToast('✅ PDF téléchargé');
+        // Configuration des formats
+        const formatConfig = {
+          pdf: { 
+            icon: ICONS.pdf, 
+            label: 'PDF', 
+            class: 'pdf-btn',
+            action: async (btn) => {
+              const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
+              (await generatePDF()).save(`${fileName}.pdf`);
+              showToast('✅ PDF téléchargé');
+            }
+          },
+          docx: { 
+            icon: ICONS.word, 
+            label: 'WORD', 
+            class: 'word-btn',
+            action: async (btn) => {
+              const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
+              const blob = await generateDOCX();
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `${fileName}.doc`;
+              link.click();
+              showToast('✅ Word téléchargé');
+            }
+          },
+          html: { 
+            icon: ICONS.html, 
+            label: 'HTML', 
+            class: 'html-btn',
+            action: async (btn) => {
+              const blob = new Blob([generateHTML()], { type: 'text/html;charset=utf-8' });
+              window.open(URL.createObjectURL(blob), '_blank');
+              showToast('✅ Résumé ouvert');
+            }
           }
-        },
-        docx: { 
-          icon: ICONS.word, 
-          label: 'WORD', 
-          class: 'word-btn',
-          action: async (btn) => {
-            const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
-            const blob = await generateDOCX();
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `${fileName}.doc`;
-            link.click();
-            showToast('✅ Word téléchargé');
-          }
-        },
-        html: { 
-          icon: ICONS.html, 
-          label: 'HTML', 
-          class: 'html-btn',
-          action: async (btn) => {
-            const blob = new Blob([generateHTML()], { type: 'text/html;charset=utf-8' });
-            window.open(URL.createObjectURL(blob), '_blank');
-            showToast('✅ Résumé ouvert');
-          }
-        }
-      };
+        };
 
-      // Créer les boutons pour chaque format configuré
-      config.formats.forEach(format => {
-        if (!formatConfig[format]) return;
-        
-        const btn = document.createElement('button');
-        btn.className = `infortive-download-btn ${formatConfig[format].class}`;
-        btn.innerHTML = `
-          <div class="btn-icon">${formatConfig[format].icon}</div>
-          <span class="btn-label">${formatConfig[format].label}</span>
-        `;
-        
-        btn.addEventListener('click', async () => {
-          // Afficher le spinner
-          const iconEl = btn.querySelector('.btn-icon');
-          const originalIcon = iconEl.innerHTML;
-          iconEl.innerHTML = '<div class="spinner"></div>';
-          btn.classList.add('generating');
+        // Créer les boutons pour chaque format configuré
+        config.formats.forEach(format => {
+          if (!formatConfig[format]) return;
           
-          try {
-            await formatConfig[format].action(btn);
-          } catch (error) {
-            console.error('Erreur:', error);
-            showToast('❌ Erreur de génération');
-          } finally {
-            // Restaurer l'icône
-            iconEl.innerHTML = originalIcon;
-            btn.classList.remove('generating');
-          }
-        });
+          const btn = document.createElement('button');
+          btn.className = `infortive-download-btn ${formatConfig[format].class}`;
+          btn.innerHTML = `
+            <div class="btn-icon">${formatConfig[format].icon}</div>
+            <span class="btn-label">${formatConfig[format].label}</span>
+          `;
+          
+          btn.addEventListener('click', async () => {
+            // Afficher le spinner
+            const iconEl = btn.querySelector('.btn-icon');
+            const originalIcon = iconEl.innerHTML;
+            iconEl.innerHTML = '<div class="spinner"></div>';
+            btn.classList.add('generating');
+            
+            try {
+              await formatConfig[format].action(btn);
+            } catch (error) {
+              console.error('Erreur:', error);
+              showToast('❌ Erreur de génération');
+            } finally {
+              // Restaurer l'icône
+              iconEl.innerHTML = originalIcon;
+              btn.classList.remove('generating');
+            }
+          });
         
-        downloadGrid.appendChild(btn);
-      });
+          downloadGrid.appendChild(btn);
+        });
 
-      container.appendChild(downloadGrid);
+        container.appendChild(downloadGrid);
+      } // Fin de la section téléchargement
 
-      // Section Copier (si activée)
-      if (config.showCopyButton) {
+      // Section Copier (si copyFormats non vide)
+      if (config.copyFormats && config.copyFormats.length > 0) {
         const copySection = document.createElement('div');
         copySection.className = 'infortive-copy-section';
 
-        // Bouton copier formaté
-        const copyFormattedBtn = document.createElement('button');
-        copyFormattedBtn.className = 'infortive-copy-btn';
-        copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
-        copyFormattedBtn.addEventListener('click', async () => {
-          try {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = config.content;
-            await navigator.clipboard.writeText(tempDiv.textContent);
-            copyFormattedBtn.classList.add('copied');
-            copyFormattedBtn.innerHTML = `${ICONS.check} Copié !`;
-            showToast('✅ Texte copié');
-            setTimeout(() => {
-              copyFormattedBtn.classList.remove('copied');
-              copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
-            }, 2000);
-          } catch (err) {
-            showToast('❌ Erreur de copie');
-          }
-        });
-        copySection.appendChild(copyFormattedBtn);
+        // Bouton copier texte formaté
+        if (config.copyFormats.includes('text')) {
+          const copyFormattedBtn = document.createElement('button');
+          copyFormattedBtn.className = 'infortive-copy-btn';
+          copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
+          copyFormattedBtn.addEventListener('click', async () => {
+            try {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = config.content;
+              await navigator.clipboard.writeText(tempDiv.textContent);
+              copyFormattedBtn.classList.add('copied');
+              copyFormattedBtn.innerHTML = `${ICONS.check} Copié !`;
+              showToast('✅ Texte copié');
+              setTimeout(() => {
+                copyFormattedBtn.classList.remove('copied');
+                copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
+              }, 2000);
+            } catch (err) {
+              showToast('❌ Erreur de copie');
+            }
+          });
+          copySection.appendChild(copyFormattedBtn);
+        }
 
         // Bouton copier HTML brut
-        const copyHtmlBtn = document.createElement('button');
-        copyHtmlBtn.className = 'infortive-copy-btn';
-        copyHtmlBtn.innerHTML = `${ICONS.copy} Copier HTML`;
-        copyHtmlBtn.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(config.content);
-            copyHtmlBtn.classList.add('copied');
-            copyHtmlBtn.innerHTML = `${ICONS.check} Copié !`;
-            showToast('✅ HTML copié');
-            setTimeout(() => {
-              copyHtmlBtn.classList.remove('copied');
-              copyHtmlBtn.innerHTML = `${ICONS.copy} Copier HTML`;
-            }, 2000);
-          } catch (err) {
-            showToast('❌ Erreur de copie');
-          }
-        });
-        copySection.appendChild(copyHtmlBtn);
+        if (config.copyFormats.includes('html')) {
+          const copyHtmlBtn = document.createElement('button');
+          copyHtmlBtn.className = 'infortive-copy-btn';
+          copyHtmlBtn.innerHTML = `${ICONS.copy} Copier HTML`;
+          copyHtmlBtn.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(config.content);
+              copyHtmlBtn.classList.add('copied');
+              copyHtmlBtn.innerHTML = `${ICONS.check} Copié !`;
+              showToast('✅ HTML copié');
+              setTimeout(() => {
+                copyHtmlBtn.classList.remove('copied');
+                copyHtmlBtn.innerHTML = `${ICONS.copy} Copier HTML`;
+              }, 2000);
+            } catch (err) {
+              showToast('❌ Erreur de copie');
+            }
+          });
+          copySection.appendChild(copyHtmlBtn);
+        }
 
         container.appendChild(copySection);
       }
@@ -1070,7 +1073,7 @@ export const InfortiveExecutiveSummary = {
         }
       }, 0);
       
-      console.log('✅ InfortiveExecutiveSummary v2.3 prêt');
+      console.log('✅ InfortiveExecutiveSummary v2.4 prêt');
       
     } catch (error) {
       console.error('❌ InfortiveExecutiveSummary Error:', error);
