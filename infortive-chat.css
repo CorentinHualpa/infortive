@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.6
+   Infortive × Voiceflow — Thème stable v7.7
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #051740
    + Bouton "Envoyer" avec fond actif orange
@@ -8,6 +8,7 @@
    + Hiérarchie typographique optimisée
    + Header transparent
    + Bouton reset masqué
+   + Textarea redimensionnable (jusqu'à 10 lignes)
    ========================================================== */
 /* ==========================================================
    Import de la police Plus Jakarta Sans
@@ -338,6 +339,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ==========================================================
    Input de saisie
    ✅ Taille texte alignée sur le chat (--body-1 = 10px)
+   ✅ Zone extensible jusqu'à 10 lignes (~150px)
    ========================================================== */
 .vfrc-chat-input textarea,
 .vfrc-chat-input input,
@@ -348,6 +350,12 @@ textarea._1gdvh9ta,
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
+  
+  /* ✅ Zone redimensionnable */
+  min-height: 24px !important;
+  max-height: 150px !important;
+  overflow-y: auto !important;
+  resize: vertical !important;
 }
 /* ==========================================================
    Scrollbar orange
