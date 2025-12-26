@@ -928,7 +928,7 @@ export const InfortiveExecutiveSummary = {
       // Titre de section
       const sectionTitle = document.createElement('div');
       sectionTitle.className = 'infortive-section-title';
-      sectionTitle.innerHTML = `📥 Télécharger le résumé`;
+      sectionTitle.innerHTML = `📥 Télécharger le résumé exécutif`;
       container.appendChild(sectionTitle);
 
       // Grille des boutons de téléchargement
