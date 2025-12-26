@@ -1,13 +1,14 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v7.5
+   Infortive × Voiceflow — Thème stable v7.6
    + Police Plus Jakarta Sans (tous niveaux typographiques)
-   + Boutons natifs Voiceflow stylés (ghost/outline)
-   + Bouton "Envoyer" avec fond actif
+   + Boutons natifs Voiceflow stylés (ghost/outline bleu foncé)
+   + Bouton "Envoyer" avec fond actif orange
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    + Hiérarchie typographique optimisée
    + Header transparent
    + Bouton reset masqué
+   + Textarea même taille que le chat
    ========================================================== */
 /* ==========================================================
    Import de la police Plus Jakarta Sans
@@ -36,6 +37,12 @@
   --button: 12px;         /* Boutons */
   --caption: 10px;        /* Petits textes */
   --overline: 9px;        /* Micro-textes */
+  
+  /* Couleurs principales */
+  --orange-primary: #F08300;
+  --orange-dark: #d46f00;
+  --blue-dark: #051740;
+  --blue-infortive: #073A59;
 }
 /* ==========================================================
    Header transparent + Bouton reset masqué
@@ -74,7 +81,7 @@ div.vfrc-header--title,
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
   
-  color: #F08300 !important;
+  color: var(--orange-primary) !important;
   padding-bottom: 12px !important;
   position: relative !important;
   display: block !important;
@@ -100,7 +107,7 @@ div.vfrc-header--title::after,
 }
 /* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
-   ✅ OPTION A : Ghost button (outline) - Plus discret
+   ✅ Ghost button (outline) - Bleu foncé #051740
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -111,12 +118,12 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   
-  /* ✅ Fond transparent avec bordure orange */
+  /* ✅ Fond transparent avec bordure bleu foncé */
   background: transparent !important;
-  border: 1.5px solid #051740 !important;
-  color: #051740 !important;
+  border: 1.5px solid var(--blue-dark) !important;
+  color: var(--blue-dark) !important;
   
-  /* ✅ Supprimer l'ombre bling-bling */
+  /* ✅ Supprimer l'ombre */
   box-shadow: none !important;
   
   /* Forme */
@@ -139,19 +146,19 @@ button.vfrc-button:not(.vfrc-header--button) {
   justify-content: center !important;
   gap: 8px !important;
 }
-/* Hover sur les boutons natifs - remplissage léger */
+/* Hover sur les boutons natifs - remplissage léger bleu */
 .vfrc-button:not(.vfrc-header--button):hover,
 button.vfrc-button:not(.vfrc-header--button):hover {
-  background: rgba(240, 131, 0, 0.1) !important;
-  border-color: #d46f00 !important;
-  color: #d46f00 !important;
+  background: rgba(5, 23, 64, 0.08) !important;
+  border-color: var(--blue-dark) !important;
+  color: var(--blue-dark) !important;
   box-shadow: none !important;
   transform: none !important;
 }
 /* Active (clic) sur les boutons natifs */
 .vfrc-button:not(.vfrc-header--button):active,
 button.vfrc-button:not(.vfrc-header--button):active {
-  background: rgba(240, 131, 0, 0.15) !important;
+  background: rgba(5, 23, 64, 0.12) !important;
   transform: none !important;
   box-shadow: none !important;
 }
@@ -165,7 +172,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 /* ==========================================================
    Bouton "Envoyer"
-   ✅ OPTION A : Fond subtil inactif → Fond plein actif
+   ✅ Fond subtil inactif → Fond orange plein actif
    ========================================================== */
 /* Cache complètement l'icône SVG */
 #vfrc-send-message svg,
@@ -204,7 +211,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ✅ État actif : fond orange plein + texte blanc */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, #F08300, #d46f00) !important;
+  background: linear-gradient(135deg, var(--orange-primary), var(--orange-dark)) !important;
   border: none !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
@@ -214,7 +221,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* Hover actif */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
-  background: linear-gradient(135deg, #d46f00, #c56200) !important;
+  background: linear-gradient(135deg, var(--orange-dark), #c56200) !important;
   box-shadow: 0 4px 12px rgba(240, 131, 0, 0.4) !important;
   transform: translateY(-1px) !important;
 }
@@ -259,7 +266,11 @@ button.vfrc-button:not(.vfrc-header--button):active {
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) span:not(h1 span):not(h2 span):not(h3 span),
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div:not(h1 div):not(h2 div):not(h3 div),
-.vfrc-system-response .vfrc-message:not([class*="extension"]) li {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) li,
+p._11kfxpgc,
+p._11kfxpgd,
+p._11kfxpgb,
+[class^="_11kfxpg"] {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
   font-weight: var(--font-regular) !important;
@@ -318,7 +329,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
   letter-spacing: 0.01em !important;
   
   display: inline-block !important;
-  background: #073A59 !important;
+  background: var(--blue-infortive) !important;
   color: #ffffff !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
@@ -337,13 +348,26 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 /* ==========================================================
    Input de saisie
+   ✅ Même taille que le texte du chat (--body-1 = 10px)
    ========================================================== */
 .vfrc-chat-input textarea,
-.vfrc-chat-input input {
+.vfrc-chat-input input,
+textarea.vfrc-chat-input,
+textarea._1gdvh9ta,
+[class^="_1gdvh9t"] {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
+}
+/* Placeholder styling */
+.vfrc-chat-input textarea::placeholder,
+.vfrc-chat-input input::placeholder,
+textarea._1gdvh9ta::placeholder,
+[class^="_1gdvh9t"]::placeholder {
+  font-family: var(--font-family) !important;
+  font-size: var(--body-1) !important;
+  color: #9CA3AF !important;
 }
 /* ==========================================================
    Scrollbar orange
@@ -352,7 +376,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: #F08300 transparent;
+  scrollbar-color: var(--orange-primary) transparent;
 }
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
@@ -362,7 +386,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F08300;
+  background: var(--orange-primary);
   border-radius: 999px;
 }
 .vfrc-chat--dialog::-webkit-scrollbar-track,
