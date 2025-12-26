@@ -14,7 +14,7 @@
 // ═══════════════════════════════════════════════════════════
 // LOG DE CHARGEMENT
 // ═══════════════════════════════════════════════════════════
-console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.2 - ' + new Date().toISOString());
+console.log('🟢 [InfortiveExecutiveSummary] Extension CHARGÉE - v2.3 - ' + new Date().toISOString());
 
 export const InfortiveExecutiveSummary = {
   name: 'InfortiveExecutiveSummary',
@@ -70,9 +70,9 @@ export const InfortiveExecutiveSummary = {
         clientLogo: '',
         showClientLogo: false,
         isConfidential: true,
-        downloadIconText: '📥',
-        copyIconText: '📋',
-        copiedIcon: '✅',
+        downloadIconText: 'Télécharger',
+        copyIconText: 'Copier',
+        copiedIcon: '✓',
         formats: ['html', 'pdf', 'docx'],
         showCopyButton: true,
         showDownloadButton: true
@@ -155,147 +155,206 @@ export const InfortiveExecutiveSummary = {
       container.className = 'infortive-actions-container';
       
       // ═══════════════════════════════════════════════════════════
-      // STYLES CSS
+      // STYLES CSS - NOUVEAU DESIGN AVEC CARTES DE TÉLÉCHARGEMENT
       // ═══════════════════════════════════════════════════════════
       const styleEl = document.createElement('style');
       styleEl.textContent = `
         .infortive-actions-container {
-          display: inline-flex !important;
-          gap: 8px !important;
-          align-items: center !important;
-          margin: -0.75rem 0 0.5rem 0 !important;
-          justify-content: flex-end !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 12px !important;
+          margin: 12px 0 !important;
           width: 100% !important;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
 
-        .action-button-wrapper {
-          position: relative !important;
-          display: inline-flex !important;
-          align-items: center !important;
-        }
-
-        .action-button {
-          background: transparent !important;
-          color: ${INFORTIVE.colors.accent} !important;
-          border: 1px solid transparent !important;
-          padding: 4px 8px !important;
-          border-radius: 6px !important;
-          font-size: 16px !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          transition: all 0.2s ease !important;
-          min-width: 32px !important;
-          height: 32px !important;
-        }
-
-        .action-button:hover {
-          background: rgba(229, 124, 35, 0.1) !important;
-          border-color: ${INFORTIVE.colors.accent} !important;
-        }
-
-        .action-button.copied { color: #4CAF50 !important; }
-
-        .action-button-icon {
-          font-size: 16px !important;
-          line-height: 1 !important;
-          opacity: 0.8 !important;
-          transition: all 0.2s ease !important;
-        }
-
-        .action-button:hover .action-button-icon { opacity: 1 !important; }
-
-        .action-menu {
-          position: absolute !important;
-          bottom: calc(100% + 2px) !important;
-          right: 0 !important;
-          background: white !important;
-          border: 1px solid #e0e0e0 !important;
-          border-radius: 6px !important;
-          box-shadow: 0 -2px 8px rgba(0,0,0,0.1) !important;
-          padding: 2px !important;
-          z-index: 1000 !important;
-          opacity: 0 !important;
-          visibility: hidden !important;
-          transition: all 0.15s ease !important;
-        }
-
-        .action-menu.menu-below {
-          bottom: auto !important;
-          top: calc(100% + 2px) !important;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-        }
-
-        .action-menu.show { opacity: 1 !important; visibility: visible !important; }
-
-        .action-menu-option {
+        .infortive-section-title {
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          color: ${INFORTIVE.colors.primary} !important;
+          margin-bottom: 4px !important;
           display: flex !important;
           align-items: center !important;
           gap: 6px !important;
-          padding: 6px 12px !important;
-          border: none !important;
-          background: none !important;
-          color: ${INFORTIVE.colors.primary} !important;
-          font-size: 12px !important;
-          cursor: pointer !important;
-          border-radius: 4px !important;
-          width: 100% !important;
-          text-align: left !important;
-          white-space: nowrap !important;
         }
 
-        .action-menu-option:hover { background: rgba(11, 57, 84, 0.1) !important; }
-        .action-menu-option + .action-menu-option { border-top: 1px solid #f0f0f0 !important; }
+        .infortive-download-grid {
+          display: flex !important;
+          gap: 8px !important;
+          flex-wrap: wrap !important;
+        }
 
-        .action-button.generating { opacity: 0.6 !important; cursor: wait !important; }
-        .action-button.generating .action-button-icon { animation: spin 1s linear infinite !important; }
+        .infortive-download-btn {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          padding: 12px 16px !important;
+          border: 2px solid #e0e0e0 !important;
+          border-radius: 10px !important;
+          background: white !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          min-width: 70px !important;
+          gap: 6px !important;
+        }
 
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .infortive-download-btn:hover {
+          transform: translateY(-2px) !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+        }
 
-        .action-toast {
-          position: fixed !important;
-          bottom: 20px !important;
-          right: 20px !important;
-          background: ${INFORTIVE.colors.primary} !important;
-          color: white !important;
-          padding: 8px 16px !important;
+        .infortive-download-btn.pdf-btn {
+          border-color: #E53935 !important;
+        }
+        .infortive-download-btn.pdf-btn:hover {
+          background: #FFEBEE !important;
+        }
+
+        .infortive-download-btn.word-btn {
+          border-color: #1976D2 !important;
+        }
+        .infortive-download-btn.word-btn:hover {
+          background: #E3F2FD !important;
+        }
+
+        .infortive-download-btn.html-btn {
+          border-color: #E57C23 !important;
+        }
+        .infortive-download-btn.html-btn:hover {
+          background: #FFF3E0 !important;
+        }
+
+        .infortive-download-btn .btn-icon {
+          width: 28px !important;
+          height: 28px !important;
+        }
+
+        .infortive-download-btn .btn-label {
+          font-size: 11px !important;
+          font-weight: 600 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.5px !important;
+        }
+
+        .infortive-download-btn.pdf-btn .btn-label { color: #E53935 !important; }
+        .infortive-download-btn.word-btn .btn-label { color: #1976D2 !important; }
+        .infortive-download-btn.html-btn .btn-label { color: #E57C23 !important; }
+
+        .infortive-download-btn.generating {
+          opacity: 0.6 !important;
+          pointer-events: none !important;
+        }
+
+        .infortive-download-btn .spinner {
+          width: 24px !important;
+          height: 24px !important;
+          border: 3px solid #e0e0e0 !important;
+          border-top-color: ${INFORTIVE.colors.primary} !important;
+          border-radius: 50% !important;
+          animation: spin 0.8s linear infinite !important;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        .infortive-copy-section {
+          display: flex !important;
+          gap: 8px !important;
+          margin-top: 4px !important;
+        }
+
+        .infortive-copy-btn {
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          padding: 8px 12px !important;
+          border: 1px solid #e0e0e0 !important;
           border-radius: 6px !important;
-          font-size: 13px !important;
-          z-index: 10000 !important;
-          opacity: 0 !important;
-          transform: translateY(10px) !important;
+          background: #f5f5f5 !important;
+          cursor: pointer !important;
+          font-size: 12px !important;
+          color: #666 !important;
           transition: all 0.2s ease !important;
         }
 
-        .action-toast.show { opacity: 1 !important; transform: translateY(0) !important; }
+        .infortive-copy-btn:hover {
+          background: #e8e8e8 !important;
+          border-color: #ccc !important;
+        }
 
-        .vfrc-message--extension-InfortiveExecutiveSummary {
-          background: transparent !important;
-          padding: 0 !important;
-          margin: 0 !important;
-          border: none !important;
-          box-shadow: none !important;
+        .infortive-copy-btn.copied {
+          background: #E8F5E9 !important;
+          border-color: #4CAF50 !important;
+          color: #2E7D32 !important;
+        }
+
+        .infortive-toast {
+          position: fixed !important;
+          bottom: 20px !important;
+          left: 50% !important;
+          transform: translateX(-50%) translateY(100px) !important;
+          background: ${INFORTIVE.colors.primary} !important;
+          color: white !important;
+          padding: 12px 24px !important;
+          border-radius: 8px !important;
+          font-size: 14px !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+          z-index: 10000 !important;
+          opacity: 0 !important;
+          transition: all 0.3s ease !important;
+        }
+
+        .infortive-toast.show {
+          transform: translateX(-50%) translateY(0) !important;
+          opacity: 1 !important;
         }
       `;
-
       container.appendChild(styleEl);
 
-      let toast = document.querySelector('.action-toast');
+      // Toast notification
+      let toast = document.querySelector('.infortive-toast');
       if (!toast) {
         toast = document.createElement('div');
-        toast.className = 'action-toast';
+        toast.className = 'infortive-toast';
         document.body.appendChild(toast);
       }
 
       const showToast = (message) => {
         toast.textContent = message;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 1500);
+        setTimeout(() => toast.classList.remove('show'), 2000);
       };
 
-      let copyMenuVisible = false;
-      let downloadMenuVisible = false;
+      // ═══════════════════════════════════════════════════════════
+      // ICÔNES SVG POUR LES FORMATS
+      // ═══════════════════════════════════════════════════════════
+      const ICONS = {
+        pdf: `<svg viewBox="0 0 24 24" fill="none" stroke="#E53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <path d="M9 15h6"/>
+          <path d="M9 11h6"/>
+        </svg>`,
+        word: `<svg viewBox="0 0 24 24" fill="none" stroke="#1976D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <path d="M8 13h2l1 3 1-3h2"/>
+        </svg>`,
+        html: `<svg viewBox="0 0 24 24" fill="none" stroke="#E57C23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/>
+          <polyline points="8 6 2 12 8 18"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+        </svg>`,
+        copy: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>`,
+        check: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>`
+      };
 
       // ═══════════════════════════════════════════════════════════
       // GÉNÉRATION HTML - VERSION CORRIGÉE
@@ -564,7 +623,7 @@ export const InfortiveExecutiveSummary = {
   <style>
     @page { 
       size: A4; 
-      margin: 2cm 2cm 3.5cm 2cm; /* Marge basse augmentée pour le footer */
+      margin: 2cm;
     }
     
     body {
@@ -648,43 +707,6 @@ export const InfortiveExecutiveSummary = {
     .content ul { margin: 8pt 0 12pt 20pt; }
     .content li { margin-bottom: 4pt; }
     .content strong { color: #0B3954; }
-    
-    /* SPACER - Espace avant le footer */
-    .footer-spacer {
-      height: 50pt;
-      page-break-after: avoid;
-    }
-    
-    /* FOOTER WORD - SÉPARÉ DU CONTENU */
-    .footer-wrapper {
-      page-break-inside: avoid;
-      margin-top: 30pt;
-    }
-    
-    .footer-table {
-      width: 100%;
-      background-color: #0B3954;
-      border-collapse: collapse;
-    }
-    
-    .footer-table td {
-      padding: 12pt;
-      vertical-align: middle;
-    }
-    
-    .footer-contacts { font-size: 8pt; color: white; }
-    .contact-name { font-weight: bold; color: white; }
-    .contact-role { color: #E57C23; }
-    .contact-info { color: #cccccc; }
-    
-    .footer-logo {
-      font-size: 18pt;
-      font-weight: bold;
-      color: white;
-      text-align: right;
-    }
-    
-    .i-orange { color: #E57C23; }
   </style>
 </head>
 <body>
@@ -706,31 +728,6 @@ export const InfortiveExecutiveSummary = {
   
   <!-- CONTENT -->
   <div class="content">${htmlContent}</div>
-  
-  <!-- SPACER pour séparer le footer -->
-  <div class="footer-spacer"></div>
-  
-  <!-- FOOTER - Format tableau pour Word, dans un wrapper -->
-  <div class="footer-wrapper">
-    <table class="footer-table">
-      <tr>
-        <td style="width:70%;">
-          <div class="footer-contacts">
-            ${INFORTIVE.contacts.map(c => `
-              <div style="margin-bottom:6pt;">
-                <span class="contact-name">${c.name}</span> – 
-                <span class="contact-role">${c.role}</span><br>
-                <span class="contact-info">${c.phone} – ${c.email}</span>
-              </div>
-            `).join('')}
-          </div>
-        </td>
-        <td style="width:30%;">
-          <div class="footer-logo"><span class="i-orange">i</span>nfortive</div>
-        </td>
-      </tr>
-    </table>
-  </div>
 </body>
 </html>`;
 
@@ -925,154 +922,145 @@ export const InfortiveExecutiveSummary = {
       };
 
       // ═══════════════════════════════════════════════════════════
-      // BOUTONS
+      // NOUVEAU DESIGN - BOUTONS DE TÉLÉCHARGEMENT DISTINCTS
       // ═══════════════════════════════════════════════════════════
-      const checkMenuPosition = (menu, button) => {
-        const rect = button.getBoundingClientRect();
-        if (rect.top < 150) menu.classList.add('menu-below');
-        else menu.classList.remove('menu-below');
+      
+      // Titre de section
+      const sectionTitle = document.createElement('div');
+      sectionTitle.className = 'infortive-section-title';
+      sectionTitle.innerHTML = `📥 Télécharger le résumé`;
+      container.appendChild(sectionTitle);
+
+      // Grille des boutons de téléchargement
+      const downloadGrid = document.createElement('div');
+      downloadGrid.className = 'infortive-download-grid';
+
+      // Configuration des formats
+      const formatConfig = {
+        pdf: { 
+          icon: ICONS.pdf, 
+          label: 'PDF', 
+          class: 'pdf-btn',
+          action: async (btn) => {
+            const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
+            (await generatePDF()).save(`${fileName}.pdf`);
+            showToast('✅ PDF téléchargé');
+          }
+        },
+        docx: { 
+          icon: ICONS.word, 
+          label: 'WORD', 
+          class: 'word-btn',
+          action: async (btn) => {
+            const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
+            const blob = await generateDOCX();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${fileName}.doc`;
+            link.click();
+            showToast('✅ Word téléchargé');
+          }
+        },
+        html: { 
+          icon: ICONS.html, 
+          label: 'HTML', 
+          class: 'html-btn',
+          action: async (btn) => {
+            const blob = new Blob([generateHTML()], { type: 'text/html;charset=utf-8' });
+            window.open(URL.createObjectURL(blob), '_blank');
+            showToast('✅ Résumé ouvert');
+          }
+        }
       };
 
-      if (config.showCopyButton) {
-        const copyWrapper = document.createElement('div');
-        copyWrapper.className = 'action-button-wrapper';
-
-        const copyButton = document.createElement('button');
-        copyButton.className = 'action-button';
-        copyButton.innerHTML = `<span class="action-button-icon">${config.copyIconText}</span>`;
-        copyButton.title = 'Copier le texte';
-
-        const copyMenu = document.createElement('div');
-        copyMenu.className = 'action-menu';
+      // Créer les boutons pour chaque format configuré
+      config.formats.forEach(format => {
+        if (!formatConfig[format]) return;
         
-        ['Formaté', 'Brut'].forEach((label, i) => {
-          const opt = document.createElement('button');
-          opt.className = 'action-menu-option';
-          opt.innerHTML = `<span class="action-menu-option-icon">${i === 0 ? '🎨' : '📝'}</span><span>${label}</span>`;
-          opt.addEventListener('click', async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            try {
-              const text = i === 0 
-                ? ((() => { const d = document.createElement('div'); d.innerHTML = config.content; return d.textContent; })())
-                : config.content;
-              await navigator.clipboard.writeText(text);
-              copyButton.classList.add('copied');
-              copyButton.querySelector('.action-button-icon').textContent = config.copiedIcon;
-              showToast(i === 0 ? 'Texte formaté copié' : 'HTML brut copié');
-              setTimeout(() => {
-                copyButton.classList.remove('copied');
-                copyButton.querySelector('.action-button-icon').textContent = config.copyIconText;
-              }, 2000);
-            } catch (err) { showToast('Erreur lors de la copie'); }
-            copyMenu.classList.remove('show');
-            copyMenuVisible = false;
-          });
-          copyMenu.appendChild(opt);
-        });
-
-        copyButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!copyMenuVisible) {
-            checkMenuPosition(copyMenu, copyButton);
-            copyMenu.classList.add('show');
-            copyMenuVisible = true;
-            container.querySelector('.download-menu')?.classList.remove('show');
-            downloadMenuVisible = false;
-          } else {
-            copyMenu.classList.remove('show');
-            copyMenuVisible = false;
+        const btn = document.createElement('button');
+        btn.className = `infortive-download-btn ${formatConfig[format].class}`;
+        btn.innerHTML = `
+          <div class="btn-icon">${formatConfig[format].icon}</div>
+          <span class="btn-label">${formatConfig[format].label}</span>
+        `;
+        
+        btn.addEventListener('click', async () => {
+          // Afficher le spinner
+          const iconEl = btn.querySelector('.btn-icon');
+          const originalIcon = iconEl.innerHTML;
+          iconEl.innerHTML = '<div class="spinner"></div>';
+          btn.classList.add('generating');
+          
+          try {
+            await formatConfig[format].action(btn);
+          } catch (error) {
+            console.error('Erreur:', error);
+            showToast('❌ Erreur de génération');
+          } finally {
+            // Restaurer l'icône
+            iconEl.innerHTML = originalIcon;
+            btn.classList.remove('generating');
           }
         });
-
-        copyWrapper.appendChild(copyButton);
-        copyWrapper.appendChild(copyMenu);
-        container.appendChild(copyWrapper);
-      }
-
-      if (config.showDownloadButton) {
-        const downloadWrapper = document.createElement('div');
-        downloadWrapper.className = 'action-button-wrapper';
-
-        const downloadButton = document.createElement('button');
-        downloadButton.className = 'action-button';
-        downloadButton.innerHTML = `<span class="action-button-icon">${config.downloadIconText}</span>`;
-        downloadButton.title = 'Télécharger';
-
-        const downloadMenu = document.createElement('div');
-        downloadMenu.className = 'action-menu download-menu';
-
-        const formats = { html: ['🌐', 'HTML'], pdf: ['📄', 'PDF'], docx: ['📃', 'Word'] };
-
-        config.formats.forEach(format => {
-          const opt = document.createElement('button');
-          opt.className = 'action-menu-option';
-          opt.innerHTML = `<span class="action-menu-option-icon">${formats[format][0]}</span><span>${formats[format][1]}</span>`;
-          opt.addEventListener('click', async () => {
-            downloadButton.classList.add('generating');
-            downloadButton.querySelector('.action-button-icon').textContent = '⏳';
-            downloadMenu.classList.remove('show');
-            downloadMenuVisible = false;
-            
-            try {
-              const fileName = `${config.fileName}_${new Date().toISOString().slice(0, 10)}`;
-              
-              if (format === 'html') {
-                const blob = new Blob([generateHTML()], { type: 'text/html;charset=utf-8' });
-                window.open(URL.createObjectURL(blob), '_blank');
-                showToast('Résumé ouvert');
-              } else if (format === 'pdf') {
-                (await generatePDF()).save(`${fileName}.pdf`);
-                showToast('PDF téléchargé');
-              } else if (format === 'docx') {
-                const blob = await generateDOCX();
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${fileName}.doc`;
-                link.click();
-                showToast('Word téléchargé');
-              }
-            } catch (error) {
-              console.error('Erreur:', error);
-              showToast('Erreur de génération');
-            } finally {
-              downloadButton.classList.remove('generating');
-              downloadButton.querySelector('.action-button-icon').textContent = config.downloadIconText;
-            }
-          });
-          downloadMenu.appendChild(opt);
-        });
-
-        downloadButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!downloadMenuVisible) {
-            checkMenuPosition(downloadMenu, downloadButton);
-            downloadMenu.classList.add('show');
-            downloadMenuVisible = true;
-            container.querySelector('.action-menu:not(.download-menu)')?.classList.remove('show');
-            copyMenuVisible = false;
-          } else {
-            downloadMenu.classList.remove('show');
-            downloadMenuVisible = false;
-          }
-        });
-
-        downloadWrapper.appendChild(downloadButton);
-        downloadWrapper.appendChild(downloadMenu);
-        container.appendChild(downloadWrapper);
-      }
-
-      document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
-          container.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
-          copyMenuVisible = downloadMenuVisible = false;
-        }
+        
+        downloadGrid.appendChild(btn);
       });
+
+      container.appendChild(downloadGrid);
+
+      // Section Copier (si activée)
+      if (config.showCopyButton) {
+        const copySection = document.createElement('div');
+        copySection.className = 'infortive-copy-section';
+
+        // Bouton copier formaté
+        const copyFormattedBtn = document.createElement('button');
+        copyFormattedBtn.className = 'infortive-copy-btn';
+        copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
+        copyFormattedBtn.addEventListener('click', async () => {
+          try {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = config.content;
+            await navigator.clipboard.writeText(tempDiv.textContent);
+            copyFormattedBtn.classList.add('copied');
+            copyFormattedBtn.innerHTML = `${ICONS.check} Copié !`;
+            showToast('✅ Texte copié');
+            setTimeout(() => {
+              copyFormattedBtn.classList.remove('copied');
+              copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
+            }, 2000);
+          } catch (err) {
+            showToast('❌ Erreur de copie');
+          }
+        });
+        copySection.appendChild(copyFormattedBtn);
+
+        // Bouton copier HTML brut
+        const copyHtmlBtn = document.createElement('button');
+        copyHtmlBtn.className = 'infortive-copy-btn';
+        copyHtmlBtn.innerHTML = `${ICONS.copy} Copier HTML`;
+        copyHtmlBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(config.content);
+            copyHtmlBtn.classList.add('copied');
+            copyHtmlBtn.innerHTML = `${ICONS.check} Copié !`;
+            showToast('✅ HTML copié');
+            setTimeout(() => {
+              copyHtmlBtn.classList.remove('copied');
+              copyHtmlBtn.innerHTML = `${ICONS.copy} Copier HTML`;
+            }, 2000);
+          } catch (err) {
+            showToast('❌ Erreur de copie');
+          }
+        });
+        copySection.appendChild(copyHtmlBtn);
+
+        container.appendChild(copySection);
+      }
 
       element.appendChild(container);
       
+      // Nettoyage du style du parent
       setTimeout(() => {
         const parent = element.closest('.vfrc-message');
         if (parent) {
@@ -1082,7 +1070,7 @@ export const InfortiveExecutiveSummary = {
         }
       }, 0);
       
-      console.log('✅ InfortiveExecutiveSummary v2 prêt');
+      console.log('✅ InfortiveExecutiveSummary v2.3 prêt');
       
     } catch (error) {
       console.error('❌ InfortiveExecutiveSummary Error:', error);
