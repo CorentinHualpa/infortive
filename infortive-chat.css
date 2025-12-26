@@ -1,14 +1,13 @@
 /* ==========================================================
    Infortive × Voiceflow — Thème stable v7.6
    + Police Plus Jakarta Sans (tous niveaux typographiques)
-   + Boutons natifs Voiceflow stylés (ghost/outline bleu foncé)
+   + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #051740
    + Bouton "Envoyer" avec fond actif orange
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
    + Hiérarchie typographique optimisée
    + Header transparent
    + Bouton reset masqué
-   + Textarea même taille que le chat
    ========================================================== */
 /* ==========================================================
    Import de la police Plus Jakarta Sans
@@ -37,12 +36,6 @@
   --button: 12px;         /* Boutons */
   --caption: 10px;        /* Petits textes */
   --overline: 9px;        /* Micro-textes */
-  
-  /* Couleurs principales */
-  --orange-primary: #F08300;
-  --orange-dark: #d46f00;
-  --blue-dark: #051740;
-  --blue-infortive: #073A59;
 }
 /* ==========================================================
    Header transparent + Bouton reset masqué
@@ -81,7 +74,7 @@ div.vfrc-header--title,
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
   
-  color: var(--orange-primary) !important;
+  color: #F08300 !important;
   padding-bottom: 12px !important;
   position: relative !important;
   display: block !important;
@@ -120,10 +113,10 @@ button.vfrc-button:not(.vfrc-header--button) {
   
   /* ✅ Fond transparent avec bordure bleu foncé */
   background: transparent !important;
-  border: 1.5px solid var(--blue-dark) !important;
-  color: var(--blue-dark) !important;
+  border: 1.5px solid #051740 !important;
+  color: #051740 !important;
   
-  /* ✅ Supprimer l'ombre */
+  /* ✅ Supprimer l'ombre bling-bling */
   box-shadow: none !important;
   
   /* Forme */
@@ -150,8 +143,8 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-button:not(.vfrc-header--button):hover,
 button.vfrc-button:not(.vfrc-header--button):hover {
   background: rgba(5, 23, 64, 0.08) !important;
-  border-color: var(--blue-dark) !important;
-  color: var(--blue-dark) !important;
+  border-color: #051740 !important;
+  color: #051740 !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -172,7 +165,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 /* ==========================================================
    Bouton "Envoyer"
-   ✅ Fond subtil inactif → Fond orange plein actif
+   ✅ Fond subtil inactif → Fond plein orange actif
    ========================================================== */
 /* Cache complètement l'icône SVG */
 #vfrc-send-message svg,
@@ -211,7 +204,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ✅ État actif : fond orange plein + texte blanc */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, var(--orange-primary), var(--orange-dark)) !important;
+  background: linear-gradient(135deg, #F08300, #d46f00) !important;
   border: none !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
@@ -221,7 +214,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* Hover actif */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
-  background: linear-gradient(135deg, var(--orange-dark), #c56200) !important;
+  background: linear-gradient(135deg, #d46f00, #c56200) !important;
   box-shadow: 0 4px 12px rgba(240, 131, 0, 0.4) !important;
   transform: translateY(-1px) !important;
 }
@@ -266,11 +259,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) span:not(h1 span):not(h2 span):not(h3 span),
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div:not(h1 div):not(h2 div):not(h3 div),
-.vfrc-system-response .vfrc-message:not([class*="extension"]) li,
-p._11kfxpgc,
-p._11kfxpgd,
-p._11kfxpgb,
-[class^="_11kfxpg"] {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) li {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
   font-weight: var(--font-regular) !important;
@@ -329,7 +318,7 @@ p._11kfxpgb,
   letter-spacing: 0.01em !important;
   
   display: inline-block !important;
-  background: var(--blue-infortive) !important;
+  background: #073A59 !important;
   color: #ffffff !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
@@ -348,26 +337,17 @@ p._11kfxpgb,
 }
 /* ==========================================================
    Input de saisie
-   ✅ Même taille que le texte du chat (--body-1 = 10px)
+   ✅ Taille texte alignée sur le chat (--body-1 = 10px)
    ========================================================== */
 .vfrc-chat-input textarea,
 .vfrc-chat-input input,
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta,
-[class^="_1gdvh9t"] {
+.vfrc-chat-input textarea._1gdvh9ta {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
-}
-/* Placeholder styling */
-.vfrc-chat-input textarea::placeholder,
-.vfrc-chat-input input::placeholder,
-textarea._1gdvh9ta::placeholder,
-[class^="_1gdvh9t"]::placeholder {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  color: #9CA3AF !important;
 }
 /* ==========================================================
    Scrollbar orange
@@ -376,7 +356,7 @@ textarea._1gdvh9ta::placeholder,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: var(--orange-primary) transparent;
+  scrollbar-color: #F08300 transparent;
 }
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
@@ -386,7 +366,7 @@ textarea._1gdvh9ta::placeholder,
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: var(--orange-primary);
+  background: #F08300;
   border-radius: 999px;
 }
 .vfrc-chat--dialog::-webkit-scrollbar-track,
