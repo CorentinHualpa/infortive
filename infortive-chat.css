@@ -113,8 +113,8 @@ button.vfrc-button:not(.vfrc-header--button) {
   
   /* ✅ Fond transparent avec bordure orange */
   background: transparent !important;
-  border: 1.5px solid #F08300 !important;
-  color: #F08300 !important;
+  border: 1.5px solid #051740 !important;
+  color: #051740 !important;
   
   /* ✅ Supprimer l'ombre bling-bling */
   box-shadow: none !important;
