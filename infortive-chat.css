@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v8.0
+   Infortive × Voiceflow — Thème stable v7.9
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #051740
    + Bouton "Envoyer" avec fond actif orange
@@ -9,7 +9,7 @@
    + Header transparent
    + Bouton reset masqué
    + Textarea redimensionnable (jusqu'à 20 lignes)
-   + ✅ FIX: Support Markdown complet (h2, h3, ul, li, strong, etc.)
+   + Styles Markdown pour synthèses
    ========================================================== */
 
 /* ==========================================================
@@ -30,28 +30,21 @@
   --font-bold: 700;
   
   /* Tailles adaptées pour le web */
-  --heading-1: 16px;      /* H1 - Titre principal dans messages */
-  --heading-2: 20px;      /* Header du chat */
-  --heading-3: 14px;      /* H2 - Sous-titre important */
-  --heading-4: 13px;      /* H3 - Sous-titre secondaire */
-  --heading-6: 14px;      /* Sous-titres généraux */
-  --body-1: 10px;         /* Messages - texte normal */
-  --body-2: 10px;         /* Textes secondaires */
-  --button: 12px;         /* Boutons */
-  --caption: 10px;        /* Petits textes */
-  --overline: 9px;        /* Micro-textes */
-  
-  /* Couleurs Infortive */
-  --color-orange: #F08300;
-  --color-blue-dark: #051740;
-  --color-blue-teal: #073A59;
-  --color-text: #1E293B;
+  --heading-1: 16px;
+  --heading-2: 20px;
+  --heading-3: 14px;
+  --heading-4: 13px;
+  --heading-6: 14px;
+  --body-1: 10px;
+  --body-2: 10px;
+  --button: 12px;
+  --caption: 10px;
+  --overline: 9px;
 }
 
 /* ==========================================================
    Header transparent + Bouton reset masqué
    ========================================================== */
-/* ✅ Header et container transparents */
 .vfrc-header,
 .vfrc-header--container-inner,
 div.vfrc-header,
@@ -61,7 +54,6 @@ div.vfrc-header--container-inner {
   box-shadow: none !important;
 }
 
-/* ✅ Masquer complètement le bouton reset */
 .vfrc-header--button,
 button.vfrc-header--button,
 .vfrc-header--actions {
@@ -75,7 +67,6 @@ button.vfrc-header--button,
 }
 
 /* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
-/* ✅ Sélecteur plus spécifique pour contrer les classes générées */
 div.vfrc-header--title,
 .fptyqm0.vfrc-header--title,
 .fptyqm1.vfrc-header--title {
@@ -84,8 +75,7 @@ div.vfrc-header--title,
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
-  
-  color: var(--color-orange) !important;
+  color: #F08300 !important;
   padding-bottom: 12px !important;
   position: relative !important;
   display: block !important;
@@ -93,7 +83,6 @@ div.vfrc-header--title,
   background: transparent !important;
 }
 
-/* Trait noir pleine largeur sous le titre */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
   content: "" !important;
@@ -106,7 +95,6 @@ div.vfrc-header--title::after,
   background-color: #000000 !important;
 }
 
-/* Header — garde l'icône blanche */
 .vfrc-header--button .vfrc-icon svg {
   color: #fff !important;
   fill: #fff !important;
@@ -114,39 +102,26 @@ div.vfrc-header--title::after,
 
 /* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
-   ✅ Ghost button (outline) - Bleu foncé #051740
+   Ghost button (outline) - Bleu foncé #051740
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
-  /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
   font-size: var(--button) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
-  
-  /* ✅ Fond transparent avec bordure bleu foncé */
   background: transparent !important;
-  border: 1.5px solid var(--color-blue-dark) !important;
-  color: var(--color-blue-dark) !important;
-  
-  /* ✅ Supprimer l'ombre bling-bling */
+  border: 1.5px solid #051740 !important;
+  color: #051740 !important;
   box-shadow: none !important;
-  
-  /* Forme */
   border-radius: 6px !important;
   padding: 10px 18px !important;
-  
-  /* Animation douce */
   transition: all 0.25s ease !important;
   cursor: pointer !important;
-  
-  /* Espacement */
   margin: 6px 0 !important;
   width: 100% !important;
   max-width: 100% !important;
-  
-  /* Alignement du texte */
   text-align: center !important;
   display: flex !important;
   align-items: center !important;
@@ -154,17 +129,15 @@ button.vfrc-button:not(.vfrc-header--button) {
   gap: 8px !important;
 }
 
-/* Hover sur les boutons natifs - remplissage léger bleu */
 .vfrc-button:not(.vfrc-header--button):hover,
 button.vfrc-button:not(.vfrc-header--button):hover {
   background: rgba(5, 23, 64, 0.08) !important;
-  border-color: var(--color-blue-dark) !important;
-  color: var(--color-blue-dark) !important;
+  border-color: #051740 !important;
+  color: #051740 !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
-/* Active (clic) sur les boutons natifs */
 .vfrc-button:not(.vfrc-header--button):active,
 button.vfrc-button:not(.vfrc-header--button):active {
   background: rgba(5, 23, 64, 0.12) !important;
@@ -172,7 +145,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
   box-shadow: none !important;
 }
 
-/* Conteneur des boutons */
 .vfrc-button-container,
 .vfrc-card--buttons {
   display: flex !important;
@@ -183,15 +155,13 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Bouton "Envoyer"
-   ✅ Fond subtil inactif → Fond plein orange actif
+   Fond subtil inactif → Fond plein orange actif
    ========================================================== */
-/* Cache complètement l'icône SVG */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
   display: none !important;
 }
 
-/* Ajoute le texte "Envoyer" à la place */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
@@ -202,7 +172,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
   text-transform: uppercase;
 }
 
-/* ✅ État inactif : fond léger + bordure subtile */
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: rgba(240, 131, 0, 0.08) !important;
@@ -222,7 +191,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
   user-select: none;
 }
 
-/* ✅ État actif : fond orange plein + texte blanc */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
   background: linear-gradient(135deg, #F08300, #d46f00) !important;
@@ -233,7 +201,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
   opacity: 1;
 }
 
-/* Hover actif */
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
   background: linear-gradient(135deg, #d46f00, #c56200) !important;
@@ -241,14 +208,12 @@ button.vfrc-button:not(.vfrc-header--button):active {
   transform: translateY(-1px) !important;
 }
 
-/* Active (clic) */
 #vfrc-send-message:not([disabled]):active,
 .vfrc-chat-input__send:not([disabled]):active {
   transform: translateY(0) !important;
   box-shadow: 0 2px 6px rgba(240, 131, 0, 0.3) !important;
 }
 
-/* Conteneur du bouton (évite clipping) */
 .vfrc-chat-input__actions {
   display: flex !important;
   align-items: center !important;
@@ -260,20 +225,17 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Bulles & Espacement
-   ⚠️ EXCLUSION : :not() pour éviter les extensions
+   EXCLUSION : :not() pour éviter les extensions
    ========================================================== */
-/* Bulles système - SAUF extensions custom */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
-  /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
-  
   display: inline-block !important;
   background: rgba(217,217,217,0.2) !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
   max-width: 90%;
@@ -281,7 +243,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
   word-break: break-word;
 }
 
-/* ✅ Force la taille sur TOUS les éléments de texte normal */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) span:not(h1 span):not(h2 span):not(h3 span),
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div:not(h1 div):not(h2 div):not(h3 div):not([class*="markdown"]),
@@ -293,216 +254,10 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 
 /* ==========================================================
-   ✅ FIX MARKDOWN VOICEFLOW v8.0
-   Sélecteurs ultra-spécifiques pour la div .markdown
+   HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (dans les messages)
    ========================================================== */
-
-/* ---------- Container Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown,
-.vfrc-system-response .vfrc-message div[class*="markdown"],
-.vfrc-system-response div.vfrc-message div.markdown,
-div[class*="vfrc-system-response"] div[class*="vfrc-message"] div[class*="markdown"] {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.6 !important;
-  color: var(--color-text) !important;
-}
-
-/* ---------- H2 - Titre principal (SYNTHÈSE) ---------- */
-.vfrc-system-response .vfrc-message .markdown h2,
-.vfrc-system-response .vfrc-message div[class*="markdown"] h2,
-.vfrc-system-response div.vfrc-message div.markdown h2,
-div[class*="vfrc-system-response"] div[class*="vfrc-message"] div[class*="markdown"] h2,
-.markdown h2,
-div[class*="markdown"] h2 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-bold) !important;
-  font-size: 16px !important;
-  line-height: 1.3 !important;
-  color: var(--color-orange) !important;
-  margin: 0 0 12px 0 !important;
-  padding: 0 0 8px 0 !important;
-  border-bottom: 2px solid var(--color-orange) !important;
-  display: block !important;
-}
-
-/* ---------- H3 - Sous-titres (Vos enjeux, etc.) ---------- */
-.vfrc-system-response .vfrc-message .markdown h3,
-.vfrc-system-response .vfrc-message div[class*="markdown"] h3,
-.vfrc-system-response div.vfrc-message div.markdown h3,
-div[class*="vfrc-system-response"] div[class*="vfrc-message"] div[class*="markdown"] h3,
-.markdown h3,
-div[class*="markdown"] h3 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-semibold) !important;
-  font-size: 13px !important;
-  line-height: 1.4 !important;
-  color: var(--color-blue-dark) !important;
-  margin: 16px 0 8px 0 !important;
-  padding: 0 !important;
-  display: block !important;
-}
-
-/* ---------- H1 (si utilisé) ---------- */
-.vfrc-system-response .vfrc-message .markdown h1,
-.vfrc-system-response .vfrc-message div[class*="markdown"] h1,
-.markdown h1,
-div[class*="markdown"] h1 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-bold) !important;
-  font-size: 18px !important;
-  line-height: 1.3 !important;
-  color: var(--color-orange) !important;
-  margin: 0 0 14px 0 !important;
-  padding: 0 0 10px 0 !important;
-  border-bottom: 2px solid var(--color-orange) !important;
-  display: block !important;
-}
-
-/* ---------- Paragraphes dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown p,
-.vfrc-system-response .vfrc-message div[class*="markdown"] p,
-.markdown p,
-div[class*="markdown"] p {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.6 !important;
-  color: var(--color-text) !important;
-  margin: 0 0 10px 0 !important;
-  padding: 0 !important;
-}
-
-/* ---------- Listes UL dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown ul,
-.vfrc-system-response .vfrc-message div[class*="markdown"] ul,
-.markdown ul,
-div[class*="markdown"] ul {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  color: var(--color-text) !important;
-  margin: 8px 0 12px 0 !important;
-  padding-left: 20px !important;
-  list-style-type: disc !important;
-}
-
-/* ---------- Listes OL dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown ol,
-.vfrc-system-response .vfrc-message div[class*="markdown"] ol,
-.markdown ol,
-div[class*="markdown"] ol {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  color: var(--color-text) !important;
-  margin: 8px 0 12px 0 !important;
-  padding-left: 20px !important;
-  list-style-type: decimal !important;
-}
-
-/* ---------- Éléments LI dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown li,
-.vfrc-system-response .vfrc-message div[class*="markdown"] li,
-.markdown li,
-div[class*="markdown"] li {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  color: var(--color-text) !important;
-  margin: 4px 0 !important;
-  padding: 0 !important;
-}
-
-/* ---------- Texte en gras (strong/b) dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown strong,
-.vfrc-system-response .vfrc-message .markdown b,
-.vfrc-system-response .vfrc-message div[class*="markdown"] strong,
-.vfrc-system-response .vfrc-message div[class*="markdown"] b,
-.markdown strong,
-.markdown b,
-div[class*="markdown"] strong,
-div[class*="markdown"] b {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-bold) !important;
-  color: inherit !important;
-}
-
-/* ---------- Texte en italique (em/i) dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown em,
-.vfrc-system-response .vfrc-message .markdown i,
-.vfrc-system-response .vfrc-message div[class*="markdown"] em,
-.vfrc-system-response .vfrc-message div[class*="markdown"] i,
-.markdown em,
-.markdown i,
-div[class*="markdown"] em,
-div[class*="markdown"] i {
-  font-family: var(--font-family) !important;
-  font-style: italic !important;
-  color: inherit !important;
-}
-
-/* ---------- Liens dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown a,
-.vfrc-system-response .vfrc-message div[class*="markdown"] a,
-.markdown a,
-div[class*="markdown"] a {
-  color: var(--color-blue-teal) !important;
-  text-decoration: underline !important;
-  font-weight: var(--font-medium) !important;
-}
-
-.vfrc-system-response .vfrc-message .markdown a:hover,
-.markdown a:hover,
-div[class*="markdown"] a:hover {
-  color: var(--color-orange) !important;
-}
-
-/* ---------- Code inline dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown code,
-.vfrc-system-response .vfrc-message div[class*="markdown"] code,
-.markdown code,
-div[class*="markdown"] code {
-  font-family: 'Consolas', 'Monaco', monospace !important;
-  font-size: 9px !important;
-  background: rgba(5, 23, 64, 0.08) !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-  color: var(--color-blue-dark) !important;
-}
-
-/* ---------- Blockquote dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown blockquote,
-.vfrc-system-response .vfrc-message div[class*="markdown"] blockquote,
-.markdown blockquote,
-div[class*="markdown"] blockquote {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  font-style: italic !important;
-  color: #64748B !important;
-  border-left: 3px solid var(--color-orange) !important;
-  margin: 10px 0 !important;
-  padding: 8px 0 8px 12px !important;
-  background: rgba(240, 131, 0, 0.05) !important;
-}
-
-/* ---------- Ligne horizontale (hr) dans Markdown ---------- */
-.vfrc-system-response .vfrc-message .markdown hr,
-.vfrc-system-response .vfrc-message div[class*="markdown"] hr,
-.markdown hr,
-div[class*="markdown"] hr {
-  border: none !important;
-  border-top: 1px solid rgba(5, 23, 64, 0.15) !important;
-  margin: 16px 0 !important;
-}
-
-/* ==========================================================
-   ✅ HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (fallback hors markdown)
-   ========================================================== */
-/* H1 - Titre principal */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) > h1,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) > h1 * {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h1 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-bold) !important;
   font-size: var(--heading-1) !important;
@@ -511,12 +266,11 @@ div[class*="markdown"] hr {
   padding-bottom: 10px !important;
   margin-top: 10px !important;
   margin-bottom: 6px !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
-/* H2 - Sous-titre important */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) > h2,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) > h2 * {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h2,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h2 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
   font-size: var(--heading-3) !important;
@@ -525,12 +279,11 @@ div[class*="markdown"] hr {
   padding-bottom: 8px !important;
   margin-top: 8px !important;
   margin-bottom: 5px !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
-/* H3 - Sous-titre secondaire */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) > h3,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) > h3 * {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h3,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 * {
   font-family: var(--font-family) !important;
   font-weight: var(--font-semibold) !important;
   font-size: var(--heading-4) !important;
@@ -539,23 +292,19 @@ div[class*="markdown"] hr {
   padding-bottom: 6px !important;
   margin-top: 6px !important;
   margin-bottom: 4px !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
-/* ==========================================================
-   Bulles utilisateur
-   ========================================================== */
+/* Bulles utilisateur */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message {
-  /* Typographie */
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
-  
   display: inline-block !important;
-  background: var(--color-blue-teal) !important;
+  background: #073A59 !important;
   color: #ffffff !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
@@ -570,15 +319,12 @@ div[class*="markdown"] hr {
   font-size: var(--body-1) !important;
 }
 
-/* Marge des messages - SAUF extensions */
 .vfrc-message:not([class*="extension"]) { 
   margin: 12px 0 !important; 
 }
 
 /* ==========================================================
    Input de saisie
-   ✅ Taille texte alignée sur le chat (--body-1 = 10px)
-   ✅ Zone extensible jusqu'à 20 lignes (~300px)
    ========================================================== */
 .vfrc-chat-input textarea,
 .vfrc-chat-input input,
@@ -589,8 +335,6 @@ textarea._1gdvh9ta,
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
-  
-  /* ✅ Zone redimensionnable */
   min-height: 24px !important;
   max-height: 300px !important;
   overflow-y: auto !important;
@@ -604,7 +348,7 @@ textarea._1gdvh9ta,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-orange) transparent;
+  scrollbar-color: #F08300 transparent;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
@@ -616,7 +360,7 @@ textarea._1gdvh9ta,
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: var(--color-orange);
+  background: #F08300;
   border-radius: 999px;
 }
 
@@ -627,10 +371,8 @@ textarea._1gdvh9ta,
 }
 
 /* ==========================================================
-   ✅ Protection minimaliste des extensions
-   On ne fait RIEN aux extensions, juste garantir transparence
+   Protection minimaliste des extensions
    ========================================================== */
-/* Conteneur transparent uniquement */
 .vfrc-message[class*="extension"] {
   background: transparent !important;
   padding: 0 !important;
@@ -638,9 +380,8 @@ textarea._1gdvh9ta,
 }
 
 /* ==========================================================
-   Styles typographiques supplémentaires (si besoin)
+   Styles typographiques supplémentaires
    ========================================================== */
-/* Sous-titres potentiels (Heading 6) */
 .vfrc-subtitle,
 .vfrc-section-title {
   font-family: var(--font-family) !important;
@@ -649,7 +390,6 @@ textarea._1gdvh9ta,
   line-height: 1.4 !important;
 }
 
-/* Textes secondaires (Body 2) */
 .vfrc-secondary-text,
 .vfrc-helper-text {
   font-family: var(--font-family) !important;
@@ -658,7 +398,6 @@ textarea._1gdvh9ta,
   line-height: 1.5 !important;
 }
 
-/* Captions (petits textes) */
 .vfrc-caption,
 .vfrc-timestamp {
   font-family: var(--font-family) !important;
@@ -667,7 +406,6 @@ textarea._1gdvh9ta,
   line-height: 1.5 !important;
 }
 
-/* Overline (micro-textes en majuscules) */
 .vfrc-overline,
 .vfrc-label {
   font-family: var(--font-family) !important;
@@ -681,7 +419,6 @@ textarea._1gdvh9ta,
 /* ==========================================================
    SUPPRESSION DES OMBRES
    ========================================================== */
-/* Conteneur principal de la carte */
 .vfrc-chat__container-inner {
   box-shadow: none !important;
   background: transparent !important;
@@ -690,7 +427,6 @@ textarea._1gdvh9ta,
   padding: 0 !important;
 }
 
-/* Conteneur du chat */
 .vfrc-chat {
   box-shadow: none !important;
   background: transparent !important;
@@ -698,7 +434,6 @@ textarea._1gdvh9ta,
   margin: 0 !important;
 }
 
-/* Le wrapper du dialogue */
 .vfrc-chat-dialog__container,
 .vfrc-chat-dialog,
 .vfrc-chat--dialog {
@@ -706,13 +441,11 @@ textarea._1gdvh9ta,
   background: transparent !important;
 }
 
-/* Overlay du bas */
 .vfrc-chat--overlay {
   box-shadow: none !important;
   background: transparent !important;
 }
 
-/* Footer et zone d'input */
 .vfrc-footer,
 .vfrc-footer__content,
 .vfrc-input-container {
@@ -720,33 +453,101 @@ textarea._1gdvh9ta,
   background: transparent !important;
 }
 
-/* ==========================================================
-   ✅ NUCLEAR OPTION - Override des classes dynamiques Voiceflow
-   Si les styles ne s'appliquent toujours pas, décommenter :
-   ========================================================== */
-/*
-[class*="_11kfxpg"] h2,
-[class*="_11kfxpg"] h3 {
-  all: unset !important;
+[class^="_"],
+[class*="_"] {
+  box-shadow: none !important;
 }
 
-[class*="_11kfxpg"] h2 {
-  display: block !important;
+/* ==========================================================
+   ✅ STYLES MARKDOWN - Messages texte uniquement (v7.9)
+   Cible la div .markdown générée par Voiceflow
+   NE TOUCHE PAS aux extensions
+   ========================================================== */
+
+/* Container markdown - reset des styles parasites */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"],
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown {
+  font-family: var(--font-family) !important;
+  font-size: var(--body-1) !important;
+  line-height: 1.6 !important;
+  color: #1E293B !important;
+}
+
+/* H2 - Titre principal (SYNTHÈSE) */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h2,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h2 {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: 16px !important;
+  line-height: 1.3 !important;
   color: #F08300 !important;
   margin: 0 0 12px 0 !important;
-  padding-bottom: 8px !important;
-  border-bottom: 2px solid #F08300 !important;
+  padding: 0 0 8px 0 !important;
+  border-bottom: 1px solid rgba(5, 23, 64, 0.15) !important;
 }
 
-[class*="_11kfxpg"] h3 {
-  display: block !important;
+/* H3 - Sous-titres (Vos enjeux, Notre compréhension, etc.) */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h3,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h3 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
   color: #051740 !important;
-  margin: 16px 0 8px 0 !important;
+  margin: 16px 0 6px 0 !important;
+  padding: 0 !important;
+  text-transform: none !important;
 }
-*/
+
+/* Paragraphes dans markdown */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] p,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown p {
+  font-family: var(--font-family) !important;
+  font-weight: 400 !important;
+  font-size: var(--body-1) !important;
+  line-height: 1.6 !important;
+  color: #1E293B !important;
+  margin: 0 0 10px 0 !important;
+  padding: 0 !important;
+}
+
+/* Listes à puces */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ul,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ul {
+  margin: 8px 0 12px 0 !important;
+  padding-left: 20px !important;
+  list-style-type: disc !important;
+}
+
+/* Éléments de liste */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li {
+  font-family: var(--font-family) !important;
+  font-weight: 400 !important;
+  font-size: var(--body-1) !important;
+  line-height: 1.5 !important;
+  color: #1E293B !important;
+  margin: 4px 0 !important;
+  padding: 0 !important;
+}
+
+/* Texte en gras */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong {
+  font-weight: 600 !important;
+  color: #051740 !important;
+}
+
+/* Texte en italique */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] em,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown em {
+  font-style: italic !important;
+}
+
+/* Ligne horizontale (séparateur ----) */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] hr,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown hr {
+  border: none !important;
+  border-top: 1px solid rgba(5, 23, 64, 0.2) !important;
+  margin: 16px 0 !important;
+}
