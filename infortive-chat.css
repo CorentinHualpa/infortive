@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v8.8
+   Infortive × Voiceflow — Thème stable v8.9
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #051740
    + Bouton "Envoyer" avec fond actif orange
@@ -12,7 +12,7 @@
    + Styles Markdown pour synthèses
    + Fix zone input opaque sans ombre
    + Titres agrandis SANS modifier le texte normal
-   + v8.8 : Titres H2/H3/H4 en BLEU #051740 + Fix puces
+   + v8.9 : H1/H2 ORANGE #F18400 | H3/H4/H5/H6 BLEU #1E3A8A
    ========================================================== */
 
 /* ==========================================================
@@ -32,7 +32,7 @@
   --font-semibold: 600;
   --font-bold: 700;
   
-  /* Tailles adaptées pour le web - ORIGINALES */
+  /* Tailles adaptées pour le web */
   --heading-1: 16px;
   --heading-2: 20px;
   --heading-3: 14px;
@@ -43,6 +43,10 @@
   --button: 12px;
   --caption: 10px;
   --overline: 9px;
+  
+  /* Couleurs titres v8.9 */
+  --color-title-orange: #F18400;
+  --color-title-blue: #1E3A8A;
 }
 
 /* ==========================================================
@@ -78,7 +82,7 @@ div.vfrc-header--title,
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
   letter-spacing: -0.02em !important;
-  color: #F08300 !important;
+  color: #F18400 !important;
   padding-bottom: 12px !important;
   position: relative !important;
   display: block !important;
@@ -196,10 +200,10 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, #F08300, #d46f00) !important;
+  background: linear-gradient(135deg, #F18400, #d46f00) !important;
   border: none !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(240, 131, 0, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
   cursor: pointer;
   opacity: 1;
 }
@@ -207,14 +211,14 @@ button.vfrc-button:not(.vfrc-header--button):active {
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
   background: linear-gradient(135deg, #d46f00, #c56200) !important;
-  box-shadow: 0 4px 12px rgba(240, 131, 0, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(241, 132, 0, 0.4) !important;
   transform: translateY(-1px) !important;
 }
 
 #vfrc-send-message:not([disabled]):active,
 .vfrc-chat-input__send:not([disabled]):active {
   transform: translateY(0) !important;
-  box-shadow: 0 2px 6px rgba(240, 131, 0, 0.3) !important;
+  box-shadow: 0 2px 6px rgba(241, 132, 0, 0.3) !important;
 }
 
 .vfrc-chat-input__actions {
@@ -351,7 +355,7 @@ textarea._1gdvh9ta,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: #F08300 transparent;
+  scrollbar-color: #F18400 transparent;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
@@ -363,7 +367,7 @@ textarea._1gdvh9ta,
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F08300;
+  background: #F18400;
   border-radius: 999px;
 }
 
@@ -467,11 +471,31 @@ div[class*="chat-input"] {
 }
 
 /* ==========================================================
-   ✅ v8.8 : TITRES MARKDOWN EN BLEU #051740
-   Utilisation des classes Voiceflow spécifiques
+   ✅ v8.9 : TITRES MARKDOWN
+   H1, H2 → ORANGE #F18400
+   H3, H4, H5, H6 → BLEU #1E3A8A
    ========================================================== */
 
-/* H2 - Titre principal (SYNTHÈSE) - BLEU */
+/* ========== H1 - ORANGE #F18400 ========== */
+._11kfxpg1 h1,
+._11kfxpg3 h1,
+.markdown._11kfxpg1 h1,
+.markdown._11kfxpg3 h1,
+div.markdown._11kfxpg1 h1,
+div.markdown._11kfxpg3 h1,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h1,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h1 {
+  font-family: var(--font-family) !important;
+  font-weight: 700 !important;
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  color: #F18400 !important;
+  margin: 0 0 16px 0 !important;
+  padding: 0 0 12px 0 !important;
+  border-bottom: 2px solid rgba(241, 132, 0, 0.3) !important;
+}
+
+/* ========== H2 - ORANGE #F18400 ========== */
 ._11kfxpg1 h2,
 ._11kfxpg3 h2,
 .markdown._11kfxpg1 h2,
@@ -484,13 +508,13 @@ div.markdown._11kfxpg3 h2,
   font-weight: 700 !important;
   font-size: 20px !important;
   line-height: 1.2 !important;
-  color: #051740 !important;
+  color: #F18400 !important;
   margin: 0 0 14px 0 !important;
   padding: 0 0 10px 0 !important;
-  border-bottom: 2px solid rgba(5, 23, 64, 0.3) !important;
+  border-bottom: 2px solid rgba(241, 132, 0, 0.3) !important;
 }
 
-/* H3 - Sous-titres - BLEU */
+/* ========== H3 - BLEU #1E3A8A ========== */
 ._11kfxpg1 h3,
 ._11kfxpg3 h3,
 .markdown._11kfxpg1 h3,
@@ -501,15 +525,15 @@ div.markdown._11kfxpg3 h3,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h3 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   line-height: 1.3 !important;
-  color: #051740 !important;
+  color: #1E3A8A !important;
   margin: 20px 0 8px 0 !important;
   padding: 0 !important;
   text-transform: none !important;
 }
 
-/* H4 - BLEU */
+/* ========== H4 - BLEU #1E3A8A - TAILLE AUGMENTÉE ========== */
 ._11kfxpg1 h4,
 ._11kfxpg3 h4,
 .markdown._11kfxpg1 h4,
@@ -520,14 +544,50 @@ div.markdown._11kfxpg3 h4,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h4 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 1.3 !important;
-  color: #051740 !important;
+  color: #1E3A8A !important;
   margin: 16px 0 6px 0 !important;
   padding: 0 !important;
 }
 
-/* Texte en gras - BLEU */
+/* ========== H5 - BLEU #1E3A8A - TAILLE AUGMENTÉE ========== */
+._11kfxpg1 h5,
+._11kfxpg3 h5,
+.markdown._11kfxpg1 h5,
+.markdown._11kfxpg3 h5,
+div.markdown._11kfxpg1 h5,
+div.markdown._11kfxpg3 h5,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h5,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h5 {
+  font-family: var(--font-family) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  color: #1E3A8A !important;
+  margin: 14px 0 5px 0 !important;
+  padding: 0 !important;
+}
+
+/* ========== H6 - BLEU #1E3A8A ========== */
+._11kfxpg1 h6,
+._11kfxpg3 h6,
+.markdown._11kfxpg1 h6,
+.markdown._11kfxpg3 h6,
+div.markdown._11kfxpg1 h6,
+div.markdown._11kfxpg3 h6,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h6,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h6 {
+  font-family: var(--font-family) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+  color: #1E3A8A !important;
+  margin: 12px 0 4px 0 !important;
+  padding: 0 !important;
+}
+
+/* ========== Texte en gras - BLEU ========== */
 ._11kfxpg1 strong,
 ._11kfxpg3 strong,
 .markdown._11kfxpg1 strong,
@@ -537,7 +597,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong {
   font-weight: 600 !important;
-  color: #051740 !important;
+  color: #1E3A8A !important;
 }
 
 /* Texte en italique */
@@ -558,12 +618,12 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] hr,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown hr {
   border: none !important;
-  border-top: 1px solid rgba(5, 23, 64, 0.2) !important;
+  border-top: 1px solid rgba(30, 58, 138, 0.2) !important;
   margin: 20px 0 !important;
 }
 
 /* ==========================================================
-   ✅ v8.8 : FIX PUCES - Classes Voiceflow spécifiques
+   ✅ v8.9 : FIX PUCES
    ========================================================== */
 
 /* Listes à puces */
@@ -627,7 +687,7 @@ div.markdown._11kfxpg3 strong,
 .markdown._11kfxpg3 li::marker,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::marker,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::marker {
-  color: #051740 !important;
+  color: #1E3A8A !important;
 }
 
 /* Paragraphes */
