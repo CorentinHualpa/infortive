@@ -466,13 +466,17 @@ div[class*="chat-input"] {
 }
 
 /* ==========================================================
-   ✅ MODIFICATION 1 : TITRES MARKDOWN EN BLEU #051740
-   (Avant : H2 orange, maintenant : H2 bleu)
+   ✅ STYLES MARKDOWN - TITRES EN BLEU #051740
+   Utilisation des classes Voiceflow spécifiques
    ========================================================== */
 
-/* H2 - Titre principal (SYNTHÈSE) - BLEU #051740 */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h2,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h2 {
+/* H2 - Titre principal (SYNTHÈSE) - BLEU */
+._11kfxpg1 h2,
+._11kfxpg3 h2,
+.markdown._11kfxpg1 h2,
+.markdown._11kfxpg3 h2,
+div.markdown._11kfxpg1 h2,
+div.markdown._11kfxpg3 h2 {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: 20px !important;
@@ -483,9 +487,13 @@ div[class*="chat-input"] {
   border-bottom: 2px solid rgba(5, 23, 64, 0.3) !important;
 }
 
-/* H3 - Sous-titres (Vos enjeux, Notre compréhension, etc.) - BLEU #051740 */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h3,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h3 {
+/* H3 - Sous-titres - BLEU */
+._11kfxpg1 h3,
+._11kfxpg3 h3,
+.markdown._11kfxpg1 h3,
+.markdown._11kfxpg3 h3,
+div.markdown._11kfxpg1 h3,
+div.markdown._11kfxpg3 h3 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 14px !important;
@@ -496,9 +504,13 @@ div[class*="chat-input"] {
   text-transform: none !important;
 }
 
-/* H4 - BLEU #051740 */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h4,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h4 {
+/* H4 - BLEU */
+._11kfxpg1 h4,
+._11kfxpg3 h4,
+.markdown._11kfxpg1 h4,
+.markdown._11kfxpg3 h4,
+div.markdown._11kfxpg1 h4,
+div.markdown._11kfxpg3 h4 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 12px !important;
@@ -508,50 +520,64 @@ div[class*="chat-input"] {
   padding: 0 !important;
 }
 
-/* Texte en gras */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong {
+/* Texte en gras - BLEU */
+._11kfxpg1 strong,
+._11kfxpg3 strong,
+.markdown._11kfxpg1 strong,
+.markdown._11kfxpg3 strong,
+div.markdown._11kfxpg1 strong,
+div.markdown._11kfxpg3 strong {
   font-weight: 600 !important;
   color: #051740 !important;
 }
 
 /* Texte en italique */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] em,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown em {
+._11kfxpg1 em,
+._11kfxpg3 em,
+.markdown._11kfxpg1 em,
+.markdown._11kfxpg3 em {
   font-style: italic !important;
 }
 
-/* Ligne horizontale (séparateur ----) */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] hr,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown hr {
+/* Ligne horizontale */
+._11kfxpg1 hr,
+._11kfxpg3 hr,
+.markdown._11kfxpg1 hr,
+.markdown._11kfxpg3 hr {
   border: none !important;
   border-top: 1px solid rgba(5, 23, 64, 0.2) !important;
   margin: 20px 0 !important;
 }
 
 /* ==========================================================
-   ✅ MODIFICATION 2 : FIX PUCES - Masquer ::before Voiceflow
+   ✅ FIX PUCES - Classes Voiceflow spécifiques
    ========================================================== */
 
-/* Listes non ordonnées (puces) */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ul,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ul {
+/* Listes à puces */
+._11kfxpg1 ul,
+._11kfxpg3 ul,
+.markdown._11kfxpg1 ul,
+.markdown._11kfxpg3 ul {
   margin: 10px 0 !important;
   padding-left: 24px !important;
   list-style: disc outside !important;
 }
 
-/* Listes ordonnées (numérotées) */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ol,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ol {
+/* Listes numérotées */
+._11kfxpg1 ol,
+._11kfxpg3 ol,
+.markdown._11kfxpg1 ol,
+.markdown._11kfxpg3 ol {
   margin: 10px 0 !important;
   padding-left: 24px !important;
   list-style: decimal outside !important;
 }
 
 /* Éléments de liste */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li {
+._11kfxpg1 li,
+._11kfxpg3 li,
+.markdown._11kfxpg1 li,
+.markdown._11kfxpg3 li {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
   font-weight: var(--font-regular) !important;
@@ -564,30 +590,28 @@ div[class*="chat-input"] {
   list-style-position: outside !important;
 }
 
-/* MASQUER le ::before de Voiceflow qui affiche * */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::before,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::before {
+/* MASQUER le ::before de Voiceflow */
+._11kfxpg1 li::before,
+._11kfxpg3 li::before,
+.markdown._11kfxpg1 li::before,
+.markdown._11kfxpg3 li::before {
   content: none !important;
   display: none !important;
 }
 
-/* Marqueur de puce - couleur bleue */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::marker,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::marker {
+/* Marqueur de puce - BLEU */
+._11kfxpg1 li::marker,
+._11kfxpg3 li::marker,
+.markdown._11kfxpg1 li::marker,
+.markdown._11kfxpg3 li::marker {
   color: #051740 !important;
 }
 
-/* Listes imbriquées */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ul ul,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ul ul {
-  margin: 4px 0 !important;
-  padding-left: 20px !important;
-  list-style-type: circle !important;
-}
-
-/* Paragraphes dans markdown */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown p {
+/* Paragraphes */
+._11kfxpg1 p,
+._11kfxpg3 p,
+.markdown._11kfxpg1 p,
+.markdown._11kfxpg3 p {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
   font-weight: var(--font-regular) !important;
