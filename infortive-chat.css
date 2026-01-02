@@ -525,7 +525,7 @@ div.markdown._11kfxpg3 h3,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h3 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
-  font-size: 16px !important;
+  font-size: 18px !important;
   line-height: 1.3 !important;
   color: #1E3A8A !important;
   margin: 20px 0 8px 0 !important;
@@ -544,7 +544,7 @@ div.markdown._11kfxpg3 h4,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h4 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   line-height: 1.3 !important;
   color: #1E3A8A !important;
   margin: 16px 0 6px 0 !important;
@@ -562,7 +562,7 @@ div.markdown._11kfxpg3 h5,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h5 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
-  font-size: 13px !important;
+  font-size: 15px !important;
   line-height: 1.3 !important;
   color: #1E3A8A !important;
   margin: 14px 0 5px 0 !important;
