@@ -359,20 +359,10 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ==========================================================
    Input de saisie
    v9.0 : Bordure permanente + fond gris léger
-   v9.0.1 : Fix double bordure + centrage placeholder
+   v9.0.2 : Bordure sur le textarea directement
    ========================================================== */
 
-/* Container externe - UNE SEULE bordure ici */
-.vfrc-chat-input,
-.vfrc-chat-input__container {
-  background: #F5F5F5 !important;
-  border: 1px solid #CCCCCC !important;
-  border-radius: 8px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-/* Textarea - PAS de bordure, fond transparent */
+/* Textarea avec bordure visible */
 .vfrc-chat-input textarea,
 .vfrc-chat-input input,
 textarea.vfrc-chat-input,
@@ -386,20 +376,27 @@ textarea._1gdvh9ta,
   max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: transparent !important;
-  border: none !important;
+  background: #F5F5F5 !important;
+  border: 1px solid #CCCCCC !important;
+  border-radius: 8px !important;
   outline: none !important;
   box-shadow: none !important;
   padding: 10px 12px !important;
-  display: flex !important;
-  align-items: center !important;
 }
 
-/* Placeholder centré */
+/* Focus state - bordure légèrement plus foncée */
+.vfrc-chat-input textarea:focus,
+textarea.vfrc-chat-input:focus,
+textarea._1gdvh9ta:focus {
+  border-color: #AAAAAA !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Placeholder */
 .vfrc-chat-input textarea::placeholder,
 textarea._1gdvh9ta::placeholder {
-  line-height: 40px !important;
-  vertical-align: middle !important;
+  color: #888888 !important;
 }
 
 /* ==========================================================
@@ -522,10 +519,10 @@ div[class*="vfrc-footer"] {
   box-shadow: none !important;
 }
 
-/* Supprimer toutes bordures parasites sur les wrappers d'input */
+/* Supprimer bordures sur containers parents de l'input (pas sur le textarea) */
+.vfrc-chat-input__container,
 .vfrc-chat-input__wrapper,
-.vfrc-chat-input__inner,
-div[class*="chat-input"]:not(.vfrc-chat-input__container) {
+.vfrc-chat-input__inner {
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
