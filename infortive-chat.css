@@ -1,7 +1,7 @@
 /* ==========================================================
    Infortive × Voiceflow — Thème stable v9.0
    + Police Plus Jakarta Sans (tous niveaux typographiques)
-   + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #073A59
+   + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #3B5998
    + Bouton "Envoyer" avec fond actif orange
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
@@ -12,12 +12,9 @@
    + Styles Markdown pour synthèses
    + Fix zone input opaque sans ombre
    + Titres agrandis SANS modifier le texte normal
-   + v9.0 : 
-     - Chat bord à bord (marges supprimées)
-     - Bulles gris plus foncé rgba(217,217,217,0.35)
-     - Zone saisie avec bordure permanente + fond gris léger
-     - Bordure boutons allégée #073A59
-     - Gras en noir #1E293B (titres inchangés)
+   + v9.0 : Corrections - marges bord à bord, gris bulles 0.35,
+            bordure boutons #3B5998, gras noir #1E293B,
+            zone saisie avec bordure permanente et fond grisé
    ========================================================== */
 
 /* ==========================================================
@@ -49,42 +46,9 @@
   --caption: 10px;
   --overline: 9px;
   
-  /* Couleurs titres */
+  /* Couleurs titres v9.0 */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
-  
-  /* v9.0 : Couleurs mises à jour */
-  --color-bubble-bg: rgba(217,217,217,0.35);
-  --color-input-bg: rgba(245,245,245,1);
-  --color-input-border: #CCCCCC;
-  --color-button-border: #073A59;
-  --color-bold-text: #1E293B;
-}
-
-/* ==========================================================
-   v9.0 : CHAT BORD À BORD - Suppression des marges
-   ========================================================== */
-.vfrc-chat,
-.vfrc-chat__container,
-.vfrc-chat__container-inner,
-.vfrc-chat-dialog,
-.vfrc-chat-dialog__container,
-.vfrc-chat--dialog {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-.vfrc-system-response,
-.vfrc-user-response {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  max-width: 100% !important;
 }
 
 /* ==========================================================
@@ -146,8 +110,31 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
+   v9.0 : MARGES BORD À BORD
+   Suppression des marges latérales du chat
+   ========================================================== */
+.vfrc-chat__container,
+.vfrc-chat__container-inner,
+.vfrc-chat-dialog,
+.vfrc-chat-dialog__container,
+.vfrc-chat--dialog {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.vfrc-system-response,
+.vfrc-user-response {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
-   v9.0 : Bordure allégée #073A59
+   v9.0 : Bordure allégée #3B5998
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -157,8 +144,8 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   background: transparent !important;
-  border: 1px solid var(--color-button-border) !important;
-  color: var(--color-button-border) !important;
+  border: 1.5px solid #3B5998 !important;
+  color: #3B5998 !important;
   box-shadow: none !important;
   border-radius: 6px !important;
   padding: 10px 18px !important;
@@ -176,16 +163,16 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 .vfrc-button:not(.vfrc-header--button):hover,
 button.vfrc-button:not(.vfrc-header--button):hover {
-  background: rgba(7, 58, 89, 0.08) !important;
-  border-color: var(--color-button-border) !important;
-  color: var(--color-button-border) !important;
+  background: rgba(59, 89, 152, 0.08) !important;
+  border-color: #3B5998 !important;
+  color: #3B5998 !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
 .vfrc-button:not(.vfrc-header--button):active,
 button.vfrc-button:not(.vfrc-header--button):active {
-  background: rgba(7, 58, 89, 0.12) !important;
+  background: rgba(59, 89, 152, 0.12) !important;
   transform: none !important;
   box-shadow: none !important;
 }
@@ -271,6 +258,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ==========================================================
    Bulles & Espacement
    v9.0 : Gris plus foncé rgba(217,217,217,0.35)
+   EXCLUSION : :not() pour éviter les extensions
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
   font-family: var(--font-family) !important;
@@ -279,11 +267,11 @@ button.vfrc-button:not(.vfrc-header--button):active {
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
-  background: var(--color-bubble-bg) !important;
+  background: rgba(217,217,217,0.35) !important;
   color: #1E293B !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
-  max-width: 100%;
+  max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -353,7 +341,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
   color: #ffffff !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
-  max-width: 100%;
+  max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -370,13 +358,13 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Input de saisie
-   v9.0 : Bordure permanente + fond gris léger
+   v9.0 : Bordure permanente + fond grisé
    ========================================================== */
 .vfrc-chat-input,
 .vfrc-chat-input__container,
 div[class*="chat-input"] {
-  background: var(--color-input-bg) !important;
-  border: 1px solid var(--color-input-border) !important;
+  background: rgba(217,217,217,0.35) !important;
+  border: 1px solid #CCCCCC !important;
   border-radius: 8px !important;
 }
 
@@ -394,14 +382,6 @@ textarea._1gdvh9ta,
   overflow-y: auto !important;
   resize: vertical !important;
   background: transparent !important;
-  border: none !important;
-}
-
-/* Focus state - bordure plus marquée */
-.vfrc-chat-input:focus-within,
-.vfrc-chat-input__container:focus-within {
-  border-color: #073A59 !important;
-  outline: none !important;
 }
 
 /* ==========================================================
@@ -647,10 +627,9 @@ div.markdown._11kfxpg3 h6,
 div.markdown._11kfxpg1 strong,
 div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) strong {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong {
   font-weight: 600 !important;
-  color: var(--color-bold-text) !important;
+  color: #1E293B !important;
 }
 
 /* Texte en italique */
