@@ -359,15 +359,20 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ==========================================================
    Input de saisie
    v9.0 : Bordure permanente + fond gris léger
+   v9.0.1 : Fix double bordure + centrage placeholder
    ========================================================== */
+
+/* Container externe - UNE SEULE bordure ici */
 .vfrc-chat-input,
-.vfrc-chat-input__container,
-div[class*="vfrc-chat-input"] {
+.vfrc-chat-input__container {
   background: #F5F5F5 !important;
   border: 1px solid #CCCCCC !important;
   border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
+/* Textarea - PAS de bordure, fond transparent */
 .vfrc-chat-input textarea,
 .vfrc-chat-input input,
 textarea.vfrc-chat-input,
@@ -377,11 +382,24 @@ textarea._1gdvh9ta,
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
-  min-height: 24px !important;
+  min-height: 40px !important;
   max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
   background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Placeholder centré */
+.vfrc-chat-input textarea::placeholder,
+textarea._1gdvh9ta::placeholder {
+  line-height: 40px !important;
+  vertical-align: middle !important;
 }
 
 /* ==========================================================
@@ -496,11 +514,21 @@ div[class*="vfrc-footer"] {
   position: relative !important;
   z-index: 10 !important;
   box-shadow: none !important;
+  border: none !important;
 }
 
 .vfrc-chat--overlay {
   background: #ffffff !important;
   box-shadow: none !important;
+}
+
+/* Supprimer toutes bordures parasites sur les wrappers d'input */
+.vfrc-chat-input__wrapper,
+.vfrc-chat-input__inner,
+div[class*="chat-input"]:not(.vfrc-chat-input__container) {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 /* ==========================================================
