@@ -1,7 +1,7 @@
 /* ==========================================================
    Infortive × Voiceflow — Thème stable v9.0
    + Police Plus Jakarta Sans (tous niveaux typographiques)
-   + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #3B5998
+   + Boutons natifs Voiceflow stylés (ghost/outline) - Bleu #073A59
    + Bouton "Envoyer" avec fond actif orange
    + Titre header en orange avec trait noir PLEINE LARGEUR
    + Exclusion minimaliste des extensions
@@ -12,9 +12,9 @@
    + Styles Markdown pour synthèses
    + Fix zone input opaque sans ombre
    + Titres agrandis SANS modifier le texte normal
-   + v9.0 : Corrections - marges bord à bord, gris bulles 0.35,
-            bordure boutons #3B5998, gras noir #1E293B,
-            zone saisie avec bordure permanente et fond grisé
+   + v8.9 : H1/H2 ORANGE #F18400 | H3/H4/H5/H6 BLEU #1E3A8A
+   + v9.0 : Chat bord à bord, gris bulles 0.35, bordure boutons allégée,
+            gras noir, zone saisie avec bordure permanente et fond gris
    ========================================================== */
 
 /* ==========================================================
@@ -46,7 +46,7 @@
   --caption: 10px;
   --overline: 9px;
   
-  /* Couleurs titres v9.0 */
+  /* Couleurs titres v8.9 */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
 }
@@ -110,9 +110,9 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.0 : MARGES BORD À BORD
-   Suppression des marges latérales du chat
+   v9.0 : CHAT BORD À BORD - Suppression marges latérales
    ========================================================== */
+.vfrc-chat,
 .vfrc-chat__container,
 .vfrc-chat__container-inner,
 .vfrc-chat-dialog,
@@ -134,7 +134,7 @@ div.vfrc-header--title::after,
 
 /* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
-   v9.0 : Bordure allégée #3B5998
+   Ghost button (outline) - v9.0 : Bleu allégé #073A59
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -144,8 +144,8 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   background: transparent !important;
-  border: 1.5px solid #3B5998 !important;
-  color: #3B5998 !important;
+  border: 1.5px solid #073A59 !important;
+  color: #073A59 !important;
   box-shadow: none !important;
   border-radius: 6px !important;
   padding: 10px 18px !important;
@@ -163,16 +163,16 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 .vfrc-button:not(.vfrc-header--button):hover,
 button.vfrc-button:not(.vfrc-header--button):hover {
-  background: rgba(59, 89, 152, 0.08) !important;
-  border-color: #3B5998 !important;
-  color: #3B5998 !important;
+  background: rgba(7, 58, 89, 0.08) !important;
+  border-color: #073A59 !important;
+  color: #073A59 !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
 .vfrc-button:not(.vfrc-header--button):active,
 button.vfrc-button:not(.vfrc-header--button):active {
-  background: rgba(59, 89, 152, 0.12) !important;
+  background: rgba(7, 58, 89, 0.12) !important;
   transform: none !important;
   box-shadow: none !important;
 }
@@ -257,8 +257,8 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Bulles & Espacement
-   v9.0 : Gris plus foncé rgba(217,217,217,0.35)
    EXCLUSION : :not() pour éviter les extensions
+   v9.0 : Gris plus foncé rgba(217,217,217,0.35)
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
   font-family: var(--font-family) !important;
@@ -358,12 +358,12 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Input de saisie
-   v9.0 : Bordure permanente + fond grisé
+   v9.0 : Bordure permanente + fond gris léger
    ========================================================== */
 .vfrc-chat-input,
 .vfrc-chat-input__container,
-div[class*="chat-input"] {
-  background: rgba(217,217,217,0.35) !important;
+div[class*="vfrc-chat-input"] {
+  background: #F5F5F5 !important;
   border: 1px solid #CCCCCC !important;
   border-radius: 8px !important;
 }
@@ -490,7 +490,8 @@ textarea._1gdvh9ta,
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer__content,
-.vfrc-input-container {
+.vfrc-input-container,
+div[class*="vfrc-footer"] {
   background: #ffffff !important;
   position: relative !important;
   z-index: 10 !important;
@@ -503,7 +504,7 @@ textarea._1gdvh9ta,
 }
 
 /* ==========================================================
-   ✅ v9.0 : TITRES MARKDOWN
+   ✅ v8.9 : TITRES MARKDOWN
    H1, H2 → ORANGE #F18400
    H3, H4, H5, H6 → BLEU #1E3A8A
    ========================================================== */
@@ -619,7 +620,7 @@ div.markdown._11kfxpg3 h6,
   padding: 0 !important;
 }
 
-/* ========== v9.0 : Texte en gras - NOIR #1E293B ========== */
+/* ========== v9.0 : Texte en gras - NOIR ========== */
 ._11kfxpg1 strong,
 ._11kfxpg3 strong,
 .markdown._11kfxpg1 strong,
@@ -627,7 +628,8 @@ div.markdown._11kfxpg3 h6,
 div.markdown._11kfxpg1 strong,
 div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong {
+.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) strong {
   font-weight: 600 !important;
   color: #1E293B !important;
 }
@@ -655,7 +657,7 @@ div.markdown._11kfxpg3 strong,
 }
 
 /* ==========================================================
-   ✅ v9.0 : FIX PUCES
+   ✅ v8.9 : FIX PUCES
    ========================================================== */
 
 /* Listes à puces */
