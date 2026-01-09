@@ -144,7 +144,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   background: transparent !important;
-  border: 1.5px solid #073A59 !important;
+  border: 1px solid #073A59 !important;
   color: #073A59 !important;
   box-shadow: none !important;
   border-radius: 6px !important;
@@ -655,7 +655,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) strong {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   color: #1E293B !important;
 }
 
@@ -720,9 +720,10 @@ div.markdown._11kfxpg3 strong,
   line-height: 1.6 !important;
   margin: 6px 0 !important;
   padding-left: 8px !important;
+  position: relative !important;
 }
 
-/* Puces Voiceflow - style personnalisé */
+/* Puces Voiceflow - alignement vertical corrigé */
 ._11kfxpg1 li::before,
 ._11kfxpg3 li::before,
 .markdown._11kfxpg1 li::before,
@@ -730,6 +731,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::before,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::before {
   color: #1E3A8A !important;
+  top: 0.65em !important;
 }
 
 /* Paragraphes */
