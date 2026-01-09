@@ -144,7 +144,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.4 !important;
   letter-spacing: 0.02em !important;
   background: transparent !important;
-  border: 1px solid #073A59 !important;
+  border: 1.5px solid #073A59 !important;
   color: #073A59 !important;
   box-shadow: none !important;
   border-radius: 6px !important;
@@ -655,7 +655,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) strong {
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   color: #1E293B !important;
 }
 
@@ -693,8 +693,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ul,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ul {
   margin: 10px 0 !important;
-  padding-left: 24px !important;
-  list-style: disc outside !important;
+  padding-left: 20px !important;
 }
 
 /* Listes numérotées */
@@ -705,8 +704,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ol,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ol {
   margin: 10px 0 !important;
-  padding-left: 24px !important;
-  list-style: decimal outside !important;
+  padding-left: 20px !important;
 }
 
 /* Éléments de liste */
@@ -721,31 +719,16 @@ div.markdown._11kfxpg3 strong,
   font-weight: var(--font-regular) !important;
   line-height: 1.6 !important;
   margin: 6px 0 !important;
-  padding: 0 !important;
-  padding-left: 4px !important;
-  display: list-item !important;
-  list-style-type: inherit !important;
-  list-style-position: outside !important;
+  padding-left: 8px !important;
 }
 
-/* MASQUER le ::before de Voiceflow */
+/* Puces Voiceflow - style personnalisé */
 ._11kfxpg1 li::before,
 ._11kfxpg3 li::before,
 .markdown._11kfxpg1 li::before,
 .markdown._11kfxpg3 li::before,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::before,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::before {
-  content: none !important;
-  display: none !important;
-}
-
-/* Marqueur de puce - BLEU */
-._11kfxpg1 li::marker,
-._11kfxpg3 li::marker,
-.markdown._11kfxpg1 li::marker,
-.markdown._11kfxpg3 li::marker,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::marker,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::marker {
   color: #1E3A8A !important;
 }
 
