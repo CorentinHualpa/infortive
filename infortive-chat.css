@@ -655,7 +655,7 @@ div.markdown._11kfxpg3 strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) strong {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   color: #1E293B !important;
 }
 
