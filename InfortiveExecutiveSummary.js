@@ -1016,14 +1016,14 @@ export const InfortiveExecutiveSummary = {
         if (config.copyFormats.includes('text')) {
           const copyFormattedBtn = document.createElement('button');
           copyFormattedBtn.className = 'infortive-copy-btn';
-          copyFormattedBtn.innerHTML = `${ICONS.copy} Copier texte`;
+          copyFormattedBtn.innerHTML = `Copier texte`;
           copyFormattedBtn.addEventListener('click', async () => {
             try {
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = config.content;
               await navigator.clipboard.writeText(tempDiv.textContent);
               copyFormattedBtn.classList.add('copied');
-              copyFormattedBtn.innerHTML = `${ICONS.check} Copié !`;
+              copyFormattedBtn.innerHTML = `Copié !`;
               showToast('✅ Texte copié');
               setTimeout(() => {
                 copyFormattedBtn.classList.remove('copied');
