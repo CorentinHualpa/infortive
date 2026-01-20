@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.13
-   + v9.13 : Sélecteurs PRÉCIS uniquement - pas de wildcards
+   Infortive × Voiceflow — Thème stable v9.14
+   + v9.14 : Fix padding-left sur g3dqfd6
    ========================================================== */
 
 /* ==========================================================
@@ -13,14 +13,10 @@
    ========================================================== */
 :root {
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  
-  /* Graisses */
   --font-regular: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
-  
-  /* Tailles adaptées pour le web */
   --heading-1: 16px;
   --heading-2: 20px;
   --heading-3: 14px;
@@ -31,12 +27,8 @@
   --button: 12px;
   --caption: 10px;
   --overline: 9px;
-  
-  /* Couleurs titres */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
-  
-  /* Alignement: avatar 40px + gap 8px = 48px */
   --align-offset: 48px;
 }
 
@@ -44,11 +36,8 @@
    Header transparent + Bouton reset masqué
    ========================================================== */
 .vfrc-header,
-.vfrc-header--container-inner,
-div.vfrc-header,
-div.vfrc-header--container-inner {
+.vfrc-header--container-inner {
   background: transparent !important;
-  background-color: transparent !important;
   box-shadow: none !important;
 }
 
@@ -64,7 +53,6 @@ button.vfrc-header--button,
   overflow: hidden !important;
 }
 
-/* ---------- Header — Titre en orange avec trait noir pleine largeur ---------- */
 div.vfrc-header--title,
 .fptyqm0.vfrc-header--title,
 .fptyqm1.vfrc-header--title {
@@ -93,11 +81,6 @@ div.vfrc-header--title::after,
   background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
-.vfrc-header--button .vfrc-icon svg {
-  color: #fff !important;
-  fill: #fff !important;
-}
-
 /* ==========================================================
    CHAT - Suppression marges latérales
    ========================================================== */
@@ -114,7 +97,7 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.13 : ALIGNEMENT - Avatar en haut
+   v9.14 : ALIGNEMENT - Avatar en haut
    ========================================================== */
 .vfrc-system-response,
 div.vfrc-system-response {
@@ -133,32 +116,32 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   v9.13 : BOUTONS D'ACTION - ALIGNEMENT PRÉCIS
-   Cible UNIQUEMENT le conteneur des actions (double tiret --)
-   NE PAS utiliser de wildcards sur g3dqfd*
+   v9.14 : BOUTONS D'ACTION - ALIGNEMENT
+   Le padding-left: 44px de .g3dqfd6 doit être écrasé
    ========================================================== */
-.vfrc-system-response--actions {
+.vfrc-system-response--actions,
+.vfrc-system-response--actions.g3dqfd6,
+div.vfrc-system-response--actions.g3dqfd6,
+.g3dqfd6 {
   margin-left: 48px !important;
   padding-left: 0 !important;
 }
 
 /* ==========================================================
-   v9.13 : FOOTER / INPUT - ALIGNEMENT PRÉCIS
-   Cible UNIQUEMENT .vfrc-footer, PAS .vfrc-footer__content
+   v9.14 : FOOTER / INPUT - ALIGNEMENT
    ========================================================== */
 .vfrc-footer {
   padding-left: 48px !important;
   padding-right: 0 !important;
 }
 
-/* Réponse utilisateur */
 .vfrc-user-response {
   padding-left: 48px !important;
   padding-right: 8px !important;
 }
 
 /* ==========================================================
-   Boutons natifs Voiceflow (buttons de réponse)
+   Boutons natifs Voiceflow
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -186,20 +169,14 @@ button.vfrc-button:not(.vfrc-header--button) {
   gap: 10px !important;
 }
 
-.vfrc-button:not(.vfrc-header--button):hover,
-button.vfrc-button:not(.vfrc-header--button):hover {
+.vfrc-button:not(.vfrc-header--button):hover {
   background: #F9FAFB !important;
   border-color: #9CA3AF !important;
   color: #374151 !important;
-  box-shadow: none !important;
-  transform: none !important;
 }
 
-.vfrc-button:not(.vfrc-header--button):active,
-button.vfrc-button:not(.vfrc-header--button):active {
+.vfrc-button:not(.vfrc-header--button):active {
   background: #F3F4F6 !important;
-  transform: none !important;
-  box-shadow: none !important;
 }
 
 .vfrc-button-container,
@@ -265,12 +242,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
   transform: translateY(-1px) !important;
 }
 
-#vfrc-send-message:not([disabled]):active,
-.vfrc-chat-input__send:not([disabled]):active {
-  transform: translateY(0) !important;
-  box-shadow: 0 2px 6px rgba(241, 132, 0, 0.3) !important;
-}
-
 .vfrc-chat-input__actions {
   display: flex !important;
   align-items: center !important;
@@ -281,7 +252,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 
 /* ==========================================================
-   Bulles - Padding compact
+   Bulles
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
@@ -301,8 +272,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) span:not(h1 span):not(h2 span):not(h3 span),
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div:not(h1 div):not(h2 div):not(h3 div):not([class*="markdown"]),
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
@@ -310,65 +279,19 @@ button.vfrc-button:not(.vfrc-header--button):active {
   line-height: 1.5 !important;
 }
 
-/* ==========================================================
-   HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3
-   ========================================================== */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h1 * {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-bold) !important;
-  font-size: var(--heading-1) !important;
-  line-height: 1.4 !important;
-  padding-top: 16px !important;
-  padding-bottom: 10px !important;
-  margin-top: 10px !important;
-  margin-bottom: 6px !important;
-  color: #1E293B !important;
-}
-
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h2,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h2 * {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-semibold) !important;
-  font-size: var(--heading-3) !important;
-  line-height: 1.4 !important;
-  padding-top: 14px !important;
-  padding-bottom: 8px !important;
-  margin-top: 8px !important;
-  margin-bottom: 5px !important;
-  color: #1E293B !important;
-}
-
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h3,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) h3 * {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-semibold) !important;
-  font-size: var(--heading-4) !important;
-  line-height: 1.4 !important;
-  padding-top: 12px !important;
-  padding-bottom: 6px !important;
-  margin-top: 6px !important;
-  margin-bottom: 4px !important;
-  color: #1E293B !important;
-}
-
-/* Bulles utilisateur */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
 ._15emaa40 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-family: var(--font-family) !important;
   font-weight: 400 !important;
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
-  letter-spacing: 0.01em !important;
   display: inline-block !important;
   background: #073A59 !important;
   color: #ffffff !important;
   border-radius: 10px !important;
   padding: 4px 8px !important;
   max-width: 90%;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 
 .vfrc-user-response > div *,
@@ -386,10 +309,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
    Input de saisie
    ========================================================== */
 .vfrc-chat-input textarea,
-.vfrc-chat-input input,
-textarea.vfrc-chat-input,
-textarea._1gdvh9ta,
-.vfrc-chat-input textarea._1gdvh9ta {
+textarea._1gdvh9ta {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
@@ -407,7 +327,6 @@ textarea._1gdvh9ta,
 }
 
 .vfrc-chat-input textarea:focus,
-textarea.vfrc-chat-input:focus,
 textarea._1gdvh9ta:focus {
   border-color: #AAAAAA !important;
   outline: none !important;
@@ -449,49 +368,12 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   Protection minimaliste des extensions
+   Protection extensions
    ========================================================== */
 .vfrc-message[class*="extension"] {
   background: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
-}
-
-/* ==========================================================
-   Styles typographiques supplémentaires
-   ========================================================== */
-.vfrc-subtitle,
-.vfrc-section-title {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-semibold) !important;
-  font-size: var(--heading-6) !important;
-  line-height: 1.4 !important;
-}
-
-.vfrc-secondary-text,
-.vfrc-helper-text {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-2) !important;
-  line-height: 1.5 !important;
-}
-
-.vfrc-caption,
-.vfrc-timestamp {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--caption) !important;
-  line-height: 1.5 !important;
-}
-
-.vfrc-overline,
-.vfrc-label {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-medium) !important;
-  font-size: var(--overline) !important;
-  line-height: 1.5 !important;
-  letter-spacing: 0.1em !important;
-  text-transform: uppercase !important;
 }
 
 /* ==========================================================
@@ -547,19 +429,12 @@ div[class*="vfrc-footer"] {
 }
 
 /* ==========================================================
-   TITRES MARKDOWN
-   H1, H2 → ORANGE | H3-H6 → BLEU
+   TITRES MARKDOWN - H1, H2 → ORANGE | H3-H6 → BLEU
    ========================================================== */
-
-/* H1 - ORANGE */
 ._11kfxpg1 h1,
 ._11kfxpg3 h1,
-.markdown._11kfxpg1 h1,
-.markdown._11kfxpg3 h1,
-div.markdown._11kfxpg1 h1,
-div.markdown._11kfxpg3 h1,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h1,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h1 {
+.markdown h1,
+.vfrc-system-response .vfrc-message .markdown h1 {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: 24px !important;
@@ -570,15 +445,10 @@ div.markdown._11kfxpg3 h1,
   border-bottom: 2px solid rgba(241, 132, 0, 0.3) !important;
 }
 
-/* H2 - ORANGE */
 ._11kfxpg1 h2,
 ._11kfxpg3 h2,
-.markdown._11kfxpg1 h2,
-.markdown._11kfxpg3 h2,
-div.markdown._11kfxpg1 h2,
-div.markdown._11kfxpg3 h2,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h2,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h2 {
+.markdown h2,
+.vfrc-system-response .vfrc-message .markdown h2 {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: 20px !important;
@@ -589,15 +459,10 @@ div.markdown._11kfxpg3 h2,
   border-bottom: 2px solid rgba(241, 132, 0, 0.3) !important;
 }
 
-/* H3 - BLEU */
 ._11kfxpg1 h3,
 ._11kfxpg3 h3,
-.markdown._11kfxpg1 h3,
-.markdown._11kfxpg3 h3,
-div.markdown._11kfxpg1 h3,
-div.markdown._11kfxpg3 h3,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h3,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h3 {
+.markdown h3,
+.vfrc-system-response .vfrc-message .markdown h3 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 18px !important;
@@ -605,162 +470,98 @@ div.markdown._11kfxpg3 h3,
   color: #1E3A8A !important;
   margin: 20px 0 8px 0 !important;
   padding: 0 !important;
-  text-transform: none !important;
 }
 
-/* H4 - BLEU */
 ._11kfxpg1 h4,
 ._11kfxpg3 h4,
-.markdown._11kfxpg1 h4,
-.markdown._11kfxpg3 h4,
-div.markdown._11kfxpg1 h4,
-div.markdown._11kfxpg3 h4,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h4,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h4 {
+.markdown h4 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 16px !important;
-  line-height: 1.3 !important;
   color: #1E3A8A !important;
   margin: 16px 0 6px 0 !important;
-  padding: 0 !important;
 }
 
-/* H5 - BLEU */
 ._11kfxpg1 h5,
 ._11kfxpg3 h5,
-.markdown._11kfxpg1 h5,
-.markdown._11kfxpg3 h5,
-div.markdown._11kfxpg1 h5,
-div.markdown._11kfxpg3 h5,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h5,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h5 {
+.markdown h5 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 15px !important;
-  line-height: 1.3 !important;
   color: #1E3A8A !important;
   margin: 14px 0 5px 0 !important;
-  padding: 0 !important;
 }
 
-/* H6 - BLEU */
 ._11kfxpg1 h6,
 ._11kfxpg3 h6,
-.markdown._11kfxpg1 h6,
-.markdown._11kfxpg3 h6,
-div.markdown._11kfxpg1 h6,
-div.markdown._11kfxpg3 h6,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] h6,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown h6 {
+.markdown h6 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 12px !important;
-  line-height: 1.3 !important;
   color: #1E3A8A !important;
   margin: 12px 0 4px 0 !important;
-  padding: 0 !important;
 }
 
-/* Gras - NOIR */
 ._11kfxpg1 strong,
 ._11kfxpg3 strong,
-.markdown._11kfxpg1 strong,
-.markdown._11kfxpg3 strong,
-div.markdown._11kfxpg1 strong,
-div.markdown._11kfxpg3 strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown strong,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) strong {
+.markdown strong,
+.vfrc-system-response .vfrc-message strong {
   font-weight: 700 !important;
   color: #1E293B !important;
 }
 
-/* Italique */
 ._11kfxpg1 em,
 ._11kfxpg3 em,
-.markdown._11kfxpg1 em,
-.markdown._11kfxpg3 em,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] em,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown em {
+.markdown em {
   font-style: italic !important;
 }
 
-/* Ligne horizontale */
 ._11kfxpg1 hr,
 ._11kfxpg3 hr,
-.markdown._11kfxpg1 hr,
-.markdown._11kfxpg3 hr,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] hr,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown hr {
+.markdown hr {
   border: none !important;
   border-top: 1px solid rgba(30, 58, 138, 0.2) !important;
   margin: 20px 0 !important;
 }
 
 /* ==========================================================
-   FIX PUCES
+   LISTES
    ========================================================== */
-
-/* Listes à puces */
 ._11kfxpg1 ul,
 ._11kfxpg3 ul,
-.markdown._11kfxpg1 ul,
-.markdown._11kfxpg3 ul,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ul,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ul {
+.markdown ul {
   margin: 10px 0 !important;
   padding-left: 20px !important;
 }
 
-/* Listes numérotées */
 ._11kfxpg1 ol,
 ._11kfxpg3 ol,
-.markdown._11kfxpg1 ol,
-.markdown._11kfxpg3 ol,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] ol,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown ol {
+.markdown ol {
   margin: 10px 0 !important;
   padding-left: 20px !important;
 }
 
-/* Éléments de liste */
 ._11kfxpg1 li,
 ._11kfxpg3 li,
-.markdown._11kfxpg1 li,
-.markdown._11kfxpg3 li,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li {
+.markdown li {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
-  font-weight: var(--font-regular) !important;
   line-height: 1.6 !important;
   margin: 6px 0 !important;
   padding-left: 8px !important;
-  position: relative !important;
 }
 
-/* Puces - couleur */
 ._11kfxpg1 li::before,
 ._11kfxpg3 li::before,
-.markdown._11kfxpg1 li::before,
-.markdown._11kfxpg3 li::before,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] li::before,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown li::before {
+.markdown li::before {
   color: #1E3A8A !important;
-  top: 0.65em !important;
 }
 
-/* Paragraphes */
 ._11kfxpg1 p,
 ._11kfxpg3 p,
-.markdown._11kfxpg1 p,
-.markdown._11kfxpg3 p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) div[class*="markdown"] p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) .markdown p {
+.markdown p {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
-  font-weight: var(--font-regular) !important;
   line-height: 1.6 !important;
   margin: 8px 0 !important;
   color: #1E293B !important;
