@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.6
-   + v9.6 : Alignement avec classes Voiceflow exactes
+   Infortive × Voiceflow — Thème stable v9.7
+   + v9.7 : Alignement avec sélecteurs haute spécificité
    ========================================================== */
 
 /* ==========================================================
@@ -35,6 +35,9 @@
   /* Couleurs titres */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
+  
+  /* Alignement: avatar 40px + gap 8px = 48px */
+  --align-offset: 48px;
 }
 
 /* ==========================================================
@@ -111,35 +114,16 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.6 : ALIGNEMENT PRÉCIS
-   Avatar = 40px, gap = 8px, padding container = 8px
-   Total offset pour boutons/input = 56px
+   v9.7 : ALIGNEMENT - Avatar en haut
    ========================================================== */
-
-/* Container principal des réponses */
-.vfrc-system-response--container,
-.knxm730.g3dqfd3,
-div.knxm730 {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-}
-
-/* Réponse système (avatar + bulle) */
 .vfrc-system-response,
-.vfrc-system-response.g3dqfd1,
-div.g3dqfd1 {
+div.vfrc-system-response {
   display: flex !important;
   align-items: flex-start !important;
-  padding: 0 !important;
-  margin: 0 !important;
 }
 
-/* Avatar */
 .vfrc-avatar,
-img.vfrc-avatar,
-.vfrc-avatar.g931q10,
-.vfrc-avatar.g931q11,
-.vfrc-avatar.g3dqfd2 {
+img.vfrc-avatar {
   flex-shrink: 0 !important;
   width: 40px !important;
   height: 40px !important;
@@ -148,47 +132,38 @@ img.vfrc-avatar,
   align-self: flex-start !important;
 }
 
-/* Container de la bulle (g3dqfd4) */
-.g3dqfd4,
-div.g3dqfd4 {
-  flex: 1 !important;
-  min-width: 0 !important;
-}
-
 /* ==========================================================
-   v9.6 : BOUTONS D'ACTION - alignés avec la bulle
-   margin-left = avatar (40px) + gap (8px) = 48px
+   v9.7 : BOUTONS D'ACTION - ALIGNEMENT FORCÉ
+   Sélecteurs multiples pour maximum spécificité
    ========================================================== */
 .vfrc-system-response--actions,
-.vfrc-system-response--actions.g3dqfd6,
-div.g3dqfd6 {
+div.vfrc-system-response--actions,
+.vfrc-chat .vfrc-system-response--actions,
+.vfrc-chat-dialog .vfrc-system-response--actions,
+.vfrc-chat--dialog .vfrc-system-response--actions,
+[class*="vfrc-system-response--actions"] {
   margin-left: 48px !important;
   padding-left: 0 !important;
-  margin-right: 0 !important;
 }
 
 /* ==========================================================
-   v9.6 : FOOTER / INPUT - aligné avec la bulle
+   v9.7 : FOOTER / INPUT - ALIGNEMENT FORCÉ
    ========================================================== */
 .vfrc-footer,
-.vfrc-footer._1vj16242,
-div._1vj16242 {
+div.vfrc-footer,
+.vfrc-chat .vfrc-footer,
+[class*="vfrc-footer"] {
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
 
 .vfrc-footer__content,
-.vfrc-footer__content._1vj16245,
-div._1vj16245 {
+div.vfrc-footer__content,
+.vfrc-footer .vfrc-footer__content,
+.vfrc-chat .vfrc-footer__content,
+[class*="vfrc-footer__content"] {
   margin-left: 48px !important;
   padding-left: 0 !important;
-}
-
-/* Container input */
-._1gdvh9t0,
-div._1gdvh9t0 {
-  width: 100% !important;
-  margin-left: 0 !important;
 }
 
 /* Réponse utilisateur */
