@@ -1,16 +1,10 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.14
-   + v9.14 : Fix padding-left sur g3dqfd6
+   Infortive × Voiceflow — Thème stable v9.16
+   + v9.16 : Override padding-left 44px → 48px (simple fix)
    ========================================================== */
 
-/* ==========================================================
-   Import de la police Plus Jakarta Sans
-   ========================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ==========================================================
-   Variables typographiques
-   ========================================================== */
 :root {
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-regular: 400;
@@ -27,14 +21,9 @@
   --button: 12px;
   --caption: 10px;
   --overline: 9px;
-  --color-title-orange: #F18400;
-  --color-title-blue: #1E3A8A;
-  --align-offset: 48px;
 }
 
-/* ==========================================================
-   Header transparent + Bouton reset masqué
-   ========================================================== */
+/* Header */
 .vfrc-header,
 .vfrc-header--container-inner {
   background: transparent !important;
@@ -54,13 +43,11 @@ button.vfrc-header--button,
 }
 
 div.vfrc-header--title,
-.fptyqm0.vfrc-header--title,
-.fptyqm1.vfrc-header--title {
+.vfrc-header--title {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
-  letter-spacing: -0.02em !important;
   color: #F18400 !important;
   padding-bottom: 12px !important;
   position: relative !important;
@@ -81,9 +68,7 @@ div.vfrc-header--title::after,
   background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
-/* ==========================================================
-   CHAT - Suppression marges latérales
-   ========================================================== */
+/* Chat container reset */
 .vfrc-chat,
 .vfrc-chat__container,
 .vfrc-chat__container-inner,
@@ -96,9 +81,7 @@ div.vfrc-header--title::after,
   margin-right: 0 !important;
 }
 
-/* ==========================================================
-   v9.14 : ALIGNEMENT - Avatar en haut
-   ========================================================== */
+/* Avatar */
 .vfrc-system-response,
 div.vfrc-system-response {
   display: flex !important;
@@ -116,33 +99,32 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   v9.14 : BOUTONS D'ACTION - ALIGNEMENT
-   Le padding-left: 44px de .g3dqfd6 doit être écrasé
+   v9.16 : ALIGNEMENT - Padding-left 48px au lieu de 44px
+   Voiceflow met 44px, on force 48px pour aligner avec la bulle
    ========================================================== */
-.vfrc-system-response--actions,
-.vfrc-system-response--actions.g3dqfd6,
-div.vfrc-system-response--actions.g3dqfd6,
+
+/* Boutons d'action */
 .g3dqfd6 {
-  margin-left: 48px !important;
-  padding-left: 0 !important;
-}
-
-/* ==========================================================
-   v9.14 : FOOTER / INPUT - ALIGNEMENT
-   ========================================================== */
-.vfrc-footer {
   padding-left: 48px !important;
-  padding-right: 0 !important;
 }
 
+.vfrc-system-response--actions {
+  padding-left: 48px !important;
+}
+
+/* Footer / Input */
+.vfrc-footer,
+._1vj16242 {
+  padding-left: 48px !important;
+}
+
+/* Réponse utilisateur */
 .vfrc-user-response {
   padding-left: 48px !important;
   padding-right: 8px !important;
 }
 
-/* ==========================================================
-   Boutons natifs Voiceflow
-   ========================================================== */
+/* Boutons natifs */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
   font-family: var(--font-family) !important;
@@ -188,9 +170,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   padding: 8px 0 !important;
 }
 
-/* ==========================================================
-   Bouton "Envoyer"
-   ========================================================== */
+/* Bouton Envoyer */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
   display: none !important;
@@ -251,9 +231,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   overflow: visible !important;
 }
 
-/* ==========================================================
-   Bulles
-   ========================================================== */
+/* Bulles */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
   font-family: var(--font-family) !important;
@@ -305,9 +283,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   margin: 12px 0 !important; 
 }
 
-/* ==========================================================
-   Input de saisie
-   ========================================================== */
+/* Input */
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
   font-family: var(--font-family) !important;
@@ -338,9 +314,7 @@ textarea._1gdvh9ta::placeholder {
   color: #888888 !important;
 }
 
-/* ==========================================================
-   Scrollbar orange
-   ========================================================== */
+/* Scrollbar */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
@@ -367,18 +341,14 @@ textarea._1gdvh9ta::placeholder {
   background: transparent;
 }
 
-/* ==========================================================
-   Protection extensions
-   ========================================================== */
+/* Extensions */
 .vfrc-message[class*="extension"] {
   background: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
 }
 
-/* ==========================================================
-   SUPPRESSION DES OMBRES
-   ========================================================== */
+/* Ombres */
 .vfrc-chat__container-inner {
   box-shadow: none !important;
   background: transparent !important;
@@ -401,9 +371,7 @@ textarea._1gdvh9ta::placeholder {
   background: transparent !important;
 }
 
-/* ==========================================================
-   Zone d'input avec fond opaque
-   ========================================================== */
+/* Footer fond */
 .vfrc-footer,
 .vfrc-footer__content,
 .vfrc-input-container,
@@ -428,13 +396,10 @@ div[class*="vfrc-footer"] {
   background: transparent !important;
 }
 
-/* ==========================================================
-   TITRES MARKDOWN - H1, H2 → ORANGE | H3-H6 → BLEU
-   ========================================================== */
+/* Markdown */
 ._11kfxpg1 h1,
 ._11kfxpg3 h1,
-.markdown h1,
-.vfrc-system-response .vfrc-message .markdown h1 {
+.markdown h1 {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: 24px !important;
@@ -447,8 +412,7 @@ div[class*="vfrc-footer"] {
 
 ._11kfxpg1 h2,
 ._11kfxpg3 h2,
-.markdown h2,
-.vfrc-system-response .vfrc-message .markdown h2 {
+.markdown h2 {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: 20px !important;
@@ -461,8 +425,7 @@ div[class*="vfrc-footer"] {
 
 ._11kfxpg1 h3,
 ._11kfxpg3 h3,
-.markdown h3,
-.vfrc-system-response .vfrc-message .markdown h3 {
+.markdown h3 {
   font-family: var(--font-family) !important;
   font-weight: 600 !important;
   font-size: 18px !important;
@@ -504,8 +467,7 @@ div[class*="vfrc-footer"] {
 
 ._11kfxpg1 strong,
 ._11kfxpg3 strong,
-.markdown strong,
-.vfrc-system-response .vfrc-message strong {
+.markdown strong {
   font-weight: 700 !important;
   color: #1E293B !important;
 }
@@ -524,9 +486,6 @@ div[class*="vfrc-footer"] {
   margin: 20px 0 !important;
 }
 
-/* ==========================================================
-   LISTES
-   ========================================================== */
 ._11kfxpg1 ul,
 ._11kfxpg3 ul,
 .markdown ul {
