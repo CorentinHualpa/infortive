@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.11
-   Basé sur v9.8 + fix alignement minimal
+   Infortive × Voiceflow — Thème stable v9.12
+   + v9.12 : Fix alignement avec les VRAIS sélecteurs du DOM
    ========================================================== */
 
 /* ==========================================================
@@ -114,7 +114,7 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.11 : ALIGNEMENT - Avatar en haut
+   v9.12 : ALIGNEMENT - Avatar en haut
    ========================================================== */
 .vfrc-system-response,
 div.vfrc-system-response {
@@ -133,33 +133,42 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   v9.11 : BOUTONS D'ACTION - ALIGNEMENT FORCÉ
+   v9.12 : BOUTONS D'ACTION - ALIGNEMENT AVEC VRAIS SÉLECTEURS
+   Structure DOM observée:
+   - div.vfrc-system-response-actions.g3dqfd6 (conteneur)
+     - div.o231sh2.vfrc-system-response--action (wrapper bouton)
+       - button.vfrc-button
    ========================================================== */
-.vfrc-system-response--actions,
-div.vfrc-system-response--actions,
-.vfrc-chat .vfrc-system-response--actions,
-.vfrc-chat-dialog .vfrc-system-response--actions,
-.vfrc-chat--dialog .vfrc-system-response--actions {
+
+/* Conteneur principal des actions (UN SEUL tiret entre response et actions) */
+.vfrc-system-response-actions,
+div.vfrc-system-response-actions,
+.g3dqfd6,
+div.g3dqfd6 {
   margin-left: 48px !important;
+  padding-left: 0 !important;
+}
+
+/* Wrapper individuel du bouton */
+.vfrc-system-response--action,
+div.vfrc-system-response--action,
+.o231sh2,
+div.o231sh2 {
+  margin-left: 0 !important;
   padding-left: 0 !important;
 }
 
 /* ==========================================================
-   v9.11 : FOOTER / INPUT - ALIGNEMENT FORCÉ
+   v9.12 : FOOTER / INPUT - ALIGNEMENT AVEC VRAIS SÉLECTEURS
+   Structure DOM observée:
+   - div.vfrc-footer._1vj16242
    ========================================================== */
 .vfrc-footer,
 div.vfrc-footer,
-.vfrc-chat .vfrc-footer {
-  padding-left: 0 !important;
+._1vj16242,
+div._1vj16242 {
+  padding-left: 48px !important;
   padding-right: 0 !important;
-}
-
-.vfrc-footer__content,
-div.vfrc-footer__content,
-.vfrc-footer .vfrc-footer__content,
-.vfrc-chat .vfrc-footer__content {
-  margin-left: 48px !important;
-  padding-left: 0 !important;
 }
 
 /* Réponse utilisateur */
@@ -775,23 +784,4 @@ div.markdown._11kfxpg3 strong,
   line-height: 1.6 !important;
   margin: 8px 0 !important;
   color: #1E293B !important;
-}
-
-/* ============================================
-   ALIGNEMENT VOICEFLOW - À AJOUTER
-   ============================================ */
-#voiceflow-chat-container .vfrc-system-response--actions,
-#voiceflow-chat-container [class*="g3dqfd6"] {
-  padding-left: 48px !important;
-  margin-left: 0 !important;
-}
-
-#voiceflow-chat-container .vfrc-footer__content,
-#voiceflow-chat-container [class*="_1vj16245"] {
-  padding-left: 48px !important;
-  margin-left: 0 !important;
-}
-
-#voiceflow-chat-container .vfrc-footer {
-  padding-left: 0 !important;
 }
