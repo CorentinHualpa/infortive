@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.9
-   + v9.9 : Fix alignement vertical bulle/boutons/input
+   Infortive × Voiceflow — Thème stable v9.10
+   + v9.10 : Fix alignement agressif bulle/boutons/input
    ========================================================== */
 
 /* ==========================================================
@@ -114,13 +114,13 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.9 : FIX ALIGNEMENT VERTICAL COMPLET
-   Bulle, boutons d'action et input alignés sur même verticale
+   v9.10 : FIX ALIGNEMENT VERTICAL - APPROCHE AGRESSIVE
    ========================================================== */
 
-/* Container des messages système - flex avec alignement */
+/* Container des messages système */
 .vfrc-system-response,
-div.vfrc-system-response {
+div.vfrc-system-response,
+[class*="vfrc-system-response"] {
   display: flex !important;
   align-items: flex-start !important;
   padding-left: 0 !important;
@@ -130,7 +130,8 @@ div.vfrc-system-response {
 
 /* Avatar fixe à gauche */
 .vfrc-avatar,
-img.vfrc-avatar {
+img.vfrc-avatar,
+[class*="vfrc-avatar"] {
   flex-shrink: 0 !important;
   width: 40px !important;
   height: 40px !important;
@@ -140,85 +141,87 @@ img.vfrc-avatar {
   align-self: flex-start !important;
 }
 
-/* Conteneur du message - prend l'espace restant */
-.vfrc-system-response__content,
-.vfrc-system-response > div:not(.vfrc-avatar):not(.vfrc-system-response--actions):not([class*="vfrc-system-response--action"]) {
-  flex: 1 !important;
-  min-width: 0 !important;
-}
-
 /* ==========================================================
-   v9.9 : BOUTONS D'ACTION - ALIGNEMENT FORCÉ À 48px
+   v9.10 : BOUTONS D'ACTION - PADDING-LEFT AU LIEU DE MARGIN
+   Ciblage ultra-spécifique avec toutes les variantes
    ========================================================== */
+
+/* Conteneur des actions - approche padding */
 .vfrc-system-response--actions,
 div.vfrc-system-response--actions,
-.vfrc-chat .vfrc-system-response--actions,
-.vfrc-chat-dialog .vfrc-system-response--actions,
-.vfrc-chat--dialog .vfrc-system-response--actions,
-[class*="vfrc-system-response--actions"],
-.o231sh2.vfrc-system-response--action,
-[class*="g3dqfd"] {
-  margin-left: var(--align-offset) !important;
-  padding-left: 0 !important;
+[class*="system-response--actions"],
+[class*="system-response--action"],
+[class*="g3dqfd"],
+[class*="o231sh"] {
+  padding-left: 48px !important;
+  margin-left: 0 !important;
   box-sizing: border-box !important;
 }
 
-/* Bouton individuel dans le container d'actions */
-.vfrc-system-response--action,
-div.vfrc-system-response--action,
-[class*="o231sh"] {
+/* Bouton individuel - reset margin */
+.vfrc-system-response--actions .vfrc-button,
+.vfrc-system-response--actions button,
+[class*="system-response--action"] .vfrc-button,
+[class*="system-response--action"] button,
+[class*="o231sh"] .vfrc-button,
+[class*="o231sh"] button {
   margin-left: 0 !important;
-  padding-left: 0 !important;
 }
 
 /* ==========================================================
-   v9.9 : FOOTER / INPUT - ALIGNEMENT FORCÉ À 48px
+   v9.10 : FOOTER / INPUT - PADDING-LEFT FORCÉ
    ========================================================== */
+
+/* Reset du footer parent */
 .vfrc-footer,
 div.vfrc-footer,
-.vfrc-chat .vfrc-footer,
-[class*="vfrc-footer"]:not([class*="vfrc-footer__content"]) {
+[class*="vfrc-footer"]:not([class*="content"]) {
   padding-left: 0 !important;
   padding-right: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+  margin: 0 !important;
 }
 
+/* Footer content avec padding-left */
 .vfrc-footer__content,
 div.vfrc-footer__content,
-.vfrc-footer .vfrc-footer__content,
-.vfrc-chat .vfrc-footer__content,
 [class*="vfrc-footer__content"],
-[class*="_1vj16245"] {
-  margin-left: var(--align-offset) !important;
+[class*="footer__content"],
+[class*="_1vj1624"] {
+  padding-left: 48px !important;
+  margin-left: 0 !important;
   margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
   box-sizing: border-box !important;
 }
 
-/* Container de l'input */
+/* Container de l'input - héritage */
 .vfrc-chat-input__container,
 .vfrc-chat-input__container-inner,
-[class*="_1gdvh9tc"] {
+[class*="chat-input__container"],
+[class*="_1gdvh9t"] {
   margin-left: 0 !important;
   padding-left: 0 !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* La textarea elle-même */
-.vfrc-chat-input,
-textarea.vfrc-chat-input,
-textarea._1gdvh9ta {
-  margin-left: 0 !important;
-  width: 100% !important;
+/* ==========================================================
+   v9.10 : FALLBACK - CIBLAGE PAR STRUCTURE DOM
+   Si le footer est frère direct du dialog
+   ========================================================== */
+
+/* Tous les éléments directs après le chat dialog qui ne sont pas system-response */
+.vfrc-chat > div:not(.vfrc-header):not(.vfrc-chat-dialog):not(.vfrc-chat--dialog):not([class*="dialog"]),
+.vfrc-chat > [class*="footer"],
+.vfrc-chat > [class*="overlay"],
+.vfrc-chat > [class*="prompt"] {
+  padding-left: 48px !important;
   box-sizing: border-box !important;
 }
 
-/* Réponse utilisateur - alignée à droite mais avec marge gauche cohérente */
-.vfrc-user-response {
-  padding-left: var(--align-offset) !important;
+/* Réponse utilisateur - alignée à droite */
+.vfrc-user-response,
+[class*="user-response"] {
+  padding-left: 48px !important;
   padding-right: 0 !important;
   display: flex !important;
   justify-content: flex-end !important;
@@ -834,37 +837,68 @@ div.markdown._11kfxpg3 strong,
 }
 
 /* ==========================================================
-   ALIGNEMENT VOICEFLOW CONTAINER - SÉLECTEURS SPÉCIFIQUES
+   v9.10 : SÉLECTEURS ULTRA-SPÉCIFIQUES VOICEFLOW
+   Ciblage des classes exactes vues dans le DOM
    ========================================================== */
-#voiceflow-chat-container .vfrc-system-response--actions,
-#voiceflow-chat-container [class*="g3dqfd6"],
-#voiceflow-chat-container [class*="g3dqfd"] {
-  padding-left: var(--align-offset) !important;
+
+/* Classes vues dans l'inspecteur - boutons d'action */
+.o231sh2,
+div.o231sh2,
+[class^="o231sh"],
+[class*=" o231sh"] {
+  padding-left: 48px !important;
   margin-left: 0 !important;
 }
 
-#voiceflow-chat-container .vfrc-footer__content,
-#voiceflow-chat-container [class*="_1vj16245"],
-#voiceflow-chat-container [class*="_1vj1624"] {
-  padding-left: var(--align-offset) !important;
+/* Classes vues dans l'inspecteur - footer */
+._1vj16242,
+div._1vj16242,
+[class^="_1vj1624"],
+[class*=" _1vj1624"] {
+  padding-left: 48px !important;
   margin-left: 0 !important;
 }
 
-#voiceflow-chat-container .vfrc-footer {
-  padding-left: 0 !important;
+/* Classes vues dans l'inspecteur - prompt/overlay */
+._5x612k0,
+._5x612k2,
+._5x612k3,
+div._5x612k0,
+div._5x612k2,
+div._5x612k3,
+[class^="_5x612k"],
+[class*=" _5x612k"] {
+  padding-left: 48px !important;
+  margin-left: 0 !important;
+}
+
+/* g3dqfd classes pour les actions */
+.g3dqfd6,
+div.g3dqfd6,
+[class^="g3dqfd"],
+[class*=" g3dqfd"] {
+  padding-left: 48px !important;
+  margin-left: 0 !important;
 }
 
 /* ==========================================================
-   FALLBACK - Classes dynamiques Voiceflow
-   Force l'alignement même si les classes changent
+   v9.10 : DERNIÈRE LIGNE DE DÉFENSE
+   Sélecteurs par attribut pour tout ce qui contient ces patterns
    ========================================================== */
-[class*="system-response"] + [class*="actions"],
-[class*="system-response"] ~ [class*="action"] {
-  margin-left: var(--align-offset) !important;
+
+/* Tout élément dont la classe contient "action" et qui est après system-response */
+[class*="system-response"] ~ [class*="action"],
+[class*="system-response"] + [class*="action"] {
+  padding-left: 48px !important;
 }
 
-/* Footer content - fallback */
-[class*="footer"] > [class*="content"],
-[class*="footer"] > div:first-child {
-  margin-left: var(--align-offset) !important;
+/* Tout élément footer ou ses enfants directs */
+[class*="footer"] > *:first-child,
+[class*="footer"] [class*="content"] {
+  padding-left: 48px !important;
+}
+
+/* Prompt container */
+[class*="prompt"] {
+  padding-left: 48px !important;
 }
