@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.7
+   Infortive × Voiceflow — Thème stable v9.8
    + v9.7 : Alignement avec sélecteurs haute spécificité
    ========================================================== */
 
@@ -779,4 +779,24 @@ div.markdown._11kfxpg3 strong,
   line-height: 1.6 !important;
   margin: 8px 0 !important;
   color: #1E293B !important;
+}
+
+
+/* ============================================
+   ALIGNEMENT VOICEFLOW - À AJOUTER
+   ============================================ */
+#voiceflow-chat-container .vfrc-system-response--actions,
+#voiceflow-chat-container [class*="g3dqfd6"] {
+  padding-left: 48px !important;
+  margin-left: 0 !important;
+}
+
+#voiceflow-chat-container .vfrc-footer__content,
+#voiceflow-chat-container [class*="_1vj16245"] {
+  padding-left: 48px !important;
+  margin-left: 0 !important;
+}
+
+#voiceflow-chat-container .vfrc-footer {
+  padding-left: 8px !important;
 }
