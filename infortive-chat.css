@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.5
-   + v9.5 : Fix alignement avec sélecteurs spécifiques Voiceflow
+   Infortive × Voiceflow — Thème stable v9.6
+   + v9.6 : Alignement avec classes Voiceflow exactes
    ========================================================== */
 
 /* ==========================================================
@@ -32,7 +32,7 @@
   --caption: 10px;
   --overline: 9px;
   
-  /* Couleurs titres v8.9 */
+  /* Couleurs titres */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
 }
@@ -111,78 +111,90 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.5 : ALIGNEMENT VERTICAL UNIFORME
-   Tous les éléments s'alignent sur le bord gauche de la bulle
+   v9.6 : ALIGNEMENT PRÉCIS
+   Avatar = 40px, gap = 8px, padding container = 8px
+   Total offset pour boutons/input = 56px
    ========================================================== */
 
-/* Container des réponses système - padding uniforme */
+/* Container principal des réponses */
 .vfrc-system-response--container,
-.knxm730,
+.knxm730.g3dqfd3,
 div.knxm730 {
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
 
-/* Réponse système (avatar + bulle) - pas de padding supplémentaire */
+/* Réponse système (avatar + bulle) */
 .vfrc-system-response,
 .vfrc-system-response.g3dqfd1,
-div.vfrc-system-response {
+div.g3dqfd1 {
   display: flex !important;
   align-items: flex-start !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* Avatar - taille fixe */
+/* Avatar */
 .vfrc-avatar,
+img.vfrc-avatar,
 .vfrc-avatar.g931q10,
 .vfrc-avatar.g931q11,
-.vfrc-avatar.g3dqfd2,
-img.vfrc-avatar {
-  align-self: flex-start !important;
-  margin-top: 0 !important;
+.vfrc-avatar.g3dqfd2 {
   flex-shrink: 0 !important;
   width: 40px !important;
   height: 40px !important;
   margin-right: 8px !important;
+  margin-top: 0 !important;
+  align-self: flex-start !important;
 }
 
-/* Boutons d'action - alignés avec la bulle */
-.vfrc-system-response--actions,
-.vfrc-system-response--actions.g3dqfd6,
-div.vfrc-system-response--actions,
-.g3dqfd6 {
-  margin-left: 48px !important;
-  padding-left: 0 !important;
-}
-
-/* Réponse utilisateur */
-.vfrc-user-response {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+/* Container de la bulle (g3dqfd4) */
+.g3dqfd4,
+div.g3dqfd4 {
+  flex: 1 !important;
+  min-width: 0 !important;
 }
 
 /* ==========================================================
-   v9.5 : Footer / Zone d'input - aligné avec la bulle
+   v9.6 : BOUTONS D'ACTION - alignés avec la bulle
+   margin-left = avatar (40px) + gap (8px) = 48px
+   ========================================================== */
+.vfrc-system-response--actions,
+.vfrc-system-response--actions.g3dqfd6,
+div.g3dqfd6 {
+  margin-left: 48px !important;
+  padding-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ==========================================================
+   v9.6 : FOOTER / INPUT - aligné avec la bulle
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer._1vj16242,
-div.vfrc-footer {
+div._1vj16242 {
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
 
 .vfrc-footer__content,
 .vfrc-footer__content._1vj16245,
-div.vfrc-footer__content {
-  padding-left: 48px !important;
-  padding-right: 0 !important;
+div._1vj16245 {
+  margin-left: 48px !important;
+  padding-left: 0 !important;
 }
 
-/* Container de l'input */
+/* Container input */
 ._1gdvh9t0,
 div._1gdvh9t0 {
   width: 100% !important;
+  margin-left: 0 !important;
+}
+
+/* Réponse utilisateur */
+.vfrc-user-response {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
 /* ==========================================================
@@ -311,7 +323,8 @@ button.vfrc-button:not(.vfrc-header--button):active {
 /* ==========================================================
    Bulles - Padding compact
    ========================================================== */
-.vfrc-system-response .vfrc-message:not([class*="extension"]) {
+.vfrc-system-response .vfrc-message:not([class*="extension"]),
+.vfrc-message._11kfxpg0 {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
   font-size: var(--body-1) !important;
