@@ -155,13 +155,16 @@ div.vfrc-header--title::after,
 /* ==========================================================
    v9.2 : Alignement vertical - bulles, boutons, input
    ========================================================== */
-.vfrc-system-response .vfrc-message,
 .vfrc-button-container,
-.vfrc-card--buttons,
+.vfrc-card--buttons {
+  margin-left: 56px !important;
+  padding-left: 8px !important;
+}
+
 .vfrc-chat-input,
 .vfrc-chat-input__container,
 .vfrc-footer {
-  margin-left: 8px !important;
+  padding-left: 56px !important;
 }
 
 /* ==========================================================
