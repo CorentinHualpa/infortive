@@ -102,7 +102,7 @@ div.vfrc-header--title::after,
   right: 0 !important;
   width: 100% !important;
   height: 1px !important;
-  background-color: #000000 !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;  /* Noir à 50% */
 }
 
 .vfrc-header--button .vfrc-icon svg {
