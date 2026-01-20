@@ -1,24 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.4
-   + Police Plus Jakarta Sans (tous niveaux typographiques)
-   + Boutons natifs Voiceflow stylés - Style épuré gris
-   + Bouton "Envoyer" avec fond actif orange
-   + Titre header en orange avec trait noir PLEINE LARGEUR
-   + Exclusion minimaliste des extensions
-   + Hiérarchie typographique optimisée
-   + Header transparent
-   + Bouton reset masqué
-   + Textarea redimensionnable (jusqu'à 20 lignes)
-   + Styles Markdown pour synthèses
-   + Fix zone input opaque sans ombre
-   + Titres agrandis SANS modifier le texte normal
-   + v8.9 : H1/H2 ORANGE #F18400 | H3/H4/H5/H6 BLEU #1E3A8A
-   + v9.0 : Chat bord à bord, gris bulles 0.35, bordure boutons allégée,
-            gras noir, zone saisie avec bordure permanente et fond gris
-   + v9.1 : Boutons style épuré avec bordure grise
-   + v9.2 : Fix police bulles utilisateur, avatar en haut
-   + v9.3 : Padding compact bulles
-   + v9.4 : Alignement vertical corrigé (boutons + input)
+   Infortive × Voiceflow — Thème stable v9.5
+   + v9.5 : Fix alignement avec sélecteurs spécifiques Voiceflow
    ========================================================== */
 
 /* ==========================================================
@@ -53,9 +35,6 @@
   /* Couleurs titres v8.9 */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
-  
-  /* v9.4 : Alignement = largeur avatar (40px) + gap (8px) + padding système (8px) */
-  --avatar-offset: 56px;
 }
 
 /* ==========================================================
@@ -117,7 +96,7 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.0 : CHAT BORD À BORD - Suppression marges latérales
+   CHAT - Suppression marges latérales
    ========================================================== */
 .vfrc-chat,
 .vfrc-chat__container,
@@ -131,62 +110,83 @@ div.vfrc-header--title::after,
   margin-right: 0 !important;
 }
 
-.vfrc-system-response,
-.vfrc-user-response {
+/* ==========================================================
+   v9.5 : ALIGNEMENT VERTICAL UNIFORME
+   Tous les éléments s'alignent sur le bord gauche de la bulle
+   ========================================================== */
+
+/* Container des réponses système - padding uniforme */
+.vfrc-system-response--container,
+.knxm730,
+div.knxm730 {
   padding-left: 8px !important;
   padding-right: 8px !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
 }
 
-/* ==========================================================
-   v9.2 : Avatar en haut à gauche des réponses
-   ========================================================== */
+/* Réponse système (avatar + bulle) - pas de padding supplémentaire */
 .vfrc-system-response,
-.vfrc-system-response.g3dqfd1 {
+.vfrc-system-response.g3dqfd1,
+div.vfrc-system-response {
   display: flex !important;
   align-items: flex-start !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
+/* Avatar - taille fixe */
 .vfrc-avatar,
 .vfrc-avatar.g931q10,
 .vfrc-avatar.g931q11,
-.vfrc-avatar.g3dqfd2 {
+.vfrc-avatar.g3dqfd2,
+img.vfrc-avatar {
   align-self: flex-start !important;
   margin-top: 0 !important;
   flex-shrink: 0 !important;
   width: 40px !important;
   height: 40px !important;
+  margin-right: 8px !important;
 }
 
-/* ==========================================================
-   v9.4 : Alignement vertical - Boutons d'action
-   Les boutons sont dans .vfrc-system-response--actions (frère de .vfrc-system-response)
-   ========================================================== */
+/* Boutons d'action - alignés avec la bulle */
 .vfrc-system-response--actions,
-.vfrc-system-response--actions.g3dqfd6 {
-  margin-left: var(--avatar-offset) !important;
+.vfrc-system-response--actions.g3dqfd6,
+div.vfrc-system-response--actions,
+.g3dqfd6 {
+  margin-left: 48px !important;
   padding-left: 0 !important;
 }
 
-/* ==========================================================
-   v9.4 : Alignement vertical - Zone d'input
-   L'input est dans .vfrc-footer__content
-   ========================================================== */
-.vfrc-footer__content,
-.vfrc-footer__content._1vj16245 {
-  padding-left: var(--avatar-offset) !important;
-  box-sizing: border-box !important;
+/* Réponse utilisateur */
+.vfrc-user-response {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
-/* Container parent de l'input */
-._1gdvh9t0 {
+/* ==========================================================
+   v9.5 : Footer / Zone d'input - aligné avec la bulle
+   ========================================================== */
+.vfrc-footer,
+.vfrc-footer._1vj16242,
+div.vfrc-footer {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.vfrc-footer__content,
+.vfrc-footer__content._1vj16245,
+div.vfrc-footer__content {
+  padding-left: 48px !important;
+  padding-right: 0 !important;
+}
+
+/* Container de l'input */
+._1gdvh9t0,
+div._1gdvh9t0 {
   width: 100% !important;
 }
 
 /* ==========================================================
    Boutons natifs Voiceflow (buttons de réponse)
-   v9.1 : Style épuré avec bordure grise - inspiré du screenshot
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -241,7 +241,6 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Bouton "Envoyer"
-   Fond subtil inactif → Fond plein orange actif
    ========================================================== */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
@@ -310,10 +309,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 
 /* ==========================================================
-   Bulles & Espacement
-   EXCLUSION : :not() pour éviter les extensions
-   v9.0 : Gris plus foncé rgba(217,217,217,0.35)
-   v9.3 : Padding compact (4px 8px)
+   Bulles - Padding compact
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
   font-family: var(--font-family) !important;
@@ -342,7 +338,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 }
 
 /* ==========================================================
-   HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3 (dans les messages)
+   HIÉRARCHIE TYPOGRAPHIQUE H1, H2, H3
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) h1 * {
@@ -415,10 +411,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
 
 /* ==========================================================
    Input de saisie
-   v9.0 : Bordure permanente + fond gris léger
-   v9.0.2 : Bordure sur le textarea directement
    ========================================================== */
-/* Textarea avec bordure visible */
 .vfrc-chat-input textarea,
 .vfrc-chat-input input,
 textarea.vfrc-chat-input,
@@ -440,7 +433,6 @@ textarea._1gdvh9ta,
   padding: 10px 12px !important;
 }
 
-/* Focus state - bordure légèrement plus foncée */
 .vfrc-chat-input textarea:focus,
 textarea.vfrc-chat-input:focus,
 textarea._1gdvh9ta:focus {
@@ -449,7 +441,6 @@ textarea._1gdvh9ta:focus {
   box-shadow: none !important;
 }
 
-/* Placeholder */
 .vfrc-chat-input textarea::placeholder,
 textarea._1gdvh9ta::placeholder {
   color: #888888 !important;
@@ -556,8 +547,7 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   ✅ FIX : Zone d'input avec fond opaque SANS ombre
-   Empêche le contenu de passer derrière
+   Zone d'input avec fond opaque
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer__content,
@@ -575,7 +565,6 @@ div[class*="vfrc-footer"] {
   box-shadow: none !important;
 }
 
-/* Supprimer bordures sur containers parents de l'input (pas sur le textarea) */
 .vfrc-chat-input__container,
 .vfrc-chat-input__wrapper,
 .vfrc-chat-input__inner {
@@ -585,12 +574,11 @@ div[class*="vfrc-footer"] {
 }
 
 /* ==========================================================
-   ✅ v8.9 : TITRES MARKDOWN
-   H1, H2 → ORANGE #F18400
-   H3, H4, H5, H6 → BLEU #1E3A8A
+   TITRES MARKDOWN
+   H1, H2 → ORANGE | H3-H6 → BLEU
    ========================================================== */
 
-/* ========== H1 - ORANGE #F18400 ========== */
+/* H1 - ORANGE */
 ._11kfxpg1 h1,
 ._11kfxpg3 h1,
 .markdown._11kfxpg1 h1,
@@ -609,7 +597,7 @@ div.markdown._11kfxpg3 h1,
   border-bottom: 2px solid rgba(241, 132, 0, 0.3) !important;
 }
 
-/* ========== H2 - ORANGE #F18400 ========== */
+/* H2 - ORANGE */
 ._11kfxpg1 h2,
 ._11kfxpg3 h2,
 .markdown._11kfxpg1 h2,
@@ -628,7 +616,7 @@ div.markdown._11kfxpg3 h2,
   border-bottom: 2px solid rgba(241, 132, 0, 0.3) !important;
 }
 
-/* ========== H3 - BLEU #1E3A8A ========== */
+/* H3 - BLEU */
 ._11kfxpg1 h3,
 ._11kfxpg3 h3,
 .markdown._11kfxpg1 h3,
@@ -647,7 +635,7 @@ div.markdown._11kfxpg3 h3,
   text-transform: none !important;
 }
 
-/* ========== H4 - BLEU #1E3A8A - TAILLE AUGMENTÉE ========== */
+/* H4 - BLEU */
 ._11kfxpg1 h4,
 ._11kfxpg3 h4,
 .markdown._11kfxpg1 h4,
@@ -665,7 +653,7 @@ div.markdown._11kfxpg3 h4,
   padding: 0 !important;
 }
 
-/* ========== H5 - BLEU #1E3A8A - TAILLE AUGMENTÉE ========== */
+/* H5 - BLEU */
 ._11kfxpg1 h5,
 ._11kfxpg3 h5,
 .markdown._11kfxpg1 h5,
@@ -683,7 +671,7 @@ div.markdown._11kfxpg3 h5,
   padding: 0 !important;
 }
 
-/* ========== H6 - BLEU #1E3A8A ========== */
+/* H6 - BLEU */
 ._11kfxpg1 h6,
 ._11kfxpg3 h6,
 .markdown._11kfxpg1 h6,
@@ -701,7 +689,7 @@ div.markdown._11kfxpg3 h6,
   padding: 0 !important;
 }
 
-/* ========== v9.0 : Texte en gras - NOIR ========== */
+/* Gras - NOIR */
 ._11kfxpg1 strong,
 ._11kfxpg3 strong,
 .markdown._11kfxpg1 strong,
@@ -715,7 +703,7 @@ div.markdown._11kfxpg3 strong,
   color: #1E293B !important;
 }
 
-/* Texte en italique */
+/* Italique */
 ._11kfxpg1 em,
 ._11kfxpg3 em,
 .markdown._11kfxpg1 em,
@@ -738,7 +726,7 @@ div.markdown._11kfxpg3 strong,
 }
 
 /* ==========================================================
-   ✅ v8.9 : FIX PUCES
+   FIX PUCES
    ========================================================== */
 
 /* Listes à puces */
@@ -779,7 +767,7 @@ div.markdown._11kfxpg3 strong,
   position: relative !important;
 }
 
-/* Puces Voiceflow - alignement vertical corrigé */
+/* Puces - couleur */
 ._11kfxpg1 li::before,
 ._11kfxpg3 li::before,
 .markdown._11kfxpg1 li::before,
