@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.8
-   + v9.7 : Alignement avec sélecteurs haute spécificité
+   Infortive × Voiceflow — Thème stable v9.9
+   + v9.9 : Fix alignement vertical bulle/boutons/input
    ========================================================== */
 
 /* ==========================================================
@@ -114,62 +114,114 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.7 : ALIGNEMENT - Avatar en haut
+   v9.9 : FIX ALIGNEMENT VERTICAL COMPLET
+   Bulle, boutons d'action et input alignés sur même verticale
    ========================================================== */
+
+/* Container des messages système - flex avec alignement */
 .vfrc-system-response,
 div.vfrc-system-response {
   display: flex !important;
   align-items: flex-start !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  width: 100% !important;
 }
 
+/* Avatar fixe à gauche */
 .vfrc-avatar,
 img.vfrc-avatar {
   flex-shrink: 0 !important;
   width: 40px !important;
   height: 40px !important;
   margin-right: 8px !important;
+  margin-left: 0 !important;
   margin-top: 0 !important;
   align-self: flex-start !important;
 }
 
+/* Conteneur du message - prend l'espace restant */
+.vfrc-system-response__content,
+.vfrc-system-response > div:not(.vfrc-avatar):not(.vfrc-system-response--actions):not([class*="vfrc-system-response--action"]) {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
 /* ==========================================================
-   v9.7 : BOUTONS D'ACTION - ALIGNEMENT FORCÉ
-   Sélecteurs multiples pour maximum spécificité
+   v9.9 : BOUTONS D'ACTION - ALIGNEMENT FORCÉ À 48px
    ========================================================== */
 .vfrc-system-response--actions,
 div.vfrc-system-response--actions,
 .vfrc-chat .vfrc-system-response--actions,
 .vfrc-chat-dialog .vfrc-system-response--actions,
 .vfrc-chat--dialog .vfrc-system-response--actions,
-[class*="vfrc-system-response--actions"] {
-  margin-left: 48px !important;
+[class*="vfrc-system-response--actions"],
+.o231sh2.vfrc-system-response--action,
+[class*="g3dqfd"] {
+  margin-left: var(--align-offset) !important;
+  padding-left: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Bouton individuel dans le container d'actions */
+.vfrc-system-response--action,
+div.vfrc-system-response--action,
+[class*="o231sh"] {
+  margin-left: 0 !important;
   padding-left: 0 !important;
 }
 
 /* ==========================================================
-   v9.7 : FOOTER / INPUT - ALIGNEMENT FORCÉ
+   v9.9 : FOOTER / INPUT - ALIGNEMENT FORCÉ À 48px
    ========================================================== */
 .vfrc-footer,
 div.vfrc-footer,
 .vfrc-chat .vfrc-footer,
-[class*="vfrc-footer"] {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+[class*="vfrc-footer"]:not([class*="vfrc-footer__content"]) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .vfrc-footer__content,
 div.vfrc-footer__content,
 .vfrc-footer .vfrc-footer__content,
 .vfrc-chat .vfrc-footer__content,
-[class*="vfrc-footer__content"] {
-  margin-left: 48px !important;
+[class*="vfrc-footer__content"],
+[class*="_1vj16245"] {
+  margin-left: var(--align-offset) !important;
+  margin-right: 0 !important;
   padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
 }
 
-/* Réponse utilisateur */
+/* Container de l'input */
+.vfrc-chat-input__container,
+.vfrc-chat-input__container-inner,
+[class*="_1gdvh9tc"] {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* La textarea elle-même */
+.vfrc-chat-input,
+textarea.vfrc-chat-input,
+textarea._1gdvh9ta {
+  margin-left: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Réponse utilisateur - alignée à droite mais avec marge gauche cohérente */
 .vfrc-user-response {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+  padding-left: var(--align-offset) !important;
+  padding-right: 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
 }
 
 /* ==========================================================
@@ -781,22 +833,38 @@ div.markdown._11kfxpg3 strong,
   color: #1E293B !important;
 }
 
-
-/* ============================================
-   ALIGNEMENT VOICEFLOW - À AJOUTER
-   ============================================ */
+/* ==========================================================
+   ALIGNEMENT VOICEFLOW CONTAINER - SÉLECTEURS SPÉCIFIQUES
+   ========================================================== */
 #voiceflow-chat-container .vfrc-system-response--actions,
-#voiceflow-chat-container [class*="g3dqfd6"] {
-  padding-left: 48px !important;
+#voiceflow-chat-container [class*="g3dqfd6"],
+#voiceflow-chat-container [class*="g3dqfd"] {
+  padding-left: var(--align-offset) !important;
   margin-left: 0 !important;
 }
 
 #voiceflow-chat-container .vfrc-footer__content,
-#voiceflow-chat-container [class*="_1vj16245"] {
-  padding-left: 48px !important;
+#voiceflow-chat-container [class*="_1vj16245"],
+#voiceflow-chat-container [class*="_1vj1624"] {
+  padding-left: var(--align-offset) !important;
   margin-left: 0 !important;
 }
 
 #voiceflow-chat-container .vfrc-footer {
-  padding-left: 8px !important;
+  padding-left: 0 !important;
+}
+
+/* ==========================================================
+   FALLBACK - Classes dynamiques Voiceflow
+   Force l'alignement même si les classes changent
+   ========================================================== */
+[class*="system-response"] + [class*="actions"],
+[class*="system-response"] ~ [class*="action"] {
+  margin-left: var(--align-offset) !important;
+}
+
+/* Footer content - fallback */
+[class*="footer"] > [class*="content"],
+[class*="footer"] > div:first-child {
+  margin-left: var(--align-offset) !important;
 }
