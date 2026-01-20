@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.3
+   Infortive × Voiceflow — Thème stable v9.4
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés - Style épuré gris
    + Bouton "Envoyer" avec fond actif orange
@@ -17,7 +17,8 @@
             gras noir, zone saisie avec bordure permanente et fond gris
    + v9.1 : Boutons style épuré avec bordure grise
    + v9.2 : Fix police bulles utilisateur, avatar en haut
-   + v9.3 : Padding compact bulles + alignement responsive
+   + v9.3 : Padding compact bulles
+   + v9.4 : Alignement vertical corrigé (boutons + input)
    ========================================================== */
 
 /* ==========================================================
@@ -53,8 +54,8 @@
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
   
-  /* v9.3 : Variable d'alignement (avatar ~40px + gap ~8px + padding ~8px) */
-  --content-indent: 56px;
+  /* v9.4 : Alignement = largeur avatar (40px) + gap (8px) + padding système (8px) */
+  --avatar-offset: 56px;
 }
 
 /* ==========================================================
@@ -142,7 +143,7 @@ div.vfrc-header--title::after,
    v9.2 : Avatar en haut à gauche des réponses
    ========================================================== */
 .vfrc-system-response,
-.vfrc-system-response > div {
+.vfrc-system-response.g3dqfd1 {
   display: flex !important;
   align-items: flex-start !important;
 }
@@ -154,22 +155,33 @@ div.vfrc-header--title::after,
   align-self: flex-start !important;
   margin-top: 0 !important;
   flex-shrink: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
 }
 
 /* ==========================================================
-   v9.3 : Alignement vertical responsive - boutons et input
-   Utilise --content-indent pour s'aligner avec le début des bulles
+   v9.4 : Alignement vertical - Boutons d'action
+   Les boutons sont dans .vfrc-system-response--actions (frère de .vfrc-system-response)
    ========================================================== */
-.vfrc-button-container,
-.vfrc-card--buttons {
-  margin-left: var(--content-indent) !important;
+.vfrc-system-response--actions,
+.vfrc-system-response--actions.g3dqfd6 {
+  margin-left: var(--avatar-offset) !important;
+  padding-left: 0 !important;
 }
 
-.vfrc-footer,
-.vfrc-chat-input,
-.vfrc-chat-input__container {
-  padding-left: var(--content-indent) !important;
+/* ==========================================================
+   v9.4 : Alignement vertical - Zone d'input
+   L'input est dans .vfrc-footer__content
+   ========================================================== */
+.vfrc-footer__content,
+.vfrc-footer__content._1vj16245 {
+  padding-left: var(--avatar-offset) !important;
   box-sizing: border-box !important;
+}
+
+/* Container parent de l'input */
+._1gdvh9t0 {
+  width: 100% !important;
 }
 
 /* ==========================================================
