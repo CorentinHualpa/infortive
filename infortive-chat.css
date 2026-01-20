@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.12
-   + v9.12 : Fix alignement avec les VRAIS sélecteurs du DOM
+   Infortive × Voiceflow — Thème stable v9.13
+   + v9.13 : Sélecteurs PRÉCIS uniquement - pas de wildcards
    ========================================================== */
 
 /* ==========================================================
@@ -114,7 +114,7 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   v9.12 : ALIGNEMENT - Avatar en haut
+   v9.13 : ALIGNEMENT - Avatar en haut
    ========================================================== */
 .vfrc-system-response,
 div.vfrc-system-response {
@@ -133,40 +133,20 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   v9.12 : BOUTONS D'ACTION - ALIGNEMENT AVEC VRAIS SÉLECTEURS
-   Structure DOM observée:
-   - div.vfrc-system-response-actions.g3dqfd6 (conteneur)
-     - div.o231sh2.vfrc-system-response--action (wrapper bouton)
-       - button.vfrc-button
+   v9.13 : BOUTONS D'ACTION - ALIGNEMENT PRÉCIS
+   Cible UNIQUEMENT le conteneur des actions (double tiret --)
+   NE PAS utiliser de wildcards sur g3dqfd*
    ========================================================== */
-
-/* Conteneur principal des actions (UN SEUL tiret entre response et actions) */
-.vfrc-system-response-actions,
-div.vfrc-system-response-actions,
-.g3dqfd6,
-div.g3dqfd6 {
+.vfrc-system-response--actions {
   margin-left: 48px !important;
   padding-left: 0 !important;
 }
 
-/* Wrapper individuel du bouton */
-.vfrc-system-response--action,
-div.vfrc-system-response--action,
-.o231sh2,
-div.o231sh2 {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-}
-
 /* ==========================================================
-   v9.12 : FOOTER / INPUT - ALIGNEMENT AVEC VRAIS SÉLECTEURS
-   Structure DOM observée:
-   - div.vfrc-footer._1vj16242
+   v9.13 : FOOTER / INPUT - ALIGNEMENT PRÉCIS
+   Cible UNIQUEMENT .vfrc-footer, PAS .vfrc-footer__content
    ========================================================== */
-.vfrc-footer,
-div.vfrc-footer,
-._1vj16242,
-div._1vj16242 {
+.vfrc-footer {
   padding-left: 48px !important;
   padding-right: 0 !important;
 }
