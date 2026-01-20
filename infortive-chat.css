@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.2
+   Infortive × Voiceflow — Thème stable v9.3
    + Police Plus Jakarta Sans (tous niveaux typographiques)
    + Boutons natifs Voiceflow stylés - Style épuré gris
    + Bouton "Envoyer" avec fond actif orange
@@ -16,7 +16,8 @@
    + v9.0 : Chat bord à bord, gris bulles 0.35, bordure boutons allégée,
             gras noir, zone saisie avec bordure permanente et fond gris
    + v9.1 : Boutons style épuré avec bordure grise
-   + v9.2 : Fix police bulles utilisateur, avatar en haut, alignement vertical
+   + v9.2 : Fix police bulles utilisateur, avatar en haut
+   + v9.3 : Padding compact bulles + alignement responsive
    ========================================================== */
 
 /* ==========================================================
@@ -51,6 +52,9 @@
   /* Couleurs titres v8.9 */
   --color-title-orange: #F18400;
   --color-title-blue: #1E3A8A;
+  
+  /* v9.3 : Variable d'alignement (avatar ~40px + gap ~8px + padding ~8px) */
+  --content-indent: 56px;
 }
 
 /* ==========================================================
@@ -113,7 +117,6 @@ div.vfrc-header--title::after,
 
 /* ==========================================================
    v9.0 : CHAT BORD À BORD - Suppression marges latérales
-   v9.2 : Alignement vertical uniforme
    ========================================================== */
 .vfrc-chat,
 .vfrc-chat__container,
@@ -150,21 +153,23 @@ div.vfrc-header--title::after,
 .vfrc-avatar.g3dqfd2 {
   align-self: flex-start !important;
   margin-top: 0 !important;
+  flex-shrink: 0 !important;
 }
 
 /* ==========================================================
-   v9.2 : Alignement vertical - bulles, boutons, input
+   v9.3 : Alignement vertical responsive - boutons et input
+   Utilise --content-indent pour s'aligner avec le début des bulles
    ========================================================== */
 .vfrc-button-container,
 .vfrc-card--buttons {
-  margin-left: 56px !important;
-  padding-left: 8px !important;
+  margin-left: var(--content-indent) !important;
 }
 
+.vfrc-footer,
 .vfrc-chat-input,
-.vfrc-chat-input__container,
-.vfrc-footer {
-  padding-left: 56px !important;
+.vfrc-chat-input__container {
+  padding-left: var(--content-indent) !important;
+  box-sizing: border-box !important;
 }
 
 /* ==========================================================
@@ -296,6 +301,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
    Bulles & Espacement
    EXCLUSION : :not() pour éviter les extensions
    v9.0 : Gris plus foncé rgba(217,217,217,0.35)
+   v9.3 : Padding compact (4px 8px)
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) {
   font-family: var(--font-family) !important;
@@ -307,7 +313,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
   background: rgba(217,217,217,0.35) !important;
   color: #1E293B !important;
   border-radius: 10px !important;
-  padding: 8px 12px !important;
+  padding: 4px 8px !important;
   max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
@@ -378,7 +384,7 @@ button.vfrc-button:not(.vfrc-header--button):active {
   background: #073A59 !important;
   color: #ffffff !important;
   border-radius: 10px !important;
-  padding: 8px 12px !important;
+  padding: 4px 8px !important;
   max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
