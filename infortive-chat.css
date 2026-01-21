@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.20
-   + v9.20 : Conteneur input plus carré + couleur fixe
+   Infortive × Voiceflow — Thème stable v9.21
+   + v9.21 : Zone input simplifiée (conteneur + textarea + bouton)
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -134,76 +134,126 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   ALIGNEMENT : Footer et zone d'input
+   ZONE INPUT SIMPLIFIÉE v9.21
+   Structure : conteneur externe > textarea + bouton
    ========================================================== */
+
+/* Reset footer */
 .vfrc-footer,
 .vfrc-footer__content,
 .vfrc-footer__content._1vj16245,
 div[class*="vfrc-footer"] {
-  background: #ffffff !important;
+  background: transparent !important;
   position: relative !important;
   z-index: 10 !important;
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
+  margin: 0 !important;
   box-sizing: border-box !important;
 }
 
-.vfrc-chat-input,
-._1gdvh9t0 {
+/* Conteneur externe avec bordure (le cadre qui entoure tout) */
+.vfrc-input-container {
   margin-left: var(--content-offset) !important;
   margin-right: 8px !important;
   width: calc(100% - var(--content-offset) - 8px) !important;
   box-sizing: border-box !important;
-}
-
-.vfrc-chat-input__container,
-.vfrc-chat-input__wrapper,
-.vfrc-chat-input__inner {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  padding: 8px !important;
   display: flex !important;
   align-items: flex-end !important;
   gap: 8px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
 }
 
-/* ==========================================================
-   CONTENEUR INPUT + BOUTON : Plus carré + couleur fixe
-   ========================================================== */
+/* Reset des conteneurs intermédiaires */
+.vfrc-chat-input__container-inner,
 .vfrc-chat-input,
-.vfrc-chat-input__container,
-.vfrc-chat-input__wrapper,
 ._1gdvh9t0,
-[class*="vfrc-chat-input"] {
-  border-radius: 4px !important;
-  background: #ffffff !important;
-  border: 1px solid #E5E7EB !important;
-  transition: none !important;
+[class*="vfrc-chat-input"]:not(.vfrc-chat-input__send):not(.vfrc-chat-input__actions) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  gap: 8px !important;
+  border-radius: 0 !important;
 }
 
-/* Désactiver TOUS les effets hover */
+/* Désactiver tous les effets hover/focus sur les conteneurs */
+.vfrc-input-container:hover,
+.vfrc-input-container:focus,
+.vfrc-input-container:focus-within,
+.vfrc-chat-input__container-inner:hover,
+.vfrc-chat-input__container-inner:focus,
+.vfrc-chat-input__container-inner:focus-within,
 .vfrc-chat-input:hover,
 .vfrc-chat-input:focus,
 .vfrc-chat-input:focus-within,
-.vfrc-chat-input__container:hover,
-.vfrc-chat-input__container:focus,
-.vfrc-chat-input__container:focus-within,
-.vfrc-chat-input__wrapper:hover,
-.vfrc-chat-input__wrapper:focus,
-.vfrc-chat-input__wrapper:focus-within,
 ._1gdvh9t0:hover,
 ._1gdvh9t0:focus,
-._1gdvh9t0:focus-within,
-[class*="vfrc-chat-input"]:hover,
-[class*="vfrc-chat-input"]:focus,
-[class*="vfrc-chat-input"]:focus-within {
-  background: #ffffff !important;
+._1gdvh9t0:focus-within {
+  background: transparent !important;
   border-color: #E5E7EB !important;
   box-shadow: none !important;
   outline: none !important;
+}
+
+/* Forcer le conteneur externe à garder sa bordure au focus */
+.vfrc-input-container:focus-within {
+  border: 1px solid #E5E7EB !important;
+  background: #ffffff !important;
+}
+
+/* Textarea avec fond gris */
+.vfrc-chat-input textarea,
+textarea._1gdvh9ta {
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-regular) !important;
+  font-size: var(--body-1) !important;
+  line-height: 1.5 !important;
+  flex: 1 1 auto !important;
+  min-height: 50px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  resize: none !important;
+  background: #F5F5F5 !important;
+  border: 1px solid #CCCCCC !important;
+  border-radius: 4px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+}
+
+.vfrc-chat-input textarea:focus,
+textarea._1gdvh9ta:focus {
+  border-color: #AAAAAA !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: #F5F5F5 !important;
+}
+
+.vfrc-chat-input textarea::placeholder,
+textarea._1gdvh9ta::placeholder {
+  color: #888888 !important;
+}
+
+/* Zone bouton */
+.vfrc-chat-input__actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 /* Réponse utilisateur */
@@ -315,15 +365,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   transform: translateY(-1px) !important;
 }
 
-.vfrc-chat-input__actions {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex: 0 0 auto !important;
-  padding-right: 0 !important;
-  overflow: visible !important;
-}
-
 /* ==========================================================
    Bulles
    ========================================================== */
@@ -376,42 +417,6 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 .vfrc-message:not([class*="extension"]) { 
   margin: 12px 0 !important; 
-}
-
-/* ==========================================================
-   Input textarea
-   ========================================================== */
-.vfrc-chat-input textarea,
-textarea._1gdvh9ta {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  width: 100% !important;
-  min-height: 60px !important;
-  max-height: 300px !important;
-  overflow-y: auto !important;
-  resize: vertical !important;
-  background: #F5F5F5 !important;
-  border: 1px solid #CCCCCC !important;
-  border-radius: 4px !important;
-  outline: none !important;
-  box-shadow: none !important;
-  padding: 10px 12px !important;
-  box-sizing: border-box !important;
-  flex: 1 1 auto !important;
-}
-
-.vfrc-chat-input textarea:focus,
-textarea._1gdvh9ta:focus {
-  border-color: #AAAAAA !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.vfrc-chat-input textarea::placeholder,
-textarea._1gdvh9ta::placeholder {
-  color: #888888 !important;
 }
 
 /* ==========================================================
