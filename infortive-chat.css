@@ -72,16 +72,12 @@ div.vfrc-header--title,
   background: transparent !important;
 }
 
+/* Trait de séparation header - couleur solide */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
-  content: "" !important;
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
+  background-color: #1E293B !important;  /* Couleur solide au lieu de rgba */
+  opacity: 0.5 !important;
   height: 1px !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 /* ==========================================================
@@ -357,7 +353,7 @@ textarea._1gdvh9ta {
   resize: vertical !important;
   background: #F5F5F5 !important;
   border: 1px solid #CCCCCC !important;
-  border-radius: 8px !important;
+  border-radius: 4px !important;
   outline: none !important;
   box-shadow: none !important;
   padding: 10px 12px !important;
