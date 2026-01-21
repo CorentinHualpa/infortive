@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.26
-   + v9.26 : Suppression ombres + fond totalement transparent
+   Infortive × Voiceflow — Thème stable v9.27
+   + v9.27 : Cadre input restauré + fond chatbot transparent
    ========================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 :root {
@@ -143,7 +143,7 @@ img.vfrc-avatar {
   box-sizing: border-box !important;
 }
 /* ==========================================================
-   ZONE INPUT : Conteneur principal TRANSPARENT
+   ZONE INPUT : Conteneur avec CADRE EXTÉRIEUR
    ========================================================== */
 .vfrc-chat-input,
 ._1gdvh9t0 {
@@ -156,12 +156,12 @@ img.vfrc-avatar {
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+  background: #ffffff !important;
+  border: 1px solid #CCCCCC !important;
+  border-radius: 4px !important;
   opacity: 1 !important;
   transition: none !important;
+  box-shadow: none !important;
 }
 .vfrc-chat-input:hover,
 .vfrc-chat-input:focus,
@@ -170,8 +170,8 @@ img.vfrc-avatar {
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: transparent !important;
-  border: none !important;
+  background: #ffffff !important;
+  border: 1px solid #CCCCCC !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -433,7 +433,7 @@ textarea._1gdvh9ta::placeholder {
   border-radius: 0 !important;
 }
 /* ==========================================================
-   OMBRES ET FOND TRANSPARENT (reset complet)
+   OMBRES ET FOND CHATBOT TRANSPARENT (pas la zone input)
    ========================================================== */
 .vfrc-chat__container-inner {
   box-shadow: none !important;
@@ -463,7 +463,7 @@ textarea._1gdvh9ta::placeholder {
   background: transparent !important;
   border: none !important;
 }
-/* Overlay TRANSPARENT au lieu de blanc */
+/* Overlay TRANSPARENT */
 .vfrc-chat--overlay {
   background: transparent !important;
   box-shadow: none !important;
