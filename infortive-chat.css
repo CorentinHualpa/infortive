@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.19
-   + v9.19 : Alignement parfait header, actions, input
+   Infortive × Voiceflow — Thème stable v9.20
+   + v9.20 : Conteneur input plus carré + couleur fixe
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -72,10 +72,9 @@ div.vfrc-header--title,
   background: transparent !important;
 }
 
-/* Trait de séparation header - couleur solide */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
-  background-color: #1E293B !important;  /* Couleur solide au lieu de rgba */
+  background-color: #1E293B !important;
   opacity: 0.5 !important;
   height: 1px !important;
 }
@@ -163,6 +162,42 @@ div[class*="vfrc-footer"] {
   gap: 8px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+}
+
+/* ==========================================================
+   CONTENEUR INPUT + BOUTON : Plus carré + couleur fixe
+   ========================================================== */
+.vfrc-chat-input,
+.vfrc-chat-input__container,
+.vfrc-chat-input__wrapper,
+._1gdvh9t0,
+[class*="vfrc-chat-input"] {
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #E5E7EB !important;
+  transition: none !important;
+}
+
+/* Désactiver TOUS les effets hover */
+.vfrc-chat-input:hover,
+.vfrc-chat-input:focus,
+.vfrc-chat-input:focus-within,
+.vfrc-chat-input__container:hover,
+.vfrc-chat-input__container:focus,
+.vfrc-chat-input__container:focus-within,
+.vfrc-chat-input__wrapper:hover,
+.vfrc-chat-input__wrapper:focus,
+.vfrc-chat-input__wrapper:focus-within,
+._1gdvh9t0:hover,
+._1gdvh9t0:focus,
+._1gdvh9t0:focus-within,
+[class*="vfrc-chat-input"]:hover,
+[class*="vfrc-chat-input"]:focus,
+[class*="vfrc-chat-input"]:focus-within {
+  background: #ffffff !important;
+  border-color: #E5E7EB !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 /* Réponse utilisateur */
