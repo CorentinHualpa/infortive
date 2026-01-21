@@ -154,10 +154,9 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   ZONE INPUT : Cadre extérieur uniquement + fond grisé
+   ZONE INPUT : Conteneur principal
    ========================================================== */
-
-/* Cadre extérieur - SEUL cadre visible */
+.vfrc-chat-input,
 ._1gdvh9t0 {
   margin: 0 !important;
   padding: 12px !important;
@@ -168,34 +167,51 @@ img.vfrc-avatar {
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
-  background: #E8E8E8 !important;
+  background: #ffffff !important;
   border: 1px solid #CCCCCC !important;
   border-radius: 4px !important;
   opacity: 1 !important;
   transition: none !important;
 }
 
+.vfrc-chat-input:hover,
+.vfrc-chat-input:focus,
+.vfrc-chat-input:focus-within,
 ._1gdvh9t0:hover,
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: #E8E8E8 !important;
+  background: #ffffff !important;
   border: 1px solid #CCCCCC !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-/* Supprimer tous les cadres intérieurs */
+/* ==========================================================
+   SUPPRIMER LE CADRE BLANC AU FOCUS (conteneurs intérieurs)
+   ========================================================== */
 .vfrc-input-container,
 ._1gdvh9t2,
-._1gdvh9t3,
-.vfrc-chat-input {
+._1gdvh9t3 {
   border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
   outline: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.vfrc-input-container:focus,
+.vfrc-input-container:focus-within,
+.vfrc-input-container:focus-visible,
+._1gdvh9t2:focus,
+._1gdvh9t2:focus-within,
+._1gdvh9t2:focus-visible,
+._1gdvh9t3:focus,
+._1gdvh9t3:focus-within,
+._1gdvh9t3:focus-visible {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 /* Réponse utilisateur */
@@ -375,7 +391,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   TEXTAREA : Fond blanc, pleine largeur
+   TEXTAREA : Fond gris, pleine largeur, SANS bordure au focus
    ========================================================== */
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
@@ -389,7 +405,7 @@ textarea._1gdvh9ta {
   max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: #ffffff !important;
+  background: #E8E8E8 !important;
   border: none !important;
   border-radius: 4px !important;
   outline: none !important;
@@ -400,11 +416,15 @@ textarea._1gdvh9ta {
 }
 
 .vfrc-chat-input textarea:focus,
-textarea._1gdvh9ta:focus {
+.vfrc-chat-input textarea:focus-visible,
+.vfrc-chat-input textarea:focus-within,
+textarea._1gdvh9ta:focus,
+textarea._1gdvh9ta:focus-visible,
+textarea._1gdvh9ta:focus-within {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: #ffffff !important;
+  background: #E8E8E8 !important;
 }
 
 .vfrc-chat-input textarea::placeholder,
