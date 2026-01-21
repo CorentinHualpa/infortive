@@ -1,7 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.23
-   + v9.23 : Gap textarea/bouton, coins moins arrondis,
-             opacité fixe (pas de changement au hover)
+   Infortive × Voiceflow — Thème stable v9.24
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -27,7 +25,7 @@
 }
 
 /* ==========================================================
-   Header - FULL WIDTH
+   Header
    ========================================================== */
 .vfrc-header,
 .vfrc-header--container,
@@ -88,7 +86,7 @@ div.vfrc-header--title::after,
 }
 
 /* ==========================================================
-   Chat container reset - FULL WIDTH
+   Chat container reset
    ========================================================== */
 .vfrc-chat,
 .vfrc-chat__container,
@@ -126,7 +124,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   ALIGNEMENT : Boutons d'action
+   Boutons d'action
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
@@ -139,19 +137,8 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   FOOTER + ZONE INPUT : PLEINE LARGEUR + OPACITÉ FIXE
+   FOOTER
    ========================================================== */
-.vfrc-footer,
-.vfrc-footer *,
-.vfrc-footer__content,
-.vfrc-footer__content._1vj16245,
-div[class*="vfrc-footer"] {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  opacity: 1 !important;
-}
-
 .vfrc-footer,
 .vfrc-footer__content {
   background: #ffffff !important;
@@ -161,74 +148,44 @@ div[class*="vfrc-footer"] {
   border: none !important;
   padding: 8px 0 !important;
   margin: 0 !important;
-  opacity: 1 !important;
-}
-
-/* Conteneur principal input : pleine largeur, coins peu arrondis, opacité fixe */
-.vfrc-chat-input,
-._1gdvh9t0,
-[class*="vfrc-chat-input"]:not(textarea) {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+}
+
+/* ==========================================================
+   ZONE INPUT : Conteneur principal - COINS PEU ARRONDIS + OPACITÉ FIXE
+   ========================================================== */
+.vfrc-chat-input,
+._1gdvh9t0 {
+  margin: 0 !important;
+  padding: 12px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  gap: 12px !important;
+  background: #ffffff !important;
+  border: 1px solid #CCCCCC !important;
   border-radius: 4px !important;
   opacity: 1 !important;
   transition: none !important;
 }
 
-/* OPACITÉ FIXE : Désactiver TOUS les changements au hover/focus */
-.vfrc-chat-input,
+/* Empêcher changement d'opacité au hover/focus */
 .vfrc-chat-input:hover,
 .vfrc-chat-input:focus,
 .vfrc-chat-input:focus-within,
-.vfrc-chat-input:active,
-.vfrc-chat-input__container,
-.vfrc-chat-input__container:hover,
-.vfrc-chat-input__container:focus,
-.vfrc-chat-input__container:focus-within,
-.vfrc-chat-input__wrapper,
-.vfrc-chat-input__wrapper:hover,
-.vfrc-chat-input__wrapper:focus,
-.vfrc-chat-input__wrapper:focus-within,
-._1gdvh9t0,
 ._1gdvh9t0:hover,
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  transition: none !important;
-  background: transparent !important;
-  border: none !important;
+  background: #ffffff !important;
+  border: 1px solid #CCCCCC !important;
   box-shadow: none !important;
   outline: none !important;
-}
-
-/* Suppression de TOUTES les bordures des conteneurs internes */
-.vfrc-chat-input__container,
-.vfrc-chat-input__wrapper,
-.vfrc-chat-input__inner,
-[class*="vfrc-chat-input"]:not(textarea):not(.vfrc-chat-input) {
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Layout flex pour textarea + bouton - avec GAP */
-.vfrc-chat-input__container,
-.vfrc-chat-input__wrapper,
-.vfrc-chat-input__inner {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-end !important;
-  gap: 12px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
 }
 
 /* Réponse utilisateur */
@@ -321,7 +278,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   text-align: center;
   user-select: none;
   flex-shrink: 0 !important;
-  opacity: 1 !important;
 }
 
 #vfrc-send-message:not([disabled]),
@@ -331,7 +287,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
   cursor: pointer;
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 #vfrc-send-message:not([disabled]):hover,
@@ -347,13 +303,11 @@ button.vfrc-button:not(.vfrc-header--button) {
   justify-content: center !important;
   flex: 0 0 auto !important;
   width: auto !important;
-  max-width: none !important;
   padding-right: 0 !important;
   overflow: visible !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  opacity: 1 !important;
 }
 
 /* ==========================================================
@@ -411,7 +365,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   Input textarea : fond gris visible + pleine largeur
+   TEXTAREA : Fond gris, pleine largeur
    ========================================================== */
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
@@ -420,7 +374,7 @@ textarea._1gdvh9ta {
   font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   width: 100% !important;
-  min-width: 0 !important;
+  min-width: 200px !important;
   min-height: 60px !important;
   max-height: 300px !important;
   overflow-y: auto !important;
@@ -432,8 +386,7 @@ textarea._1gdvh9ta {
   box-shadow: none !important;
   padding: 10px 12px !important;
   box-sizing: border-box !important;
-  flex: 1 1 0% !important;
-  opacity: 1 !important;
+  flex: 1 1 auto !important;
 }
 
 .vfrc-chat-input textarea:focus,
@@ -442,7 +395,6 @@ textarea._1gdvh9ta:focus {
   outline: none !important;
   box-shadow: none !important;
   background: #E8E8E8 !important;
-  opacity: 1 !important;
 }
 
 .vfrc-chat-input textarea::placeholder,
