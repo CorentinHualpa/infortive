@@ -1,6 +1,7 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.22
-   + v9.22 : Zone input VRAIMENT en pleine largeur
+   Infortive × Voiceflow — Thème stable v9.23
+   + v9.23 : Gap textarea/bouton, coins moins arrondis,
+             opacité fixe (pas de changement au hover)
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -138,7 +139,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   FOOTER + ZONE INPUT : PLEINE LARGEUR ABSOLUE
+   FOOTER + ZONE INPUT : PLEINE LARGEUR + OPACITÉ FIXE
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer *,
@@ -148,6 +149,7 @@ div[class*="vfrc-footer"] {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  opacity: 1 !important;
 }
 
 .vfrc-footer,
@@ -159,12 +161,13 @@ div[class*="vfrc-footer"] {
   border: none !important;
   padding: 8px 0 !important;
   margin: 0 !important;
+  opacity: 1 !important;
 }
 
-/* Conteneur principal input : pleine largeur, sans décalage */
+/* Conteneur principal input : pleine largeur, coins peu arrondis, opacité fixe */
 .vfrc-chat-input,
 ._1gdvh9t0,
-[class*="vfrc-chat-input"] {
+[class*="vfrc-chat-input"]:not(textarea) {
   margin-left: 0 !important;
   margin-right: 0 !important;
   padding-left: 0 !important;
@@ -172,15 +175,42 @@ div[class*="vfrc-footer"] {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  border-radius: 4px !important;
+  opacity: 1 !important;
+  transition: none !important;
 }
 
-/* Suppression de TOUTES les bordures des conteneurs */
+/* OPACITÉ FIXE : Désactiver TOUS les changements au hover/focus */
 .vfrc-chat-input,
+.vfrc-chat-input:hover,
+.vfrc-chat-input:focus,
+.vfrc-chat-input:focus-within,
+.vfrc-chat-input:active,
+.vfrc-chat-input__container,
+.vfrc-chat-input__container:hover,
+.vfrc-chat-input__container:focus,
+.vfrc-chat-input__container:focus-within,
+.vfrc-chat-input__wrapper,
+.vfrc-chat-input__wrapper:hover,
+.vfrc-chat-input__wrapper:focus,
+.vfrc-chat-input__wrapper:focus-within,
+._1gdvh9t0,
+._1gdvh9t0:hover,
+._1gdvh9t0:focus,
+._1gdvh9t0:focus-within {
+  opacity: 1 !important;
+  transition: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Suppression de TOUTES les bordures des conteneurs internes */
 .vfrc-chat-input__container,
 .vfrc-chat-input__wrapper,
 .vfrc-chat-input__inner,
-._1gdvh9t0,
-[class*="vfrc-chat-input"]:not(textarea) {
+[class*="vfrc-chat-input"]:not(textarea):not(.vfrc-chat-input) {
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -188,26 +218,7 @@ div[class*="vfrc-footer"] {
   outline: none !important;
 }
 
-/* Désactiver tous les états hover/focus sur les conteneurs */
-.vfrc-chat-input:hover,
-.vfrc-chat-input:focus,
-.vfrc-chat-input:focus-within,
-.vfrc-chat-input__container:hover,
-.vfrc-chat-input__container:focus,
-.vfrc-chat-input__container:focus-within,
-.vfrc-chat-input__wrapper:hover,
-.vfrc-chat-input__wrapper:focus,
-.vfrc-chat-input__wrapper:focus-within,
-._1gdvh9t0:hover,
-._1gdvh9t0:focus,
-._1gdvh9t0:focus-within {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Layout flex pour textarea + bouton - PLEINE LARGEUR */
+/* Layout flex pour textarea + bouton - avec GAP */
 .vfrc-chat-input__container,
 .vfrc-chat-input__wrapper,
 .vfrc-chat-input__inner {
@@ -310,6 +321,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   text-align: center;
   user-select: none;
   flex-shrink: 0 !important;
+  opacity: 1 !important;
 }
 
 #vfrc-send-message:not([disabled]),
@@ -319,7 +331,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
   cursor: pointer;
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 #vfrc-send-message:not([disabled]):hover,
@@ -341,6 +353,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  opacity: 1 !important;
 }
 
 /* ==========================================================
@@ -398,7 +411,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   Input textarea : fond gris visible + VRAIE pleine largeur
+   Input textarea : fond gris visible + pleine largeur
    ========================================================== */
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
@@ -420,6 +433,7 @@ textarea._1gdvh9ta {
   padding: 10px 12px !important;
   box-sizing: border-box !important;
   flex: 1 1 0% !important;
+  opacity: 1 !important;
 }
 
 .vfrc-chat-input textarea:focus,
@@ -428,6 +442,7 @@ textarea._1gdvh9ta:focus {
   outline: none !important;
   box-shadow: none !important;
   background: #E8E8E8 !important;
+  opacity: 1 !important;
 }
 
 .vfrc-chat-input textarea::placeholder,
