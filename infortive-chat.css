@@ -74,9 +74,15 @@ div.vfrc-header--title,
 
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 1px !important;
   background-color: #1E293B !important;
   opacity: 0.5 !important;
-  height: 1px !important;
 }
 
 /* ==========================================================
