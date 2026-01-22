@@ -430,21 +430,37 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   FOOTER
+   FOOTER - Tout transparent sauf la zone input
    ========================================================== */
 .vfrc-footer,
-.vfrc-footer__content {
+.vfrc-footer__content,
+.vfrc-footer__content._1vj16245,
+._1vj16242,
+._1vj16245 {
   background: transparent !important;
   position: relative !important;
   z-index: 10 !important;
   box-shadow: none !important;
   border: none !important;
-  padding: 16px 0 8px 0 !important;  /* ← padding-top augmenté (espace au-dessus) */
+  padding: 8px 0 !important;
   margin: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
+
+/* Bouton scroll-to-bottom transparent */
+.vfrc-footer__content-scroll-to-bottom,
+._3ul7492 {
+  background: transparent !important;
+}
+
+/* Cacher le bouton "Start new chat" */
+.vfrc-footer__start-button,
+.isxxu90 {
+  display: none !important;
+}
+
 
 /* ==========================================================
    ZONE INPUT : Conteneur avec CADRE EXTÉRIEUR
