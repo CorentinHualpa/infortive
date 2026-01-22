@@ -212,7 +212,7 @@ img.vfrc-avatar {
 button.vfrc-button:not(.vfrc-header--button) {
   font-family: var(--font-family) !important;
   font-weight: var(--font-medium) !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
   line-height: 1.4 !important;
   letter-spacing: 0.03em !important;
   text-transform: uppercase !important;
