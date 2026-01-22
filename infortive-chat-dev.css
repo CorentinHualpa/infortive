@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.35
+   Infortive × Voiceflow — Thème stable v9.36
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -186,22 +186,23 @@ button.vfrc-button._1nzwwii0,
   margin: 0 !important;
   margin-left: 60px !important;
   width: calc(100% - 60px) !important;
-  max-width: calc(100% - 48px) !important;
+  max-width: calc(100% - 60px) !important;
   box-sizing: border-box !important;
 }
 
 /* ==========================================================
-   ZONE INPUT CONTENEUR : MÊME GRIS QUE LES BULLES AGENT
+   ZONE INPUT CONTENEUR : TRANSPARENT (pas de fond)
    ========================================================== */
 .vfrc-input-container,
 ._1gdvh9t2,
+._1gdvh9t3,
 div.vfrc-input-container {
-  background: rgba(217,217,217,0.35) !important;
+  background: transparent !important;
   border: none !important;
-  border-radius: 6px !important;
+  border-radius: 0 !important;
   outline: none !important;
   box-shadow: none !important;
-  padding: 8px !important;
+  padding: 0 !important;
 }
 
 .vfrc-input-container:focus,
@@ -210,10 +211,19 @@ div.vfrc-input-container {
 ._1gdvh9t2:focus,
 ._1gdvh9t2:focus-within,
 ._1gdvh9t2:focus-visible {
-  background: rgba(217,217,217,0.35) !important;
+  background: transparent !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Conteneur interne aussi transparent */
+.vfrc-chat-input__container-inner,
+._1gdvh9tc {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* ==========================================================
@@ -302,7 +312,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   text-align: center;
   user-select: none;
   flex-shrink: 0 !important;
-  margin-left: 0 !important;
+  margin-left: 12px !important;
 }
 
 #vfrc-send-message:not([disabled]),
@@ -398,7 +408,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   TEXTAREA : Fond blanc intérieur
+   TEXTAREA : Fond gris comme les bulles agent
    ========================================================== */
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
@@ -412,12 +422,12 @@ textarea._1gdvh9ta {
   max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: #FBFBFB !important;
+  background: rgba(217,217,217,0.35) !important;
   border: none !important;
-  border-radius: 4px !important;
+  border-radius: 6px !important;
   outline: none !important;
   box-shadow: none !important;
-  padding: 10px 12px !important;
+  padding: 10px 14px !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
   margin-left: 0 !important;
@@ -430,7 +440,7 @@ textarea._1gdvh9ta:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: #FBFBFB !important;
+  background: rgba(217,217,217,0.35) !important;
 }
 
 textarea.vfrc-chat-input::placeholder,
