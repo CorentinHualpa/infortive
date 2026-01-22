@@ -1,71 +1,42 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.29
-   + v9.29 : Zone input transparente, textarea #FBFBFB, alignement unifié
-   ==========================================================
-   
-   📋 INDEX - SECTIONS À MODIFIER RAPIDEMENT :
-   
-   🎨 VARIABLES (ligne ~50)
-      - --body-1 : taille texte général (actuellement 10px)
-      - --button : taille texte boutons (actuellement 12px)
-      - --content-offset : décalage avatar (actuellement 48px)
-   
-   💬 BULLES AGENT (ligne ~230)
-      - padding : espace intérieur (actuellement 10px 14px)
-      - font-size : via --body-1
-      - background : couleur fond (actuellement gris clair)
-      - border-radius : arrondi (actuellement 6px)
-   
-   💬 BULLES UTILISATEUR (ligne ~260)
-      - padding : espace intérieur (actuellement 10px 14px)
-      - font-size : via --body-1
-      - background : couleur fond (actuellement #073A59 bleu foncé)
-      - border-radius : arrondi (actuellement 6px)
-   
-   🔘 BOUTONS CHOIX (ligne ~145)
-      - font-size : taille texte (actuellement 12px)
-      - padding : taille bouton (actuellement 12px 16px)
-      - text-transform : majuscules (uppercase) ou normal (none)
-   
-   📝 TEXTAREA INPUT (ligne ~295)
-      - font-size : via --body-1
-      - min-height : hauteur minimum (actuellement 60px)
-      - background : couleur fond (actuellement #FBFBFB)
-   
-   🟠 BOUTON ENVOYER (ligne ~190)
-      - Couleur active : #F18400 (orange)
-      - Couleur disabled : rgba(240, 131, 0, 0.08)
-   
+   Infortive × Voiceflow — Thème stable v9.30
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ==========================================================
-   🎨 VARIABLES GLOBALES
-   Modifie ici pour changer rapidement les valeurs partout
-   ========================================================== */
 :root {
-  /* Police */
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-regular: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
-  
-  /* Tailles de texte */
   --heading-1: 16px;
   --heading-2: 20px;
   --heading-3: 14px;
   --heading-4: 13px;
   --heading-6: 14px;
-  --body-1: 10px;      /* ← Taille texte bulles et textarea */
+  --body-1: 10px;
   --body-2: 10px;
-  --button: 12px;      /* ← Taille texte boutons */
+  --button: 12px;
   --caption: 10px;
   --overline: 9px;
-  
-  /* Layout */
-  --content-offset: 48px;  /* ← Décalage = avatar (40px) + gap (8px) */
+  --content-offset: 48px;
+}
+
+/* ==========================================================
+   SUPPRIMER FOND BLANC + OMBRE DU CHAT
+   ========================================================== */
+.vfrc-chat__container-inner,
+.vfrc-chat,
+.vfrc-chat-dialog__container,
+.vfrc-chat--dialog,
+.vfrc-chat-dialog,
+.vfrc-chat--bottom-spacer,
+.vfrc-chat-focus-ring,
+.vfrc-chat--overlay {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* ==========================================================
@@ -85,7 +56,6 @@
   box-sizing: border-box !important;
 }
 
-/* Cacher le bouton header */
 .vfrc-header--button,
 button.vfrc-header--button,
 .vfrc-header--actions {
@@ -98,7 +68,6 @@ button.vfrc-header--button,
   overflow: hidden !important;
 }
 
-/* Titre header */
 div.vfrc-header--title,
 .vfrc-header--title {
   font-family: var(--font-family) !important;
@@ -118,7 +87,6 @@ div.vfrc-header--title,
   background: transparent !important;
 }
 
-/* Ligne sous le titre */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
   content: "" !important;
@@ -147,6 +115,8 @@ div.vfrc-header--title::after,
   margin-right: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* ==========================================================
@@ -171,7 +141,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   Boutons d'action (conteneur)
+   Boutons d'action (conteneur) - ALIGNÉ
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
@@ -184,7 +154,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   FOOTER - TRANSPARENT
+   FOOTER - TRANSPARENT + ALIGNÉ
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer__content {
@@ -195,32 +165,31 @@ img.vfrc-avatar {
   border: none !important;
   padding: 8px 0 !important;
   margin: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  margin-left: var(--content-offset) !important;
+  width: calc(100% - var(--content-offset)) !important;
+  max-width: calc(100% - var(--content-offset)) !important;
   box-sizing: border-box !important;
 }
 
 /* ==========================================================
-   📝 ZONE INPUT : TRANSPARENT + ALIGNÉE
+   ZONE INPUT : TRANSPARENT
    ========================================================== */
 .vfrc-chat-input,
 ._1gdvh9t0 {
   margin: 0 !important;
-  margin-left: var(--content-offset) !important;  /* ← ALIGNEMENT avec bulles/boutons */
   padding: 12px !important;
-  width: calc(100% - var(--content-offset)) !important;
-  max-width: calc(100% - var(--content-offset)) !important;
+  width: 100% !important;
+  max-width: 100% !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
-  background: transparent !important;  /* ← TRANSPARENT */
-  border: none !important;             /* ← PAS DE BORDURE */
+  background: transparent !important;
+  border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   opacity: 1 !important;
-  transition: none !important;
 }
 
 .vfrc-chat-input:hover,
@@ -236,7 +205,6 @@ img.vfrc-avatar {
   outline: none !important;
 }
 
-/* Supprimer les cadres intérieurs */
 .vfrc-input-container,
 ._1gdvh9t2,
 ._1gdvh9t3 {
@@ -262,7 +230,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   🔘 BOUTONS CHOIX (natifs Voiceflow)
+   BOUTONS CHOIX
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -310,7 +278,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   🟠 BOUTON ENVOYER
+   BOUTON ENVOYER
    ========================================================== */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
@@ -378,7 +346,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   💬 BULLES AGENT (système)
+   BULLES AGENT
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
@@ -406,7 +374,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   💬 BULLES UTILISATEUR
+   BULLES UTILISATEUR
    ========================================================== */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
@@ -440,7 +408,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   📝 TEXTAREA : Fond #FBFBFB
+   TEXTAREA : Fond #FBFBFB
    ========================================================== */
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
@@ -454,7 +422,7 @@ textarea._1gdvh9ta {
   max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: #FBFBFB !important;  /* ← NOUVEAU GRIS */
+  background: #FBFBFB !important;
   border: none !important;
   border-radius: 4px !important;
   outline: none !important;
