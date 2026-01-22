@@ -461,39 +461,7 @@ textarea._1gdvh9ta::placeholder {
   align-items: flex-end !important;
   gap: 12px !important;
 
-/* ==========================================================
-   FOOTER - Fond transparent (ne cache plus le contenu)
-   ========================================================== */
-.vfrc-footer,
-.vfrc-footer__content,
-.vfrc-footer__content._1vj16245,
-._1vj16245 {
-  background: transparent !important;
-  position: relative !important;
-  z-index: 10 !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 8px 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
 
-/* Bouton scroll-to-bottom transparent */
-.vfrc-footer__content-scroll-to-bottom,
-._3ul7492 {
-  background: transparent !important;
-}
-
-.vfrc-footer__content-scroll-to-bottom-button,
-._3ul7493,
-._1x99nb00 {
-  background: rgba(255, 255, 255, 0.9) !important;  /* ← Semi-transparent ou 'transparent' pour invisible */
-  border: 1px solid #E5E7EB !important;
-  border-radius: 50% !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-}
   
   /* === STYLE CADRE === */
   background: #ffffff !important;        /* ← Fond blanc */
