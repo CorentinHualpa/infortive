@@ -462,30 +462,37 @@ textarea._1gdvh9ta::placeholder {
   gap: 12px !important;
 
 /* ==========================================================
-   SUPPRIMER LE FOND BLANC AU-DESSUS DE L'INPUT
+   FOOTER - Fond transparent (ne cache plus le contenu)
    ========================================================== */
-.vfrc-footer__content-scroll-to-bottom,
-.vfrc-footer__content-scroll-to-bottom-button,
-.vfrc-footer::before,
-.vfrc-footer__content::before {
-  background: transparent !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  opacity: 0 !important;
-  display: none !important;
-}
-
-/* Supprimer tout dégradé/gradient sur le footer */
 .vfrc-footer,
-.vfrc-footer__content {
+.vfrc-footer__content,
+.vfrc-footer__content._1vj16245,
+._1vj16245 {
   background: transparent !important;
-  background-image: none !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 8px 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-/* Forcer transparence sur les éléments de scroll */
-.vfrc-footer > *:not(.vfrc-chat-input):not(._1gdvh9t0) {
+/* Bouton scroll-to-bottom transparent */
+.vfrc-footer__content-scroll-to-bottom,
+._3ul7492 {
   background: transparent !important;
-  background-image: none !important;
+}
+
+.vfrc-footer__content-scroll-to-bottom-button,
+._3ul7493,
+._1x99nb00 {
+  background: rgba(255, 255, 255, 0.9) !important;  /* ← Semi-transparent ou 'transparent' pour invisible */
+  border: 1px solid #E5E7EB !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
   
   /* === STYLE CADRE === */
