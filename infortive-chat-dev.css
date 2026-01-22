@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.30
+   Infortive × Voiceflow — Thème stable v9.31
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -21,6 +21,7 @@
   --caption: 10px;
   --overline: 9px;
   --content-offset: 48px;
+  --bubble-bg: rgba(217,217,217,0.35);
 }
 
 /* ==========================================================
@@ -141,7 +142,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   Boutons d'action (conteneur) - ALIGNÉ
+   Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
@@ -151,6 +152,29 @@ img.vfrc-avatar {
   width: calc(100% - var(--content-offset) - 8px) !important;
   max-width: calc(100% - var(--content-offset) - 8px) !important;
   box-sizing: border-box !important;
+}
+
+/* ==========================================================
+   BOUTONS CHOIX - ALIGNEMENT AVEC BULLES AGENT
+   ========================================================== */
+.vfrc-button-container,
+.vfrc-card--buttons,
+._1vj16242,
+._1vj16245 {
+  margin-left: var(--content-offset) !important;
+  padding-left: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Quand les boutons sont DANS un conteneur déjà décalé, pas de double margin */
+.vfrc-system-response--actions .vfrc-button-container,
+.vfrc-system-response--actions .vfrc-card--buttons {
+  margin-left: 0 !important;
 }
 
 /* ==========================================================
@@ -172,7 +196,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   ZONE INPUT : TRANSPARENT
+   ZONE INPUT : MÊME GRIS QUE LES BULLES AGENT
    ========================================================== */
 .vfrc-chat-input,
 ._1gdvh9t0 {
@@ -185,10 +209,10 @@ img.vfrc-avatar {
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
-  background: transparent !important;
+  background: var(--bubble-bg) !important;
   border: none !important;
   box-shadow: none !important;
-  border-radius: 0 !important;
+  border-radius: 6px !important;
   opacity: 1 !important;
 }
 
@@ -199,7 +223,7 @@ img.vfrc-avatar {
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: transparent !important;
+  background: var(--bubble-bg) !important;
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
@@ -230,7 +254,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   BOUTONS CHOIX
+   BOUTONS CHOIX (STYLE)
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -266,15 +290,6 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 .vfrc-button:not(.vfrc-header--button):active {
   background: #F3F4F6 !important;
-}
-
-.vfrc-button-container,
-.vfrc-card--buttons {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 8px !important;
-  padding: 8px 0 !important;
 }
 
 /* ==========================================================
@@ -356,7 +371,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
-  background: rgba(217,217,217,0.35) !important;
+  background: var(--bubble-bg) !important;
   color: #1E293B !important;
   border-radius: 6px !important;
   padding: 10px 14px !important;
