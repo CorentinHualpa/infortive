@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.31
+   Infortive × Voiceflow — Thème stable v9.32
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -142,7 +142,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
+   Boutons d'action (conteneur) - ALIGNÉ
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
@@ -152,29 +152,6 @@ img.vfrc-avatar {
   width: calc(100% - var(--content-offset) - 8px) !important;
   max-width: calc(100% - var(--content-offset) - 8px) !important;
   box-sizing: border-box !important;
-}
-
-/* ==========================================================
-   BOUTONS CHOIX - ALIGNEMENT AVEC BULLES AGENT
-   ========================================================== */
-.vfrc-button-container,
-.vfrc-card--buttons,
-._1vj16242,
-._1vj16245 {
-  margin-left: var(--content-offset) !important;
-  padding-left: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 8px !important;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-}
-
-/* Quand les boutons sont DANS un conteneur déjà décalé, pas de double margin */
-.vfrc-system-response--actions .vfrc-button-container,
-.vfrc-system-response--actions .vfrc-card--buttons {
-  margin-left: 0 !important;
 }
 
 /* ==========================================================
@@ -199,7 +176,9 @@ img.vfrc-avatar {
    ZONE INPUT : MÊME GRIS QUE LES BULLES AGENT
    ========================================================== */
 .vfrc-chat-input,
-._1gdvh9t0 {
+div.vfrc-chat-input,
+._1gdvh9t0,
+div._1gdvh9t0 {
   margin: 0 !important;
   padding: 12px !important;
   width: 100% !important;
@@ -209,7 +188,7 @@ img.vfrc-avatar {
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
-  background: var(--bubble-bg) !important;
+  background-color: rgba(217,217,217,0.35) !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 6px !important;
@@ -223,7 +202,7 @@ img.vfrc-avatar {
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: var(--bubble-bg) !important;
+  background-color: rgba(217,217,217,0.35) !important;
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
@@ -254,7 +233,7 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   BOUTONS CHOIX (STYLE)
+   BOUTONS CHOIX
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
@@ -290,6 +269,15 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 .vfrc-button:not(.vfrc-header--button):active {
   background: #F3F4F6 !important;
+}
+
+.vfrc-button-container,
+.vfrc-card--buttons {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  padding: 8px 0 !important;
 }
 
 /* ==========================================================
@@ -371,7 +359,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
-  background: var(--bubble-bg) !important;
+  background: rgba(217,217,217,0.35) !important;
   color: #1E293B !important;
   border-radius: 6px !important;
   padding: 10px 14px !important;
