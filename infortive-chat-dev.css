@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.36
+   Infortive × Voiceflow — Thème stable v9.35
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -21,7 +21,6 @@
   --caption: 10px;
   --overline: 9px;
   --content-offset: 48px;
-  --align-offset: 52px;
 }
 
 /* ==========================================================
@@ -155,12 +154,12 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   BOUTONS CHOIX - ALIGNEMENT AVEC BULLES AGENT
+   BOUTONS CHOIX - TOUS avec margin-left pour alignement
    ========================================================== */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
-  margin-left: var(--align-offset) !important;
+  margin-left: 56px !important;
 }
 
 /* ==========================================================
@@ -185,9 +184,9 @@ button.vfrc-button._1nzwwii0,
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: var(--align-offset) !important;
-  width: calc(100% - var(--align-offset)) !important;
-  max-width: calc(100% - var(--align-offset)) !important;
+  margin-left: 56px !important;
+  width: calc(100% - 56px) !important;
+  max-width: calc(100% - 48px) !important;
   box-sizing: border-box !important;
 }
 
