@@ -460,6 +460,33 @@ textarea._1gdvh9ta::placeholder {
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
+
+/* ==========================================================
+   SUPPRIMER LE FOND BLANC AU-DESSUS DE L'INPUT
+   ========================================================== */
+.vfrc-footer__content-scroll-to-bottom,
+.vfrc-footer__content-scroll-to-bottom-button,
+.vfrc-footer::before,
+.vfrc-footer__content::before {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* Supprimer tout dégradé/gradient sur le footer */
+.vfrc-footer,
+.vfrc-footer__content {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* Forcer transparence sur les éléments de scroll */
+.vfrc-footer > *:not(.vfrc-chat-input):not(._1gdvh9t0) {
+  background: transparent !important;
+  background-image: none !important;
+}
   
   /* === STYLE CADRE === */
   background: #ffffff !important;        /* ← Fond blanc */
