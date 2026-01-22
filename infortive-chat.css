@@ -1,71 +1,42 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.28
-   + v9.28 : Padding bulles uniformisé + commentaires améliorés
-   ==========================================================
-   
-   📋 INDEX - SECTIONS À MODIFIER RAPIDEMENT :
-   
-   🎨 VARIABLES (ligne ~50)
-      - --body-1 : taille texte général (actuellement 10px)
-      - --button : taille texte boutons (actuellement 12px)
-      - --content-offset : décalage avatar (actuellement 48px)
-   
-   💬 BULLES AGENT (ligne ~230)
-      - padding : espace intérieur (actuellement 10px 14px)
-      - font-size : via --body-1
-      - background : couleur fond (actuellement gris clair)
-      - border-radius : arrondi (actuellement 10px)
-   
-   💬 BULLES UTILISATEUR (ligne ~260)
-      - padding : espace intérieur (actuellement 10px 14px)
-      - font-size : via --body-1
-      - background : couleur fond (actuellement #073A59 bleu foncé)
-      - border-radius : arrondi (actuellement 10px)
-   
-   🔘 BOUTONS CHOIX (ligne ~145)
-      - font-size : taille texte (actuellement 12px)
-      - padding : taille bouton (actuellement 12px 16px)
-      - text-transform : majuscules (uppercase) ou normal (none)
-   
-   📝 TEXTAREA INPUT (ligne ~295)
-      - font-size : via --body-1
-      - min-height : hauteur minimum (actuellement 60px)
-      - background : couleur fond (actuellement #E8E8E8)
-   
-   🟠 BOUTON ENVOYER (ligne ~190)
-      - Couleur active : #F18400 (orange)
-      - Couleur disabled : rgba(240, 131, 0, 0.08)
-   
+   Infortive × Voiceflow — Thème stable v9.35
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ==========================================================
-   🎨 VARIABLES GLOBALES
-   Modifie ici pour changer rapidement les valeurs partout
-   ========================================================== */
 :root {
-  /* Police */
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-regular: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
-  
-  /* Tailles de texte */
   --heading-1: 16px;
   --heading-2: 20px;
   --heading-3: 14px;
   --heading-4: 13px;
   --heading-6: 14px;
-  --body-1: 10px;      /* ← Taille texte bulles et textarea */
+  --body-1: 10px;
   --body-2: 10px;
-  --button: 12px;      /* ← Taille texte boutons */
+  --button: 12px;
   --caption: 10px;
   --overline: 9px;
-  
-  /* Layout */
-  --content-offset: 48px;  /* ← Décalage = avatar (40px) + gap (8px) */
+  --content-offset: 48px;
+}
+
+/* ==========================================================
+   SUPPRIMER FOND BLANC + OMBRE DU CHAT
+   ========================================================== */
+.vfrc-chat__container-inner,
+.vfrc-chat,
+.vfrc-chat-dialog__container,
+.vfrc-chat--dialog,
+.vfrc-chat-dialog,
+.vfrc-chat--bottom-spacer,
+.vfrc-chat-focus-ring,
+.vfrc-chat--overlay {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 /* ==========================================================
@@ -85,7 +56,6 @@
   box-sizing: border-box !important;
 }
 
-/* Cacher le bouton header */
 .vfrc-header--button,
 button.vfrc-header--button,
 .vfrc-header--actions {
@@ -98,14 +68,13 @@ button.vfrc-header--button,
   overflow: hidden !important;
 }
 
-/* Titre header */
 div.vfrc-header--title,
 .vfrc-header--title {
   font-family: var(--font-family) !important;
   font-weight: 700 !important;
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
-  color: #F18400 !important;  /* ← Couleur titre orange */
+  color: #F18400 !important;
   padding: 0 0 12px 0 !important;
   margin: 0 !important;
   position: relative !important;
@@ -118,7 +87,6 @@ div.vfrc-header--title,
   background: transparent !important;
 }
 
-/* Ligne sous le titre */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
   content: "" !important;
@@ -147,6 +115,8 @@ div.vfrc-header--title::after,
   margin-right: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* ==========================================================
@@ -163,15 +133,15 @@ div.vfrc-system-response {
 .vfrc-avatar,
 img.vfrc-avatar {
   flex-shrink: 0 !important;
-  width: 40px !important;   /* ← Taille avatar */
+  width: 40px !important;
   height: 40px !important;
   margin-right: 8px !important;
-  margin-top: 12px !important;  /* ← AJOUTE ÇA pour descendre l'avatar */
+  margin-top: 12px !important;
   align-self: flex-start !important;
 }
 
 /* ==========================================================
-   Boutons d'action (conteneur)
+   Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
@@ -184,33 +154,90 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   🔘 BOUTONS CHOIX (natifs Voiceflow)
+   BOUTONS CHOIX - TOUS avec margin-left pour alignement
+   ========================================================== */
+.vfrc-button._1nzwwii0,
+button.vfrc-button._1nzwwii0,
+._1nzwwii0._1o5z0oa0 {
+  margin-left: 60px !important;
+}
+
+/* ==========================================================
+   FOOTER - TRANSPARENT
+   ========================================================== */
+.vfrc-footer {
+  background: transparent !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 8px 8px 8px 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.vfrc-footer__content {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-left: 60px !important;
+  width: calc(100% - 60px) !important;
+  max-width: calc(100% - 48px) !important;
+  box-sizing: border-box !important;
+}
+
+/* ==========================================================
+   ZONE INPUT CONTENEUR : MÊME GRIS QUE LES BULLES AGENT
+   ========================================================== */
+.vfrc-input-container,
+._1gdvh9t2,
+div.vfrc-input-container {
+  background: rgba(217,217,217,0.35) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 8px !important;
+}
+
+.vfrc-input-container:focus,
+.vfrc-input-container:focus-within,
+.vfrc-input-container:focus-visible,
+._1gdvh9t2:focus,
+._1gdvh9t2:focus-within,
+._1gdvh9t2:focus-visible {
+  background: rgba(217,217,217,0.35) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================
+   BOUTONS CHOIX (STYLE)
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
   font-family: var(--font-family) !important;
   font-weight: var(--font-medium) !important;
-  
-  /* === TAILLE TEXTE === */
-  font-size: 12px !important;          /* ← Modifie ici */
+  font-size: 12px !important;
   line-height: 1.4 !important;
   letter-spacing: 0.03em !important;
-  
-  /* === MAJUSCULES === */
-  text-transform: uppercase !important; /* ← 'none' pour texte normal */
-  
-  /* === TAILLE BOUTON === */
-  padding: 12px 16px !important;        /* ← Modifie ici (haut/bas gauche/droite) */
-  
-  /* Style visuel */
+  text-transform: uppercase !important;
+  padding: 12px 16px !important;
   background: #ffffff !important;
   border: 1px solid #D1D5DB !important;
   color: #4B5563 !important;
   box-shadow: none !important;
-  border-radius: 6px !important;        /* ← Arrondi bouton */
+  border-radius: 6px !important;
   transition: all 0.2s ease !important;
   cursor: pointer !important;
-  margin: 6px 0 !important;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  margin-right: 8px !important;
   width: auto !important;
   max-width: fit-content !important;
   text-align: left !important;
@@ -240,19 +267,16 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   🟠 BOUTON ENVOYER
+   BOUTON ENVOYER
    ========================================================== */
-
-/* Cacher l'icône SVG */
 #vfrc-send-message svg,
 .vfrc-chat-input__send svg {
   display: none !important;
 }
 
-/* Texte du bouton */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
-  content: "Envoyer";                    /* ← Texte du bouton */
+  content: "Envoyer";
   font-family: var(--font-family);
   font-weight: var(--font-semibold);
   font-size: var(--button);
@@ -260,7 +284,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   text-transform: uppercase;
 }
 
-/* État désactivé (pas de texte dans l'input) */
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: rgba(240, 131, 0, 0.08) !important;
@@ -279,12 +302,12 @@ button.vfrc-button:not(.vfrc-header--button) {
   text-align: center;
   user-select: none;
   flex-shrink: 0 !important;
+  margin-left: 0 !important;
 }
 
-/* État actif (texte présent dans l'input) */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, #F18400, #d46f00) !important;  /* ← Couleur orange */
+  background: linear-gradient(135deg, #F18400, #d46f00) !important;
   border: none !important;
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
@@ -313,23 +336,20 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   💬 BULLES AGENT (système)
+   BULLES AGENT
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;   /* ← Taille texte */
+  font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
-  
-  /* === STYLE BULLE === */
-  background: rgba(217,217,217,0.35) !important;  /* ← Couleur fond gris clair */
-  color: #1E293B !important;                       /* ← Couleur texte */
-  border-radius: 6px !important;                  /* ← Arrondi */
-  padding: 10px 14px !important;                   /* ← Espace intérieur */
-  
+  background: rgba(217,217,217,0.35) !important;
+  color: #1E293B !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
   max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
@@ -344,23 +364,20 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   💬 BULLES UTILISATEUR
+   BULLES UTILISATEUR
    ========================================================== */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
 ._15emaa40 {
   font-family: var(--font-family) !important;
   font-weight: 400 !important;
-  font-size: var(--body-1) !important;   /* ← Taille texte */
+  font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   display: inline-block !important;
-  
-  /* === STYLE BULLE === */
-  background: #073A59 !important;        /* ← Couleur fond bleu foncé */
-  color: #ffffff !important;             /* ← Couleur texte blanc */
-  border-radius: 6px !important;        /* ← Arrondi */
-  padding: 10px 14px !important;         /* ← Espace intérieur (même que agent) */
-  
+  background: #073A59 !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
   max-width: 90%;
 }
 
@@ -371,162 +388,54 @@ button.vfrc-button:not(.vfrc-header--button) {
   font-size: var(--body-1) !important;
 }
 
-/* Espacement entre les bulles */
 .vfrc-message:not([class*="extension"]) { 
-  margin: 12px 0 !important;             /* ← Espace vertical entre bulles */
+  margin: 12px 0 !important;
 }
 
-/* Position réponse utilisateur */
 .vfrc-user-response {
   padding-left: var(--content-offset) !important;
   padding-right: 8px !important;
 }
 
 /* ==========================================================
-   📝 TEXTAREA (zone de saisie)
+   TEXTAREA : Fond blanc intérieur
    ========================================================== */
-.vfrc-chat-input textarea,
+textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
   font-family: var(--font-family) !important;
   font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;   /* ← Taille texte */
+  font-size: var(--body-1) !important;
   line-height: 1.5 !important;
   width: 100% !important;
   min-width: 200px !important;
-  
-  /* === DIMENSIONS === */
-  min-height: 60px !important;           /* ← Hauteur minimum */
-  max-height: 300px !important;          /* ← Hauteur maximum */
-  
+  min-height: 60px !important;
+  max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  
-  /* === STYLE === */
-  background: #E8E8E8 !important;        /* ← Couleur fond gris */
+  background: #FBFBFB !important;
   border: none !important;
-  border-radius: 6px !important;         /* ← Arrondi */
+  border-radius: 4px !important;
   outline: none !important;
   box-shadow: none !important;
-  padding: 10px 12px !important;         /* ← Espace intérieur */
+  padding: 10px 12px !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
+  margin-left: 0 !important;
 }
 
-.vfrc-chat-input textarea:focus,
-.vfrc-chat-input textarea:focus-visible,
-.vfrc-chat-input textarea:focus-within,
+textarea.vfrc-chat-input:focus,
+textarea.vfrc-chat-input:focus-visible,
 textarea._1gdvh9ta:focus,
-textarea._1gdvh9ta:focus-visible,
-textarea._1gdvh9ta:focus-within {
+textarea._1gdvh9ta:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: #E8E8E8 !important;
+  background: #FBFBFB !important;
 }
 
-.vfrc-chat-input textarea::placeholder,
+textarea.vfrc-chat-input::placeholder,
 textarea._1gdvh9ta::placeholder {
-  color: #666666 !important;             /* ← Couleur placeholder */
-}
-
-/* ==========================================================
-   FOOTER - Tout transparent sauf la zone input
-   ========================================================== */
-.vfrc-footer,
-.vfrc-footer__content,
-.vfrc-footer__content._1vj16245,
-._1vj16242,
-._1vj16245 {
-  background: transparent !important;
-  position: relative !important;
-  z-index: 10 !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 16px 0 8px 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* Bouton scroll-to-bottom transparent */
-.vfrc-footer__content-scroll-to-bottom,
-._3ul7492 {
-  background: transparent !important;
-}
-
-/* Cacher le bouton "Start new chat" */
-.vfrc-footer__start-button,
-.isxxu90 {
-  display: none !important;
-}
-
-
-/* ==========================================================
-   ZONE INPUT : Conteneur avec CADRE EXTÉRIEUR
-   ========================================================== */
-.vfrc-chat-input,
-._1gdvh9t0 {
-  margin: 0 !important;
-  padding: 12px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: flex-end !important;
-  gap: 12px !important;
-
-
-  
-  /* === STYLE CADRE === */
-  background: #ffffff !important;        /* ← Fond blanc */
-  border: 1px solid #CCCCCC !important;  /* ← Bordure grise */
-  border-radius: 6px !important;         /* ← Arrondi */
-  
-  opacity: 1 !important;
-  transition: none !important;
-  box-shadow: none !important;
-}
-
-.vfrc-chat-input:hover,
-.vfrc-chat-input:focus,
-.vfrc-chat-input:focus-within,
-._1gdvh9t0:hover,
-._1gdvh9t0:focus,
-._1gdvh9t0:focus-within {
-  opacity: 1 !important;
-  background: #ffffff !important;
-  border: 1px solid #CCCCCC !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* ==========================================================
-   Supprimer les cadres intérieurs
-   ========================================================== */
-.vfrc-input-container,
-._1gdvh9t2,
-._1gdvh9t3 {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.vfrc-input-container:focus,
-.vfrc-input-container:focus-within,
-.vfrc-input-container:focus-visible,
-._1gdvh9t2:focus,
-._1gdvh9t2:focus-within,
-._1gdvh9t2:focus-visible,
-._1gdvh9t3:focus,
-._1gdvh9t3:focus-within,
-._1gdvh9t3:focus-visible {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
+  color: #666666 !important;
 }
 
 /* ==========================================================
@@ -536,7 +445,7 @@ textarea._1gdvh9ta::placeholder {
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: #F18400 transparent;  /* ← Couleur scrollbar orange */
+  scrollbar-color: #F18400 transparent;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
@@ -556,63 +465,4 @@ textarea._1gdvh9ta::placeholder {
 .vfrc-chat-dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
   background: transparent;
-}
-
-/* ==========================================================
-   Extensions
-   ========================================================== */
-.vfrc-message[class*="extension"] {
-  background: transparent !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-
-/* ==========================================================
-   OMBRES ET FOND CHATBOT TRANSPARENT
-   ========================================================== */
-.vfrc-chat__container-inner {
-  box-shadow: none !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  border: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.vfrc-chat {
-  box-shadow: none !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  border: none !important;
-  margin: 0 !important;
-}
-
-.vfrc-chat__container {
-  box-shadow: none !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  border: none !important;
-}
-
-.vfrc-chat-dialog__container,
-.vfrc-chat-dialog,
-.vfrc-chat--dialog {
-  box-shadow: none !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-/* Overlay TRANSPARENT */
-.vfrc-chat--overlay {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-}
-
-/* Focus ring transparent */
-.vfrc-chat-focus-ring {
-  box-shadow: none !important;
-  border: none !important;
-  outline: none !important;
 }
