@@ -442,6 +442,7 @@ textarea._1gdvh9ta::placeholder {
   z-index: 10 !important;
   box-shadow: none !important;
   border: none !important;
+  padding: 16px 0 8px 0 !important; 
   padding: 8px 0 !important;
   margin: 0 !important;
   width: 100% !important;
