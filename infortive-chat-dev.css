@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.33
+   Infortive × Voiceflow — Thème stable v9.34
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -155,24 +155,17 @@ img.vfrc-avatar {
 
 /* ==========================================================
    BOUTONS CHOIX - ALIGNEMENT AVEC BULLES AGENT
-   Le conteneur parent des boutons doit être décalé
+   Tous les boutons standalone doivent avoir le même décalage
    ========================================================== */
-._1nzwwii0._1o5z0oa0,
-.vfrc-button._1nzwwii0 {
+button.vfrc-button._1nzwwii0:first-of-type,
+._1nzwwii0._1o5z0oa0:first-of-type {
   margin-left: var(--content-offset) !important;
 }
 
-/* Premier bouton seulement a le margin, les suivants non */
-._1nzwwii0._1o5z0oa0 + ._1nzwwii0._1o5z0oa0,
-.vfrc-button._1nzwwii0 + .vfrc-button._1nzwwii0 {
-  margin-left: 8px !important;
-}
-
 /* ==========================================================
-   FOOTER - TRANSPARENT + ALIGNÉ
+   FOOTER - TRANSPARENT + ALIGNÉ AVEC BULLES
    ========================================================== */
-.vfrc-footer,
-.vfrc-footer__content {
+.vfrc-footer {
   background: transparent !important;
   position: relative !important;
   z-index: 10 !important;
@@ -180,9 +173,21 @@ img.vfrc-avatar {
   border: none !important;
   padding: 8px 0 !important;
   margin: 0 !important;
-  margin-left: var(--content-offset) !important;
-  width: calc(100% - var(--content-offset)) !important;
-  max-width: calc(100% - var(--content-offset)) !important;
+  padding-left: var(--content-offset) !important;
+  padding-right: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.vfrc-footer__content {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
