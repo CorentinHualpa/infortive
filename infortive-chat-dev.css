@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.28
-   + v9.28 : Padding bulles uniformisé + commentaires améliorés
+   Infortive × Voiceflow — Thème stable v9.29
+   + v9.29 : Input transparent, gris unifié, alignement gauche
    ==========================================================
    
    📋 INDEX - SECTIONS À MODIFIER RAPIDEMENT :
@@ -9,30 +9,31 @@
       - --body-1 : taille texte général (actuellement 10px)
       - --button : taille texte boutons (actuellement 12px)
       - --content-offset : décalage avatar (actuellement 48px)
+      - --bubble-gray : couleur grise unifiée bulles/textarea
    
-   💬 BULLES AGENT (ligne ~230)
+   💬 BULLES AGENT (ligne ~240)
       - padding : espace intérieur (actuellement 10px 14px)
       - font-size : via --body-1
-      - background : couleur fond (actuellement gris clair)
-      - border-radius : arrondi (actuellement 10px)
+      - background : couleur fond (via --bubble-gray)
+      - border-radius : arrondi (actuellement 6px)
    
-   💬 BULLES UTILISATEUR (ligne ~260)
+   💬 BULLES UTILISATEUR (ligne ~270)
       - padding : espace intérieur (actuellement 10px 14px)
       - font-size : via --body-1
       - background : couleur fond (actuellement #073A59 bleu foncé)
-      - border-radius : arrondi (actuellement 10px)
+      - border-radius : arrondi (actuellement 6px)
    
-   🔘 BOUTONS CHOIX (ligne ~145)
+   🔘 BOUTONS CHOIX (ligne ~155)
       - font-size : taille texte (actuellement 12px)
       - padding : taille bouton (actuellement 12px 16px)
       - text-transform : majuscules (uppercase) ou normal (none)
    
-   📝 TEXTAREA INPUT (ligne ~295)
+   📝 TEXTAREA INPUT (ligne ~305)
       - font-size : via --body-1
       - min-height : hauteur minimum (actuellement 60px)
-      - background : couleur fond (actuellement #E8E8E8)
+      - background : couleur fond (via --bubble-gray)
    
-   🟠 BOUTON ENVOYER (ligne ~190)
+   🟠 BOUTON ENVOYER (ligne ~200)
       - Couleur active : #F18400 (orange)
       - Couleur disabled : rgba(240, 131, 0, 0.08)
    
@@ -63,6 +64,9 @@
   --button: 12px;      /* ← Taille texte boutons */
   --caption: 10px;
   --overline: 9px;
+  
+  /* Couleurs */
+  --bubble-gray: rgba(217,217,217,0.35);  /* ← Gris unifié bulles + textarea */
   
   /* Layout */
   --content-offset: 48px;  /* ← Décalage = avatar (40px) + gap (8px) */
@@ -166,12 +170,12 @@ img.vfrc-avatar {
   width: 40px !important;   /* ← Taille avatar */
   height: 40px !important;
   margin-right: 8px !important;
-  margin-top: 12px !important;  /* ← AJOUTE ÇA pour descendre l'avatar */
+  margin-top: 12px !important;
   align-self: flex-start !important;
 }
 
 /* ==========================================================
-   Boutons d'action (conteneur)
+   Boutons d'action (conteneur) - ALIGNÉ avec bulles
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
@@ -325,10 +329,10 @@ button.vfrc-button:not(.vfrc-header--button) {
   display: inline-block !important;
   
   /* === STYLE BULLE === */
-  background: rgba(217,217,217,0.35) !important;  /* ← Couleur fond gris clair */
-  color: #1E293B !important;                       /* ← Couleur texte */
-  border-radius: 6px !important;                  /* ← Arrondi */
-  padding: 10px 14px !important;                   /* ← Espace intérieur */
+  background: var(--bubble-gray) !important;  /* ← Couleur fond gris unifié */
+  color: #1E293B !important;                   /* ← Couleur texte */
+  border-radius: 6px !important;              /* ← Arrondi */
+  padding: 10px 14px !important;               /* ← Espace intérieur */
   
   max-width: 90%;
   white-space: pre-wrap;
@@ -383,7 +387,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   📝 TEXTAREA (zone de saisie)
+   📝 TEXTAREA (zone de saisie) - GRIS UNIFIÉ
    ========================================================== */
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
@@ -402,7 +406,7 @@ textarea._1gdvh9ta {
   resize: vertical !important;
   
   /* === STYLE === */
-  background: #E8E8E8 !important;        /* ← Couleur fond gris */
+  background: var(--bubble-gray) !important;  /* ← Même gris que bulles agent */
   border: none !important;
   border-radius: 6px !important;         /* ← Arrondi */
   outline: none !important;
@@ -421,7 +425,7 @@ textarea._1gdvh9ta:focus-within {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: #E8E8E8 !important;
+  background: var(--bubble-gray) !important;  /* ← Même gris au focus */
 }
 
 .vfrc-chat-input textarea::placeholder,
@@ -430,7 +434,7 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   FOOTER - Tout transparent sauf la zone input
+   FOOTER - Tout transparent
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer__content,
@@ -463,26 +467,26 @@ textarea._1gdvh9ta::placeholder {
 
 
 /* ==========================================================
-   ZONE INPUT : Conteneur avec CADRE EXTÉRIEUR
+   ZONE INPUT : TRANSPARENT + ALIGNÉ avec bulles
    ========================================================== */
 .vfrc-chat-input,
 ._1gdvh9t0 {
-  margin: 0 !important;
-  padding: 12px !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  /* === ALIGNEMENT avec bulles agent === */
+  margin-left: var(--content-offset) !important;  /* ← Décalage 48px */
+  margin-right: 8px !important;
+  padding: 0 !important;                          /* ← Plus de padding interne */
+  width: calc(100% - var(--content-offset) - 8px) !important;
+  max-width: calc(100% - var(--content-offset) - 8px) !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-end !important;
   gap: 12px !important;
-
-
   
-  /* === STYLE CADRE === */
-  background: #ffffff !important;        /* ← Fond blanc */
-  border: 1px solid #CCCCCC !important;  /* ← Bordure grise */
-  border-radius: 6px !important;         /* ← Arrondi */
+  /* === STYLE TRANSPARENT === */
+  background: transparent !important;    /* ← Fond transparent */
+  border: none !important;               /* ← Plus de bordure */
+  border-radius: 0 !important;
   
   opacity: 1 !important;
   transition: none !important;
@@ -496,8 +500,8 @@ textarea._1gdvh9ta::placeholder {
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: #ffffff !important;
-  border: 1px solid #CCCCCC !important;
+  background: transparent !important;    /* ← Transparent au hover/focus */
+  border: none !important;
   box-shadow: none !important;
   outline: none !important;
 }
