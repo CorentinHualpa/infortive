@@ -1,6 +1,6 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.29
-   + v9.29 : Input transparent, gris unifié, alignement gauche
+   Infortive × Voiceflow — Thème stable v9.30
+   + v9.30 : Fix gris opaque + alignement textarea corrigé
    ==========================================================
    
    📋 INDEX - SECTIONS À MODIFIER RAPIDEMENT :
@@ -66,7 +66,7 @@
   --overline: 9px;
   
   /* Couleurs */
-  --bubble-gray: rgba(217,217,217,0.35);  /* ← Gris unifié bulles + textarea */
+  --bubble-gray: #E0E0E0;  /* ← Gris unifié OPAQUE bulles + textarea */
   
   /* Layout */
   --content-offset: 48px;  /* ← Décalage = avatar (40px) + gap (8px) */
@@ -434,7 +434,7 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   FOOTER - Tout transparent
+   FOOTER - Tout transparent + ALIGNÉ
    ========================================================== */
 .vfrc-footer,
 .vfrc-footer__content,
@@ -467,16 +467,17 @@ textarea._1gdvh9ta::placeholder {
 
 
 /* ==========================================================
-   ZONE INPUT : TRANSPARENT + ALIGNÉ avec bulles
+   ZONE INPUT : TRANSPARENT + ALIGNÉ avec bulles agent
    ========================================================== */
 .vfrc-chat-input,
 ._1gdvh9t0 {
-  /* === ALIGNEMENT avec bulles agent === */
-  margin-left: var(--content-offset) !important;  /* ← Décalage 48px */
+  /* === ALIGNEMENT avec bulles agent (48px) === */
+  margin: 0 !important;
+  margin-left: 48px !important;          /* ← Forcer 48px explicitement */
   margin-right: 8px !important;
-  padding: 0 !important;                          /* ← Plus de padding interne */
-  width: calc(100% - var(--content-offset) - 8px) !important;
-  max-width: calc(100% - var(--content-offset) - 8px) !important;
+  padding: 0 !important;
+  width: calc(100% - 48px - 8px) !important;
+  max-width: calc(100% - 48px - 8px) !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: row !important;
@@ -484,8 +485,8 @@ textarea._1gdvh9ta::placeholder {
   gap: 12px !important;
   
   /* === STYLE TRANSPARENT === */
-  background: transparent !important;    /* ← Fond transparent */
-  border: none !important;               /* ← Plus de bordure */
+  background: transparent !important;
+  border: none !important;
   border-radius: 0 !important;
   
   opacity: 1 !important;
@@ -500,7 +501,7 @@ textarea._1gdvh9ta::placeholder {
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: transparent !important;    /* ← Transparent au hover/focus */
+  background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
