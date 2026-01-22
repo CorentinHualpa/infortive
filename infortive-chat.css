@@ -327,7 +327,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   /* === STYLE BULLE === */
   background: rgba(217,217,217,0.35) !important;  /* ← Couleur fond gris clair */
   color: #1E293B !important;                       /* ← Couleur texte */
-  border-radius: 10px !important;                  /* ← Arrondi */
+  border-radius: 6px !important;                  /* ← Arrondi */
   padding: 10px 14px !important;                   /* ← Espace intérieur */
   
   max-width: 90%;
@@ -358,7 +358,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   /* === STYLE BULLE === */
   background: #073A59 !important;        /* ← Couleur fond bleu foncé */
   color: #ffffff !important;             /* ← Couleur texte blanc */
-  border-radius: 10px !important;        /* ← Arrondi */
+  border-radius: 6px !important;        /* ← Arrondi */
   padding: 10px 14px !important;         /* ← Espace intérieur (même que agent) */
   
   max-width: 90%;
@@ -404,7 +404,7 @@ textarea._1gdvh9ta {
   /* === STYLE === */
   background: #E8E8E8 !important;        /* ← Couleur fond gris */
   border: none !important;
-  border-radius: 4px !important;         /* ← Arrondi */
+  border-radius: 6px !important;         /* ← Arrondi */
   outline: none !important;
   box-shadow: none !important;
   padding: 10px 12px !important;         /* ← Espace intérieur */
@@ -464,7 +464,7 @@ textarea._1gdvh9ta::placeholder {
   /* === STYLE CADRE === */
   background: #ffffff !important;        /* ← Fond blanc */
   border: 1px solid #CCCCCC !important;  /* ← Bordure grise */
-  border-radius: 4px !important;         /* ← Arrondi */
+  border-radius: 6px !important;         /* ← Arrondi */
   
   opacity: 1 !important;
   transition: none !important;
