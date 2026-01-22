@@ -1,89 +1,173 @@
-/* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.29
-   + v9.29 : Variables centralisées pour tous les styles
-   ==========================================================
+/* ╔══════════════════════════════════════════════════════════════════════════════╗
+   ║                    INFORTIVE × VOICEFLOW — THÈME v10.0                       ║
+   ║                  🎨 CONFIGURATION CENTRALISÉE EN HAUT 🎨                      ║
+   ╚══════════════════════════════════════════════════════════════════════════════╝
    
-   ⚡ CONFIGURATION RAPIDE - MODIFIE ICI (lignes 50-85)
-   ============================================================
+   ✅ COMMENT UTILISER CE CSS :
+   ────────────────────────────
+   1. Modifie UNIQUEMENT les variables dans la section "CONFIGURATION RAPIDE"
+   2. Ne touche pas au reste du CSS (sauf cas spécifique)
+   3. Sauvegarde et teste dans Voiceflow
    
-   --body-1: 10px              → Taille texte bulles/textarea
-   --button: 12px              → Taille texte boutons
-   --border-radius: 8px        → Arrondi TOUS les éléments
-   --content-offset: 48px      → Décalage avatar
+   📋 RACCOURCIS RAPIDES :
+   ────────────────────────
+   • Changer la police         → --vf-font-family
+   • Changer les couleurs      → Section "COULEURS"
+   • Changer les tailles       → Section "DIMENSIONS"
+   • Changer les arrondis      → Section "BORDER RADIUS"
    
-   --color-primary: #F18400    → Orange (titre, bouton envoyer, scrollbar)
-   --color-text: #1E293B       → Texte foncé
-   --color-text-light: #4B5563 → Texte boutons
-   --color-bg-grey: #E8E8E8    → Fond textarea
-   --color-border: #CCCCCC     → Bordures
-   --color-user-bubble: #073A59 → Fond bulle utilisateur
-   --color-agent-bubble: rgba(217,217,217,0.35) → Fond bulle agent
-   
-   ============================================================
-   
-   📋 INDEX DES SECTIONS :
-   
-   🎨 VARIABLES GLOBALES .............. ligne ~50
-   📰 HEADER .......................... ligne ~95
-   💬 BULLES AGENT .................... ligne ~200
-   💬 BULLES UTILISATEUR .............. ligne ~230
-   🔘 BOUTONS CHOIX ................... ligne ~155
-   🟠 BOUTON ENVOYER .................. ligne ~250
-   📝 TEXTAREA INPUT .................. ligne ~290
-   📦 ZONE INPUT (cadre) .............. ligne ~340
-   🖱️ SCROLLBAR ....................... ligne ~400
-   👤 AVATAR .......................... ligne ~130
-   
-   ========================================================== */
+*/
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ==========================================================
-   🎨 VARIABLES GLOBALES
-   ⚡ MODIFIE ICI POUR TOUT CHANGER D'UN COUP
-   ========================================================== */
+/* ╔══════════════════════════════════════════════════════════════════════════════╗
+   ║                        🔧 CONFIGURATION RAPIDE 🔧                             ║
+   ║                    (Modifie uniquement cette section)                         ║
+   ╚══════════════════════════════════════════════════════════════════════════════╝ */
+
 :root {
-  /* === POLICE === */
-  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-regular: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
   
-  /* === TAILLES TEXTE === */
-  --heading-2: 20px;           /* ← Titre header */
-  --body-1: 10px;              /* ← Texte bulles et textarea */
-  --button: 12px;              /* ← Texte boutons */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     📝 POLICE DE CARACTÈRES
+     ═══════════════════════════════════════════════════════════════════════════ */
+  --vf-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   
-  /* === ARRONDI GLOBAL === */
-  --border-radius: 8px;        /* ← ARRONDI DE TOUS LES ÉLÉMENTS */
+  --vf-font-regular: 400;
+  --vf-font-medium: 500;
+  --vf-font-semibold: 600;
+  --vf-font-bold: 700;
   
-  /* === COULEURS PRINCIPALES === */
-  --color-primary: #F18400;    /* ← Orange (titre, bouton envoyer, scrollbar) */
-  --color-primary-dark: #d46f00;
-  --color-text: #1E293B;       /* ← Texte foncé */
-  --color-text-light: #4B5563; /* ← Texte boutons */
-  --color-white: #ffffff;
   
-  /* === COULEURS FONDS === */
-  --color-bg-grey: #E8E8E8;    /* ← Fond textarea */
-  --color-border: #CCCCCC;     /* ← Bordures */
-  --color-border-light: #D1D5DB;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     🎨 COULEURS PRINCIPALES
+     ═══════════════════════════════════════════════════════════════════════════ */
   
-  /* === COULEURS BULLES === */
-  --color-user-bubble: #073A59;              /* ← Fond bulle utilisateur */
-  --color-agent-bubble: rgba(217,217,217,0.35); /* ← Fond bulle agent */
+  /* --- Couleur accent (orange Infortive) --- */
+  --vf-color-accent: #F18400;                    /* Couleur principale orange */
+  --vf-color-accent-hover: #d46f00;              /* Orange plus foncé au hover */
+  --vf-color-accent-dark: #c56200;               /* Orange encore plus foncé */
   
-  /* === LAYOUT === */
-  --content-offset: 48px;      /* ← Décalage = avatar (40px) + gap (8px) */
+  /* --- Bulles agent (bot) --- */
+  --vf-bubble-agent-bg: rgba(217, 217, 217, 0.35);  /* Fond gris clair transparent */
+  --vf-bubble-agent-text: #1E293B;                   /* Texte gris foncé */
   
-  /* === PADDING BULLES === */
-  --bubble-padding: 10px 14px; /* ← Espace intérieur bulles */
+  /* --- Bulles utilisateur --- */
+  --vf-bubble-user-bg: #073A59;                  /* Fond bleu foncé */
+  --vf-bubble-user-text: #ffffff;                /* Texte blanc */
+  
+  /* --- Zone de saisie (input) --- */
+  --vf-input-bg: #E8E8E8;                        /* Fond gris clair */
+  --vf-input-text: #1E293B;                      /* Texte foncé */
+  --vf-input-placeholder: #666666;               /* Placeholder gris */
+  --vf-input-container-bg: #ffffff;              /* Fond conteneur blanc */
+  --vf-input-container-border: #CCCCCC;          /* Bordure grise */
+  
+  /* --- Boutons de choix --- */
+  --vf-button-bg: #ffffff;                       /* Fond blanc */
+  --vf-button-border: #D1D5DB;                   /* Bordure grise */
+  --vf-button-text: #4B5563;                     /* Texte gris */
+  --vf-button-hover-bg: #F9FAFB;                 /* Fond au survol */
+  --vf-button-hover-border: #9CA3AF;             /* Bordure au survol */
+  --vf-button-hover-text: #374151;               /* Texte au survol */
+  --vf-button-active-bg: #F3F4F6;                /* Fond au clic */
+  
+  /* --- Bouton Envoyer (disabled) --- */
+  --vf-send-disabled-bg: rgba(240, 131, 0, 0.08);
+  --vf-send-disabled-border: rgba(240, 131, 0, 0.25);
+  --vf-send-disabled-text: rgba(240, 131, 0, 0.5);
+  
+  /* --- Header --- */
+  --vf-header-title-color: #F18400;              /* Couleur titre orange */
+  --vf-header-line-color: #1E293B;               /* Ligne sous le titre */
+  --vf-header-line-opacity: 0.5;
+  
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     📐 TAILLES DE TEXTE
+     ═══════════════════════════════════════════════════════════════════════════ */
+  
+  --vf-text-title: 20px;                         /* Titre header */
+  --vf-text-bubbles: 10px;                       /* Texte dans les bulles */
+  --vf-text-buttons: 12px;                       /* Texte des boutons */
+  --vf-text-input: 10px;                         /* Texte zone de saisie */
+  --vf-text-send-button: 12px;                   /* Texte bouton Envoyer */
+  
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     📏 DIMENSIONS & ESPACEMENTS
+     ═══════════════════════════════════════════════════════════════════════════ */
+  
+  /* --- Avatar --- */
+  --vf-avatar-size: 40px;                        /* Taille de l'avatar */
+  --vf-avatar-margin-right: 8px;                 /* Espace à droite de l'avatar */
+  --vf-avatar-margin-top: 12px;                  /* Décalage vertical avatar */
+  
+  /* --- Bulles --- */
+  --vf-bubble-padding-v: 10px;                   /* Padding vertical bulles */
+  --vf-bubble-padding-h: 14px;                   /* Padding horizontal bulles */
+  --vf-bubble-max-width: 90%;                    /* Largeur max des bulles */
+  --vf-bubble-spacing: 12px;                     /* Espace entre les bulles */
+  
+  /* --- Boutons de choix --- */
+  --vf-button-padding-v: 12px;                   /* Padding vertical boutons */
+  --vf-button-padding-h: 16px;                   /* Padding horizontal boutons */
+  --vf-button-gap: 8px;                          /* Espace entre boutons */
+  
+  /* --- Zone de saisie --- */
+  --vf-input-min-height: 60px;                   /* Hauteur minimum input */
+  --vf-input-max-height: 300px;                  /* Hauteur maximum input */
+  --vf-input-padding-v: 10px;                    /* Padding vertical input */
+  --vf-input-padding-h: 12px;                    /* Padding horizontal input */
+  
+  /* --- Bouton Envoyer --- */
+  --vf-send-padding-v: 8px;                      /* Padding vertical Envoyer */
+  --vf-send-padding-h: 16px;                     /* Padding horizontal Envoyer */
+  --vf-send-min-width: 100px;                    /* Largeur min Envoyer */
+  
+  /* --- Layout général --- */
+  --vf-content-offset: 48px;                     /* Décalage = avatar + gap */
+  --vf-container-padding: 12px;                  /* Padding conteneur input */
+  --vf-container-gap: 12px;                      /* Gap dans conteneur input */
+  
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     🔘 BORDER RADIUS (Arrondis)
+     ═══════════════════════════════════════════════════════════════════════════ */
+  
+  --vf-radius-bubbles: 10px;                     /* Arrondi des bulles */
+  --vf-radius-buttons: 6px;                      /* Arrondi des boutons choix */
+  --vf-radius-input: 4px;                        /* Arrondi zone de saisie */
+  --vf-radius-container: 4px;                    /* Arrondi conteneur input */
+  --vf-radius-send: 6px;                         /* Arrondi bouton Envoyer */
+  
+  
+  /* ═══════════════════════════════════════════════════════════════════════════
+     ⚙️ OPTIONS DIVERSES
+     ═══════════════════════════════════════════════════════════════════════════ */
+  
+  /* Boutons en MAJUSCULES ? ('uppercase' ou 'none') */
+  --vf-button-text-transform: uppercase;
+  
+  /* Texte du bouton Envoyer */
+  --vf-send-button-text: "Envoyer";
+  
+  /* Largeur scrollbar */
+  --vf-scrollbar-width: 10px;
 }
 
-/* ==========================================================
-   📰 HEADER
-   ========================================================== */
+
+/* ╔══════════════════════════════════════════════════════════════════════════════╗
+   ║                                                                              ║
+   ║                    ⚠️ NE PAS MODIFIER CI-DESSOUS ⚠️                           ║
+   ║              (Sauf si tu sais exactement ce que tu fais)                     ║
+   ║                                                                              ║
+   ╚══════════════════════════════════════════════════════════════════════════════╝ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-header,
 .vfrc-header--container,
 .vfrc-header--container-inner {
@@ -114,11 +198,11 @@ button.vfrc-header--button,
 /* Titre header */
 div.vfrc-header--title,
 .vfrc-header--title {
-  font-family: var(--font-family) !important;
-  font-weight: 700 !important;
-  font-size: var(--heading-2) !important;
+  font-family: var(--vf-font-family) !important;
+  font-weight: var(--vf-font-bold) !important;
+  font-size: var(--vf-text-title) !important;
   line-height: 1.3 !important;
-  color: var(--color-primary) !important;
+  color: var(--vf-header-title-color) !important;
   padding: 0 0 12px 0 !important;
   margin: 0 !important;
   position: relative !important;
@@ -141,13 +225,15 @@ div.vfrc-header--title::after,
   left: 0 !important;
   width: 100% !important;
   height: 1px !important;
-  background-color: var(--color-text) !important;
-  opacity: 0.5 !important;
+  background-color: var(--vf-header-line-color) !important;
+  opacity: var(--vf-header-line-opacity) !important;
 }
 
-/* ==========================================================
-   Chat container reset
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CHAT CONTAINER RESET
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-chat,
 .vfrc-chat__container,
 .vfrc-chat__container-inner,
@@ -162,9 +248,11 @@ div.vfrc-header--title::after,
   max-width: 100% !important;
 }
 
-/* ==========================================================
-   👤 AVATAR
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   AVATAR
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-system-response,
 div.vfrc-system-response {
   display: flex !important;
@@ -176,44 +264,47 @@ div.vfrc-system-response {
 .vfrc-avatar,
 img.vfrc-avatar {
   flex-shrink: 0 !important;
-  width: 40px !important;
-  height: 40px !important;
-  margin-right: 8px !important;
-  margin-top: 12px !important;           /* ← Descendre l'avatar */
+  width: var(--vf-avatar-size) !important;
+  height: var(--vf-avatar-size) !important;
+  margin-right: var(--vf-avatar-margin-right) !important;
+  margin-top: var(--vf-avatar-margin-top) !important;
   align-self: flex-start !important;
 }
 
-/* ==========================================================
-   Boutons d'action (conteneur)
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BOUTONS D'ACTION (conteneur)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
-  margin-left: var(--content-offset) !important;
+  margin-left: var(--vf-content-offset) !important;
   padding-left: 0 !important;
   padding-right: 8px !important;
-  width: calc(100% - var(--content-offset) - 8px) !important;
-  max-width: calc(100% - var(--content-offset) - 8px) !important;
+  width: calc(100% - var(--vf-content-offset) - 8px) !important;
+  max-width: calc(100% - var(--vf-content-offset) - 8px) !important;
   box-sizing: border-box !important;
 }
 
-/* ==========================================================
-   🔘 BOUTONS CHOIX (natifs Voiceflow)
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BOUTONS DE CHOIX (natifs Voiceflow)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-medium) !important;
-  font-size: var(--button) !important;
+  font-family: var(--vf-font-family) !important;
+  font-weight: var(--vf-font-medium) !important;
+  font-size: var(--vf-text-buttons) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.03em !important;
-  text-transform: uppercase !important;  /* ← 'none' pour texte normal */
-  padding: 12px 16px !important;         /* ← Taille bouton */
-  
-  background: var(--color-white) !important;
-  border: 1px solid var(--color-border-light) !important;
-  color: var(--color-text-light) !important;
+  text-transform: var(--vf-button-text-transform) !important;
+  padding: var(--vf-button-padding-v) var(--vf-button-padding-h) !important;
+  background: var(--vf-button-bg) !important;
+  border: 1px solid var(--vf-button-border) !important;
+  color: var(--vf-button-text) !important;
   box-shadow: none !important;
-  border-radius: var(--border-radius) !important;  /* ← ARRONDI */
+  border-radius: var(--vf-radius-buttons) !important;
   transition: all 0.2s ease !important;
   cursor: pointer !important;
   margin: 6px 0 !important;
@@ -227,13 +318,13 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 .vfrc-button:not(.vfrc-header--button):hover {
-  background: #F9FAFB !important;
-  border-color: #9CA3AF !important;
-  color: #374151 !important;
+  background: var(--vf-button-hover-bg) !important;
+  border-color: var(--vf-button-hover-border) !important;
+  color: var(--vf-button-hover-text) !important;
 }
 
 .vfrc-button:not(.vfrc-header--button):active {
-  background: #F3F4F6 !important;
+  background: var(--vf-button-active-bg) !important;
 }
 
 .vfrc-button-container,
@@ -241,81 +332,14 @@ button.vfrc-button:not(.vfrc-header--button) {
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
-  gap: 8px !important;
+  gap: var(--vf-button-gap) !important;
   padding: 8px 0 !important;
 }
 
-/* ==========================================================
-   💬 BULLES AGENT (système)
-   ========================================================== */
-.vfrc-system-response .vfrc-message:not([class*="extension"]),
-.vfrc-message._11kfxpg0 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  letter-spacing: 0.01em !important;
-  display: inline-block !important;
-  
-  background: var(--color-agent-bubble) !important;
-  color: var(--color-text) !important;
-  border-radius: var(--border-radius) !important;  /* ← ARRONDI */
-  padding: var(--bubble-padding) !important;
-  
-  max-width: 90%;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
 
-.vfrc-system-response .vfrc-message:not([class*="extension"]) p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) li {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  font-weight: var(--font-regular) !important;
-  line-height: 1.5 !important;
-}
-
-/* ==========================================================
-   💬 BULLES UTILISATEUR
-   ========================================================== */
-.vfrc-user-response > div,
-.vfrc-user-response .vfrc-message,
-._15emaa40 {
-  font-family: var(--font-family) !important;
-  font-weight: 400 !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  display: inline-block !important;
-  
-  background: var(--color-user-bubble) !important;
-  color: var(--color-white) !important;
-  border-radius: var(--border-radius) !important;  /* ← ARRONDI */
-  padding: var(--bubble-padding) !important;
-  
-  max-width: 90%;
-}
-
-.vfrc-user-response > div *,
-.vfrc-user-response .vfrc-message *,
-._15emaa40 * {
-  color: var(--color-white) !important;
-  font-size: var(--body-1) !important;
-}
-
-/* Espacement entre les bulles */
-.vfrc-message:not([class*="extension"]) { 
-  margin: 12px 0 !important;
-}
-
-/* Position réponse utilisateur */
-.vfrc-user-response {
-  padding-left: var(--content-offset) !important;
-  padding-right: 8px !important;
-}
-
-/* ==========================================================
-   🟠 BOUTON ENVOYER
-   ========================================================== */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BOUTON ENVOYER
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* Cacher l'icône SVG */
 #vfrc-send-message svg,
@@ -326,10 +350,10 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* Texte du bouton */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
-  content: "Envoyer";
-  font-family: var(--font-family);
-  font-weight: var(--font-semibold);
-  font-size: var(--button);
+  content: var(--vf-send-button-text);
+  font-family: var(--vf-font-family);
+  font-weight: var(--vf-font-semibold);
+  font-size: var(--vf-text-send-button);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -337,11 +361,11 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* État désactivé */
 #vfrc-send-message,
 .vfrc-chat-input__send {
-  background: rgba(240, 131, 0, 0.08) !important;
-  border: 1px solid rgba(240, 131, 0, 0.25) !important;
-  border-radius: var(--border-radius) !important;  /* ← ARRONDI */
-  padding: 8px 16px !important;
-  color: rgba(240, 131, 0, 0.5) !important;
+  background: var(--vf-send-disabled-bg) !important;
+  border: 1px solid var(--vf-send-disabled-border) !important;
+  border-radius: var(--vf-radius-send) !important;
+  padding: var(--vf-send-padding-v) var(--vf-send-padding-h) !important;
+  color: var(--vf-send-disabled-text) !important;
   box-shadow: none !important;
   transition: all 0.25s ease-in-out !important;
   cursor: not-allowed;
@@ -349,7 +373,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   align-items: center;
   justify-content: center;
   width: auto !important;
-  min-width: 100px !important;
+  min-width: var(--vf-send-min-width) !important;
   text-align: center;
   user-select: none;
   flex-shrink: 0 !important;
@@ -358,9 +382,9 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* État actif */
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)) !important;
+  background: linear-gradient(135deg, var(--vf-color-accent), var(--vf-color-accent-hover)) !important;
   border: none !important;
-  color: var(--color-white) !important;
+  color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
   cursor: pointer;
   opacity: 1;
@@ -368,7 +392,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
-  background: linear-gradient(135deg, var(--color-primary-dark), #c56200) !important;
+  background: linear-gradient(135deg, var(--vf-color-accent-hover), var(--vf-color-accent-dark)) !important;
   box-shadow: 0 4px 12px rgba(241, 132, 0, 0.4) !important;
   transform: translateY(-1px) !important;
 }
@@ -386,28 +410,98 @@ button.vfrc-button:not(.vfrc-header--button) {
   box-shadow: none !important;
 }
 
-/* ==========================================================
-   📝 TEXTAREA (zone de saisie)
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BULLES AGENT (système)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.vfrc-system-response .vfrc-message:not([class*="extension"]),
+.vfrc-message._11kfxpg0 {
+  font-family: var(--vf-font-family) !important;
+  font-weight: var(--vf-font-regular) !important;
+  font-size: var(--vf-text-bubbles) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.01em !important;
+  display: inline-block !important;
+  background: var(--vf-bubble-agent-bg) !important;
+  color: var(--vf-bubble-agent-text) !important;
+  border-radius: var(--vf-radius-bubbles) !important;
+  padding: var(--vf-bubble-padding-v) var(--vf-bubble-padding-h) !important;
+  max-width: var(--vf-bubble-max-width);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vfrc-system-response .vfrc-message:not([class*="extension"]) p,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) li {
+  font-family: var(--vf-font-family) !important;
+  font-size: var(--vf-text-bubbles) !important;
+  font-weight: var(--vf-font-regular) !important;
+  line-height: 1.5 !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BULLES UTILISATEUR
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.vfrc-user-response > div,
+.vfrc-user-response .vfrc-message,
+._15emaa40 {
+  font-family: var(--vf-font-family) !important;
+  font-weight: var(--vf-font-regular) !important;
+  font-size: var(--vf-text-bubbles) !important;
+  line-height: 1.5 !important;
+  display: inline-block !important;
+  background: var(--vf-bubble-user-bg) !important;
+  color: var(--vf-bubble-user-text) !important;
+  border-radius: var(--vf-radius-bubbles) !important;
+  padding: var(--vf-bubble-padding-v) var(--vf-bubble-padding-h) !important;
+  max-width: var(--vf-bubble-max-width);
+}
+
+.vfrc-user-response > div *,
+.vfrc-user-response .vfrc-message *,
+._15emaa40 * {
+  color: var(--vf-bubble-user-text) !important;
+  font-size: var(--vf-text-bubbles) !important;
+}
+
+/* Espacement entre les bulles */
+.vfrc-message:not([class*="extension"]) { 
+  margin: var(--vf-bubble-spacing) 0 !important;
+}
+
+/* Position réponse utilisateur */
+.vfrc-user-response {
+  padding-left: var(--vf-content-offset) !important;
+  padding-right: 8px !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TEXTAREA (zone de saisie)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-chat-input textarea,
 textarea._1gdvh9ta {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
+  font-family: var(--vf-font-family) !important;
+  font-weight: var(--vf-font-regular) !important;
+  font-size: var(--vf-text-input) !important;
   line-height: 1.5 !important;
   width: 100% !important;
   min-width: 200px !important;
-  min-height: 60px !important;
-  max-height: 300px !important;
+  min-height: var(--vf-input-min-height) !important;
+  max-height: var(--vf-input-max-height) !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  
-  background: var(--color-bg-grey) !important;
+  background: var(--vf-input-bg) !important;
+  color: var(--vf-input-text) !important;
   border: none !important;
-  border-radius: var(--border-radius) !important;  /* ← ARRONDI */
+  border-radius: var(--vf-radius-input) !important;
   outline: none !important;
   box-shadow: none !important;
-  padding: 10px 12px !important;
+  padding: var(--vf-input-padding-v) var(--vf-input-padding-h) !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
 }
@@ -421,17 +515,19 @@ textarea._1gdvh9ta:focus-within {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: var(--color-bg-grey) !important;
+  background: var(--vf-input-bg) !important;
 }
 
 .vfrc-chat-input textarea::placeholder,
 textarea._1gdvh9ta::placeholder {
-  color: #666666 !important;
+  color: var(--vf-input-placeholder) !important;
 }
 
-/* ==========================================================
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    FOOTER
-   ========================================================== */
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-footer,
 .vfrc-footer__content {
   background: transparent !important;
@@ -446,25 +542,25 @@ textarea._1gdvh9ta::placeholder {
   box-sizing: border-box !important;
 }
 
-/* ==========================================================
-   📦 ZONE INPUT : Conteneur avec CADRE EXTÉRIEUR
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ZONE INPUT : Conteneur avec cadre extérieur
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-chat-input,
 ._1gdvh9t0 {
   margin: 0 !important;
-  padding: 12px !important;
+  padding: var(--vf-container-padding) !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-end !important;
-  gap: 12px !important;
-  
-  background: var(--color-white) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--border-radius) !important;  /* ← ARRONDI */
-  
+  gap: var(--vf-container-gap) !important;
+  background: var(--vf-input-container-bg) !important;
+  border: 1px solid var(--vf-input-container-border) !important;
+  border-radius: var(--vf-radius-container) !important;
   opacity: 1 !important;
   transition: none !important;
   box-shadow: none !important;
@@ -477,15 +573,17 @@ textarea._1gdvh9ta::placeholder {
 ._1gdvh9t0:focus,
 ._1gdvh9t0:focus-within {
   opacity: 1 !important;
-  background: var(--color-white) !important;
-  border: 1px solid var(--color-border) !important;
+  background: var(--vf-input-container-bg) !important;
+  border: 1px solid var(--vf-input-container-border) !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-/* ==========================================================
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    Supprimer les cadres intérieurs
-   ========================================================== */
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-input-container,
 ._1gdvh9t2,
 ._1gdvh9t3 {
@@ -510,26 +608,28 @@ textarea._1gdvh9ta::placeholder {
   background: transparent !important;
 }
 
-/* ==========================================================
-   🖱️ SCROLLBAR
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) transparent;
+  scrollbar-color: var(--vf-color-accent) transparent;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
 .vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 10px;
+  width: var(--vf-scrollbar-width);
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
+  background: var(--vf-color-accent);
   border-radius: 999px;
 }
 
@@ -539,18 +639,22 @@ textarea._1gdvh9ta::placeholder {
   background: transparent;
 }
 
-/* ==========================================================
-   Extensions
-   ========================================================== */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EXTENSIONS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-message[class*="extension"] {
   background: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
 }
 
-/* ==========================================================
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    OMBRES ET FOND CHATBOT TRANSPARENT
-   ========================================================== */
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .vfrc-chat__container-inner {
   box-shadow: none !important;
   background: transparent !important;
@@ -597,3 +701,8 @@ textarea._1gdvh9ta::placeholder {
   border: none !important;
   outline: none !important;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FIN DU CSS
+   ═══════════════════════════════════════════════════════════════════════════════ */
