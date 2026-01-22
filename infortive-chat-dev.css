@@ -1,5 +1,5 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.34
+   Infortive × Voiceflow — Thème stable v9.35
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -154,16 +154,16 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   BOUTONS CHOIX - ALIGNEMENT AVEC BULLES AGENT
-   Tous les boutons standalone doivent avoir le même décalage
+   BOUTONS CHOIX - TOUS avec margin-left pour alignement
    ========================================================== */
-button.vfrc-button._1nzwwii0:first-of-type,
-._1nzwwii0._1o5z0oa0:first-of-type {
-  margin-left: var(--content-offset) !important;
+.vfrc-button._1nzwwii0,
+button.vfrc-button._1nzwwii0,
+._1nzwwii0._1o5z0oa0 {
+  margin-left: 48px !important;
 }
 
 /* ==========================================================
-   FOOTER - TRANSPARENT + ALIGNÉ AVEC BULLES
+   FOOTER - TRANSPARENT
    ========================================================== */
 .vfrc-footer {
   background: transparent !important;
@@ -171,10 +171,8 @@ button.vfrc-button._1nzwwii0:first-of-type,
   z-index: 10 !important;
   box-shadow: none !important;
   border: none !important;
-  padding: 8px 0 !important;
+  padding: 8px 8px 8px 0 !important;
   margin: 0 !important;
-  padding-left: var(--content-offset) !important;
-  padding-right: 8px !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
@@ -186,8 +184,9 @@ button.vfrc-button._1nzwwii0:first-of-type,
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  margin-left: 48px !important;
+  width: calc(100% - 48px) !important;
+  max-width: calc(100% - 48px) !important;
   box-sizing: border-box !important;
 }
 
@@ -238,6 +237,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   cursor: pointer !important;
   margin-top: 6px !important;
   margin-bottom: 6px !important;
+  margin-right: 8px !important;
   width: auto !important;
   max-width: fit-content !important;
   text-align: left !important;
@@ -302,6 +302,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   text-align: center;
   user-select: none;
   flex-shrink: 0 !important;
+  margin-left: 0 !important;
 }
 
 #vfrc-send-message:not([disabled]),
@@ -419,6 +420,7 @@ textarea._1gdvh9ta {
   padding: 10px 12px !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
+  margin-left: 0 !important;
 }
 
 textarea.vfrc-chat-input:focus,
