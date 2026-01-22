@@ -159,7 +159,7 @@ img.vfrc-avatar {
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
-  margin-left: 56px !important;
+  margin-left: 60px !important;
 }
 
 /* ==========================================================
@@ -184,8 +184,8 @@ button.vfrc-button._1nzwwii0,
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: 56px !important;
-  width: calc(100% - 56px) !important;
+  margin-left: 60px !important;
+  width: calc(100% - 60px) !important;
   max-width: calc(100% - 48px) !important;
   box-sizing: border-box !important;
 }
