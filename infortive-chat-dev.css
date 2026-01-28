@@ -1,9 +1,8 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.39
+   Infortive × Voiceflow — Thème stable v9.39b
    
-   v9.39 : Fix alignement puces (ciblage ::before au lieu de ::marker)
-   v9.38 : Tentative fix puces (incorrect)
-   v9.37 : Fix footer opaque (évite superposition au scroll)
+   v9.39b : Fix alignement puces (transform Y à 8px)
+   v9.37 : Fix footer opaque
    Base : v9.36 original
    ========================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -382,12 +381,12 @@ button.vfrc-button:not(.vfrc-header--button) {
   font-family: var(--font-family) !important;
   font-size: var(--body-1) !important;
   font-weight: var(--font-regular) !important;
-  line-height: 1.6 !important;
+  line-height: 1.5 !important;  /* Cohérent avec le reste du texte */
   margin-bottom: 4px !important;
   padding-left: 4px !important;
   display: list-item !important;
-  position: relative !important;  /* Nécessaire pour le ::before absolute */
-  list-style: none !important;    /* On masque le marker natif, Voiceflow utilise ::before */
+  position: relative !important;
+  list-style: none !important;
 }
 
 .vfrc-message li:last-child,
@@ -408,7 +407,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   background-color: #1a1e23 !important;
   border-radius: 50% !important;
   position: absolute !important;
-  transform: translate(-14px, 5px) !important;  /* Ajusté de 7px à 5px */
+  transform: translate(-14px, 8px) !important;  /* Augmenté pour descendre la puce */
 }
 
 /* ==========================================================
