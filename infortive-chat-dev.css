@@ -1,7 +1,8 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.38
+   Infortive × Voiceflow — Thème stable v9.39
    
-   v9.38 : Fix alignement puces listes (ul/li)
+   v9.39 : Fix alignement puces (ciblage ::before au lieu de ::marker)
+   v9.38 : Tentative fix puces (incorrect)
    v9.37 : Fix footer opaque (évite superposition au scroll)
    Base : v9.36 original
    ========================================================== */
@@ -366,7 +367,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-message ul,
 .vfrc-message .markdown ul,
 ._11kfxpg0 ul {
-  list-style-type: disc !important;
+  list-style-type: none !important;  /* Voiceflow utilise ::before pour les puces */
 }
 
 .vfrc-message ol,
@@ -385,7 +386,8 @@ button.vfrc-button:not(.vfrc-header--button) {
   margin-bottom: 4px !important;
   padding-left: 4px !important;
   display: list-item !important;
-  vertical-align: middle !important;
+  position: relative !important;  /* Nécessaire pour le ::before absolute */
+  list-style: none !important;    /* On masque le marker natif, Voiceflow utilise ::before */
 }
 
 .vfrc-message li:last-child,
@@ -395,11 +397,18 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* Fix spécifique pour l'alignement vertical des puces */
-.vfrc-message li::marker,
-.vfrc-message .markdown li::marker,
-._11kfxpg0 li::marker {
-  font-size: var(--body-1) !important;
-  line-height: 1.6 !important;
+/* Voiceflow utilise ::before avec position absolute, pas ::marker natif */
+.vfrc-message .markdown ul li::before,
+.vfrc-message ul li::before,
+._11kfxpg0 ul li::before,
+.markdown ul li::before {
+  content: "" !important;
+  height: 4px !important;
+  width: 4px !important;
+  background-color: #1a1e23 !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+  transform: translate(-14px, 5px) !important;  /* Ajusté de 7px à 5px */
 }
 
 /* ==========================================================
