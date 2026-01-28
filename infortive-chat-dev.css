@@ -1,7 +1,7 @@
 /* ==========================================================
    Infortive × Voiceflow — Thème stable v9.38
    
-   v9.38 : Fix alignement puces (listes ul/li)
+   v9.38 : Fix alignement puces listes (ul/li)
    v9.37 : Fix footer opaque (évite superposition au scroll)
    Base : v9.36 original
    ========================================================== */
@@ -350,50 +350,58 @@ button.vfrc-button:not(.vfrc-header--button) {
   line-height: 1.5 !important;
 }
 /* ==========================================================
-   FIX ALIGNEMENT PUCES (v9.38)
+   LISTES (ul/ol) - FIX ALIGNEMENT PUCES (v9.38)
    ========================================================== */
-.vfrc-system-response .vfrc-message ul,
-.vfrc-system-response .vfrc-message ol,
-.vfrc-message._11kfxpg0 ul,
-.vfrc-message._11kfxpg0 ol,
-.markdown ul,
-.markdown ol {
+.vfrc-message ul,
+.vfrc-message ol,
+.vfrc-message .markdown ul,
+.vfrc-message .markdown ol,
+._11kfxpg0 ul,
+._11kfxpg0 ol {
   margin: 8px 0 !important;
   padding-left: 20px !important;
   list-style-position: outside !important;
 }
 
-.vfrc-system-response .vfrc-message li,
-.vfrc-message._11kfxpg0 li,
-.markdown li {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.8 !important;
-  margin-bottom: 4px !important;
-  padding-left: 4px !important;
-  vertical-align: middle !important;
-  display: list-item !important;
-}
-
-/* Réduire la taille des puces et aligner verticalement */
-.vfrc-system-response .vfrc-message li::marker,
-.vfrc-message._11kfxpg0 li::marker,
-.markdown li::marker {
-  font-size: 0.7em !important;
-}
-
-/* Alternative : puces personnalisées via CSS */
-.vfrc-system-response .vfrc-message ul,
-.vfrc-message._11kfxpg0 ul,
-.markdown ul {
+.vfrc-message ul,
+.vfrc-message .markdown ul,
+._11kfxpg0 ul {
   list-style-type: disc !important;
 }
 
-.vfrc-system-response .vfrc-message ol,
-.vfrc-message._11kfxpg0 ol,
-.markdown ol {
+.vfrc-message ol,
+.vfrc-message .markdown ol,
+._11kfxpg0 ol {
   list-style-type: decimal !important;
 }
+
+.vfrc-message li,
+.vfrc-message .markdown li,
+._11kfxpg0 li {
+  font-family: var(--font-family) !important;
+  font-size: var(--body-1) !important;
+  font-weight: var(--font-regular) !important;
+  line-height: 1.6 !important;
+  margin-bottom: 4px !important;
+  padding-left: 4px !important;
+  display: list-item !important;
+  vertical-align: middle !important;
+}
+
+.vfrc-message li:last-child,
+.vfrc-message .markdown li:last-child,
+._11kfxpg0 li:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Fix spécifique pour l'alignement vertical des puces */
+.vfrc-message li::marker,
+.vfrc-message .markdown li::marker,
+._11kfxpg0 li::marker {
+  font-size: var(--body-1) !important;
+  line-height: 1.6 !important;
+}
+
 /* ==========================================================
    BULLES UTILISATEUR
    ========================================================== */
