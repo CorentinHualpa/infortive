@@ -1,7 +1,8 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.39b
+   Infortive × Voiceflow — Thème stable v9.40
    
-   v9.39b : Fix alignement puces (transform Y à 8px)
+   v9.40 : Puces 9px, scrollbar fine 4px, footer sans ombre
+   v9.39 : Fix alignement puces
    v9.37 : Fix footer opaque
    Base : v9.36 original
    ========================================================== */
@@ -154,16 +155,15 @@ button.vfrc-button._1nzwwii0,
   margin-left: 60px !important;
 }
 /* ==========================================================
-   FOOTER - OPAQUE (v9.37 FIX)
+   FOOTER - OPAQUE sans ombre
    ========================================================== */
 .vfrc-footer {
   background: #ffffff !important;
   position: sticky !important;
   bottom: 0 !important;
   z-index: 100 !important;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: none !important;
   border: none !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
   padding: 12px 8px 12px 0 !important;
   margin: 0 !important;
   width: 100% !important;
@@ -407,7 +407,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   background-color: #1a1e23 !important;
   border-radius: 50% !important;
   position: absolute !important;
-  transform: translate(-14px, 8px) !important;  /* Augmenté pour descendre la puce */
+  transform: translate(-14px, 9px) !important;
 }
 
 /* ==========================================================
@@ -479,7 +479,7 @@ textarea._1gdvh9ta::placeholder {
   color: #666666 !important;
 }
 /* ==========================================================
-   Scrollbar
+   Scrollbar (plus fine)
    ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
@@ -490,7 +490,7 @@ textarea._1gdvh9ta::placeholder {
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
 .vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 10px;
+  width: 4px;
 }
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
