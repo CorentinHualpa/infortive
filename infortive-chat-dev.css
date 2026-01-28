@@ -1,30 +1,90 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.36
+   Infortive × Voiceflow — Thème optimisé v9.41
+   
+   Changelog v9.41 :
+   - Fix superposition footer au scroll (fond opaque)
+   - Ajout ombre séparatrice sur footer
+   - Z-index renforcé pour footer
+   
+   Changelog v9.40 :
+   - Unification de --content-offset à 60px
+   - Suppression des classes hashées instables
+   - Renforcement des sélecteurs user-response
+   - Ajout typing indicator
+   - Suppression des doublons
+   - Ajout support mobile
+   - Optimisation des transitions
    ========================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* ==========================================================
+   1. VARIABLES CSS (Design Tokens)
+   ========================================================== */
 :root {
+  /* Typographie */
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-regular: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+  
+  /* Tailles de texte */
   --heading-1: 16px;
   --heading-2: 20px;
   --heading-3: 14px;
   --heading-4: 13px;
-  --heading-6: 14px;
   --body-1: 10px;
   --body-2: 10px;
   --button: 12px;
   --caption: 10px;
-  --overline: 9px;
-  --content-offset: 48px;
+  
+  /* Couleurs principales */
+  --primary-color: #F18400;
+  --primary-dark: #d46f00;
+  --primary-darker: #c56200;
+  --text-dark: #1E293B;
+  --text-gray: #4B5563;
+  --text-light: #666666;
+  
+  /* Couleurs de fond */
+  --bg-page: #ffffff;
+  --bg-bubble-agent: rgba(217, 217, 217, 0.35);
+  --bg-bubble-user: #073A59;
+  --bg-button: #ffffff;
+  --bg-button-hover: #F9FAFB;
+  --bg-button-active: #F3F4F6;
+  --bg-footer: #ffffff;
+  
+  /* Bordures */
+  --border-light: #D1D5DB;
+  --border-hover: #9CA3AF;
+  
+  /* Espacement - UNIFIÉ À 60px */
+  --content-offset: 60px;
+  --avatar-size: 40px;
+  --avatar-margin: 8px;
+  --spacing-sm: 6px;
+  --spacing-md: 8px;
+  --spacing-lg: 12px;
+  
+  /* Rayons de bordure */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-full: 999px;
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.25s ease-in-out;
+  
+  /* Ombres */
+  --shadow-footer: 0 -4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-button-active: 0 2px 8px rgba(241, 132, 0, 0.3);
+  --shadow-button-hover: 0 4px 12px rgba(241, 132, 0, 0.4);
 }
 
 /* ==========================================================
-   SUPPRIMER FOND BLANC + OMBRE DU CHAT
+   2. RESET GLOBAL - Conteneurs transparents
    ========================================================== */
 .vfrc-chat__container-inner,
 .vfrc-chat,
@@ -33,14 +93,29 @@
 .vfrc-chat-dialog,
 .vfrc-chat--bottom-spacer,
 .vfrc-chat-focus-ring,
-.vfrc-chat--overlay {
+.vfrc-chat--overlay,
+.vfrc-chat__container {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
 }
 
+.vfrc-chat,
+.vfrc-chat__container,
+.vfrc-chat__container-inner,
+.vfrc-chat-dialog,
+.vfrc-chat-dialog__container,
+.vfrc-chat--dialog {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 /* ==========================================================
-   Header
+   3. HEADER
    ========================================================== */
 .vfrc-header,
 .vfrc-header--container,
@@ -56,6 +131,7 @@
   box-sizing: border-box !important;
 }
 
+/* Masquer boutons header (close, minimize, etc.) */
 .vfrc-header--button,
 button.vfrc-header--button,
 .vfrc-header--actions {
@@ -68,14 +144,15 @@ button.vfrc-header--button,
   overflow: hidden !important;
 }
 
+/* Titre du header */
 div.vfrc-header--title,
 .vfrc-header--title {
   font-family: var(--font-family) !important;
-  font-weight: 700 !important;
+  font-weight: var(--font-bold) !important;
   font-size: var(--heading-2) !important;
   line-height: 1.3 !important;
-  color: #F18400 !important;
-  padding: 0 0 12px 0 !important;
+  color: var(--primary-color) !important;
+  padding: 0 0 var(--spacing-lg) 0 !important;
   margin: 0 !important;
   position: relative !important;
   display: flex !important;
@@ -87,6 +164,7 @@ div.vfrc-header--title,
   background: transparent !important;
 }
 
+/* Ligne sous le titre */
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
   content: "" !important;
@@ -96,82 +174,185 @@ div.vfrc-header--title::after,
   left: 0 !important;
   width: 100% !important;
   height: 1px !important;
-  background-color: #1E293B !important;
+  background-color: var(--text-dark) !important;
   opacity: 0.5 !important;
 }
 
 /* ==========================================================
-   Chat container reset
+   4. AVATAR AGENT
    ========================================================== */
-.vfrc-chat,
-.vfrc-chat__container,
-.vfrc-chat__container-inner,
-.vfrc-chat-dialog,
-.vfrc-chat-dialog__container,
-.vfrc-chat--dialog {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  background: transparent !important;
-  box-shadow: none !important;
+.vfrc-avatar,
+img.vfrc-avatar {
+  flex-shrink: 0 !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+  margin-right: var(--avatar-margin) !important;
+  margin-top: var(--spacing-lg) !important;
+  align-self: flex-start !important;
+  border-radius: 50% !important;
 }
 
 /* ==========================================================
-   Avatar
+   5. CONTENEUR SYSTEM-RESPONSE (Agent)
    ========================================================== */
 .vfrc-system-response,
 div.vfrc-system-response {
   display: flex !important;
   align-items: flex-start !important;
   padding-left: 0 !important;
-  padding-right: 8px !important;
-}
-
-.vfrc-avatar,
-img.vfrc-avatar {
-  flex-shrink: 0 !important;
-  width: 40px !important;
-  height: 40px !important;
-  margin-right: 8px !important;
-  margin-top: 12px !important;
-  align-self: flex-start !important;
+  padding-right: var(--spacing-md) !important;
 }
 
 /* ==========================================================
-   Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
+   6. BULLES AGENT
    ========================================================== */
-.vfrc-system-response--actions,
-.vfrc-system-response--actions.g3dqfd6 {
+.vfrc-system-response .vfrc-message:not([class*="extension"]),
+.vfrc-system-response .vfrc-message._11kfxpg0,
+.vfrc-system-response ._11kfxpg0 {
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-regular) !important;
+  font-size: var(--body-1) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.01em !important;
+  display: inline-block !important;
+  background: var(--bg-bubble-agent) !important;
+  color: var(--text-dark) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 10px 14px !important;
+  max-width: 90% !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  margin: var(--spacing-lg) 0 !important;
+}
+
+/* Texte dans les bulles agent */
+.vfrc-system-response .vfrc-message:not([class*="extension"]) p,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) li,
+.vfrc-system-response .vfrc-message:not([class*="extension"]) span {
+  font-family: var(--font-family) !important;
+  font-size: var(--body-1) !important;
+  font-weight: var(--font-regular) !important;
+  line-height: 1.5 !important;
+  color: var(--text-dark) !important;
+}
+
+/* ==========================================================
+   7. BULLES UTILISATEUR
+   ========================================================== */
+.vfrc-user-response {
+  padding-left: var(--content-offset) !important;
+  padding-right: var(--spacing-md) !important;
+}
+
+.vfrc-user-response > div,
+.vfrc-user-response .vfrc-message,
+.vfrc-user-response ._15emaa40,
+div.vfrc-user-response ._15emaa40 {
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-regular) !important;
+  font-size: var(--body-1) !important;
+  line-height: 1.5 !important;
+  display: inline-block !important;
+  background: var(--bg-bubble-user) !important;
+  color: #ffffff !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 10px 14px !important;
+  max-width: 90% !important;
+  margin: var(--spacing-lg) 0 !important;
+}
+
+/* Texte dans les bulles utilisateur */
+.vfrc-user-response > div *,
+.vfrc-user-response .vfrc-message *,
+.vfrc-user-response ._15emaa40 * {
+  color: #ffffff !important;
+  font-size: var(--body-1) !important;
+}
+
+/* ==========================================================
+   8. CONTENEUR DES BOUTONS D'ACTION
+   ========================================================== */
+.vfrc-system-response--actions {
   margin-left: var(--content-offset) !important;
   padding-left: 0 !important;
-  padding-right: 8px !important;
-  width: calc(100% - var(--content-offset) - 8px) !important;
-  max-width: calc(100% - var(--content-offset) - 8px) !important;
+  padding-right: var(--spacing-md) !important;
+  width: calc(100% - var(--content-offset) - var(--spacing-md)) !important;
+  max-width: calc(100% - var(--content-offset) - var(--spacing-md)) !important;
   box-sizing: border-box !important;
 }
 
-/* ==========================================================
-   BOUTONS CHOIX - TOUS avec margin-left pour alignement
-   ========================================================== */
-.vfrc-button._1nzwwii0,
-button.vfrc-button._1nzwwii0,
-._1nzwwii0._1o5z0oa0 {
-  margin-left: 60px !important;
+/* Conteneur flex pour les boutons */
+.vfrc-button-container,
+.vfrc-card--buttons {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: var(--spacing-md) !important;
+  padding: var(--spacing-md) 0 !important;
 }
 
 /* ==========================================================
-   FOOTER - TRANSPARENT
+   9. BOUTONS DE CHOIX (Style)
+   ========================================================== */
+.vfrc-button:not(.vfrc-header--button),
+button.vfrc-button:not(.vfrc-header--button) {
+  font-family: var(--font-family) !important;
+  font-weight: var(--font-medium) !important;
+  font-size: var(--button) !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  padding: 12px 16px !important;
+  background: var(--bg-button) !important;
+  border: 1px solid var(--border-light) !important;
+  color: var(--text-gray) !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-sm) !important;
+  transition: all var(--transition-fast) !important;
+  cursor: pointer !important;
+  margin-top: var(--spacing-sm) !important;
+  margin-bottom: var(--spacing-sm) !important;
+  margin-right: var(--spacing-md) !important;
+  width: auto !important;
+  max-width: fit-content !important;
+  text-align: left !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+
+/* Alignement des boutons avec offset */
+.vfrc-button._1nzwwii0,
+button.vfrc-button._1nzwwii0,
+._1nzwwii0._1o5z0oa0,
+.vfrc-button._1o5z0oa0 {
+  margin-left: var(--content-offset) !important;
+}
+
+/* États hover et active */
+.vfrc-button:not(.vfrc-header--button):hover {
+  background: var(--bg-button-hover) !important;
+  border-color: var(--border-hover) !important;
+  color: #374151 !important;
+}
+
+.vfrc-button:not(.vfrc-header--button):active {
+  background: var(--bg-button-active) !important;
+}
+
+/* ==========================================================
+   10. FOOTER - FOND OPAQUE (Fix superposition scroll)
    ========================================================== */
 .vfrc-footer {
-  background: transparent !important;
-  position: relative !important;
-  z-index: 10 !important;
-  box-shadow: none !important;
+  background: var(--bg-footer) !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+  box-shadow: var(--shadow-footer) !important;
   border: none !important;
-  padding: 8px 8px 8px 0 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-lg) 0 !important;
   margin: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -184,14 +365,14 @@ button.vfrc-button._1nzwwii0,
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: 60px !important;
-  width: calc(100% - 60px) !important;
-  max-width: calc(100% - 60px) !important;
+  margin-left: var(--content-offset) !important;
+  width: calc(100% - var(--content-offset)) !important;
+  max-width: calc(100% - var(--content-offset)) !important;
   box-sizing: border-box !important;
 }
 
 /* ==========================================================
-   ZONE INPUT CONTENEUR : TRANSPARENT (pas de fond)
+   11. ZONE INPUT - Conteneur transparent
    ========================================================== */
 .vfrc-input-container,
 ._1gdvh9t2,
@@ -210,14 +391,17 @@ div.vfrc-input-container {
 .vfrc-input-container:focus-visible,
 ._1gdvh9t2:focus,
 ._1gdvh9t2:focus-within,
-._1gdvh9t2:focus-visible {
+._1gdvh9t2:focus-visible,
+._1gdvh9t3:focus,
+._1gdvh9t3:focus-within,
+._1gdvh9t3:focus-visible {
   background: transparent !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-/* Conteneur interne aussi transparent */
+/* Conteneur interne transparent */
 .vfrc-chat-input__container-inner,
 ._1gdvh9tc {
   background: transparent !important;
@@ -227,188 +411,7 @@ div.vfrc-input-container {
 }
 
 /* ==========================================================
-   BOUTONS CHOIX (STYLE)
-   ========================================================== */
-.vfrc-button:not(.vfrc-header--button),
-button.vfrc-button:not(.vfrc-header--button) {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-medium) !important;
-  font-size: 12px !important;
-  line-height: 1.4 !important;
-  letter-spacing: 0.03em !important;
-  text-transform: uppercase !important;
-  padding: 12px 16px !important;
-  background: #ffffff !important;
-  border: 1px solid #D1D5DB !important;
-  color: #4B5563 !important;
-  box-shadow: none !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-  margin-top: 6px !important;
-  margin-bottom: 6px !important;
-  margin-right: 8px !important;
-  width: auto !important;
-  max-width: fit-content !important;
-  text-align: left !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-}
-
-.vfrc-button:not(.vfrc-header--button):hover {
-  background: #F9FAFB !important;
-  border-color: #9CA3AF !important;
-  color: #374151 !important;
-}
-
-.vfrc-button:not(.vfrc-header--button):active {
-  background: #F3F4F6 !important;
-}
-
-.vfrc-button-container,
-.vfrc-card--buttons {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 8px !important;
-  padding: 8px 0 !important;
-}
-
-/* ==========================================================
-   BOUTON ENVOYER
-   ========================================================== */
-#vfrc-send-message svg,
-.vfrc-chat-input__send svg {
-  display: none !important;
-}
-
-#vfrc-send-message::after,
-.vfrc-chat-input__send::after {
-  content: "Envoyer";
-  font-family: var(--font-family);
-  font-weight: var(--font-semibold);
-  font-size: var(--button);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-#vfrc-send-message,
-.vfrc-chat-input__send {
-  background: rgba(240, 131, 0, 0.08) !important;
-  border: 1px solid rgba(240, 131, 0, 0.25) !important;
-  border-radius: 6px !important;
-  padding: 8px 16px !important;
-  color: rgba(240, 131, 0, 0.5) !important;
-  box-shadow: none !important;
-  transition: all 0.25s ease-in-out !important;
-  cursor: not-allowed;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  width: auto !important;
-  min-width: 100px !important;
-  text-align: center;
-  user-select: none;
-  flex-shrink: 0 !important;
-  margin-left: 12px !important;
-}
-
-#vfrc-send-message:not([disabled]),
-.vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, #F18400, #d46f00) !important;
-  border: none !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
-  cursor: pointer;
-  opacity: 1;
-}
-
-#vfrc-send-message:not([disabled]):hover,
-.vfrc-chat-input__send:not([disabled]):hover {
-  background: linear-gradient(135deg, #d46f00, #c56200) !important;
-  box-shadow: 0 4px 12px rgba(241, 132, 0, 0.4) !important;
-  transform: translateY(-1px) !important;
-}
-
-.vfrc-chat-input__actions {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  padding-right: 0 !important;
-  overflow: visible !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* ==========================================================
-   BULLES AGENT
-   ========================================================== */
-.vfrc-system-response .vfrc-message:not([class*="extension"]),
-.vfrc-message._11kfxpg0 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  letter-spacing: 0.01em !important;
-  display: inline-block !important;
-  background: rgba(217,217,217,0.35) !important;
-  color: #1E293B !important;
-  border-radius: 6px !important;
-  padding: 10px 14px !important;
-  max-width: 90%;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.vfrc-system-response .vfrc-message:not([class*="extension"]) p,
-.vfrc-system-response .vfrc-message:not([class*="extension"]) li {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  font-weight: var(--font-regular) !important;
-  line-height: 1.5 !important;
-}
-
-/* ==========================================================
-   BULLES UTILISATEUR
-   ========================================================== */
-.vfrc-user-response > div,
-.vfrc-user-response .vfrc-message,
-._15emaa40 {
-  font-family: var(--font-family) !important;
-  font-weight: 400 !important;
-  font-size: var(--body-1) !important;
-  line-height: 1.5 !important;
-  display: inline-block !important;
-  background: #073A59 !important;
-  color: #ffffff !important;
-  border-radius: 6px !important;
-  padding: 10px 14px !important;
-  max-width: 90%;
-}
-
-.vfrc-user-response > div *,
-.vfrc-user-response .vfrc-message *,
-._15emaa40 * {
-  color: #ffffff !important;
-  font-size: var(--body-1) !important;
-}
-
-.vfrc-message:not([class*="extension"]) { 
-  margin: 12px 0 !important;
-}
-
-.vfrc-user-response {
-  padding-left: var(--content-offset) !important;
-  padding-right: 8px !important;
-}
-
-/* ==========================================================
-   TEXTAREA : Fond gris comme les bulles agent
+   12. TEXTAREA - Fond gris comme bulles agent
    ========================================================== */
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
@@ -422,15 +425,16 @@ textarea._1gdvh9ta {
   max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: rgba(217,217,217,0.35) !important;
+  background: var(--bg-bubble-agent) !important;
   border: none !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
   outline: none !important;
   box-shadow: none !important;
   padding: 10px 14px !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
   margin-left: 0 !important;
+  transition: background var(--transition-fast) !important;
 }
 
 textarea.vfrc-chat-input:focus,
@@ -440,22 +444,131 @@ textarea._1gdvh9ta:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: rgba(217,217,217,0.35) !important;
+  background: var(--bg-bubble-agent) !important;
 }
 
 textarea.vfrc-chat-input::placeholder,
 textarea._1gdvh9ta::placeholder {
-  color: #666666 !important;
+  color: var(--text-light) !important;
 }
 
 /* ==========================================================
-   Scrollbar
+   13. CONTENEUR ACTIONS INPUT
+   ========================================================== */
+.vfrc-chat-input__actions,
+._1gdvh9td {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  padding-right: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================
+   14. BOUTON ENVOYER
+   ========================================================== */
+/* Masquer l'icône SVG */
+#vfrc-send-message svg,
+.vfrc-chat-input__send svg,
+._1gdvh9tf svg {
+  display: none !important;
+}
+
+/* Ajouter texte "Envoyer" */
+#vfrc-send-message::after,
+.vfrc-chat-input__send::after,
+._1gdvh9tf::after {
+  content: "Envoyer";
+  font-family: var(--font-family);
+  font-weight: var(--font-semibold);
+  font-size: var(--button);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* État désactivé (par défaut) */
+#vfrc-send-message,
+.vfrc-chat-input__send,
+._1gdvh9tf {
+  background: rgba(240, 131, 0, 0.08) !important;
+  border: 1px solid rgba(240, 131, 0, 0.25) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 8px 16px !important;
+  color: rgba(240, 131, 0, 0.5) !important;
+  box-shadow: none !important;
+  transition: all var(--transition-normal) !important;
+  cursor: not-allowed;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 100px !important;
+  text-align: center;
+  user-select: none;
+  flex-shrink: 0 !important;
+  margin-left: var(--spacing-lg) !important;
+}
+
+/* État actif (non disabled) */
+#vfrc-send-message:not([disabled]),
+.vfrc-chat-input__send:not([disabled]),
+._1gdvh9tf:not([disabled]) {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: var(--shadow-button-active) !important;
+  cursor: pointer;
+  opacity: 1;
+}
+
+#vfrc-send-message:not([disabled]):hover,
+.vfrc-chat-input__send:not([disabled]):hover,
+._1gdvh9tf:not([disabled]):hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-darker)) !important;
+  box-shadow: var(--shadow-button-hover) !important;
+  transform: translateY(-1px) !important;
+}
+
+#vfrc-send-message:not([disabled]):active,
+.vfrc-chat-input__send:not([disabled]):active,
+._1gdvh9tf:not([disabled]):active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(241, 132, 0, 0.3) !important;
+}
+
+/* ==========================================================
+   15. TYPING INDICATOR (Agent en train d'écrire)
+   ========================================================== */
+.vfrc-typing-indicator {
+  margin-left: var(--content-offset) !important;
+  padding: var(--spacing-md) !important;
+}
+
+.vfrc-typing-indicator__dot {
+  background-color: var(--primary-color) !important;
+}
+
+/* ==========================================================
+   16. FOCUS RING
+   ========================================================== */
+.vfrc-chat-focus-ring {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* ==========================================================
+   17. SCROLLBAR
    ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin;
-  scrollbar-color: #F18400 transparent;
+  scrollbar-color: var(--primary-color) transparent;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
@@ -467,8 +580,8 @@ textarea._1gdvh9ta::placeholder {
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400;
-  border-radius: 999px;
+  background: var(--primary-color);
+  border-radius: var(--radius-full);
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-track,
@@ -476,3 +589,125 @@ textarea._1gdvh9ta::placeholder {
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ==========================================================
+   18. MARKDOWN CONTENT
+   ========================================================== */
+.vfrc-message .markdown,
+.vfrc-message ._11kfxpg1,
+.vfrc-message ._11kfxpg3 {
+  font-family: var(--font-family) !important;
+}
+
+.vfrc-message .markdown p,
+.vfrc-message .markdown li {
+  margin: 0 0 var(--spacing-md) 0 !important;
+}
+
+.vfrc-message .markdown p:last-child,
+.vfrc-message .markdown li:last-child {
+  margin-bottom: 0 !important;
+}
+
+.vfrc-message .markdown strong,
+.vfrc-message .markdown b {
+  font-weight: var(--font-semibold) !important;
+}
+
+.vfrc-message .markdown a {
+  color: var(--primary-color) !important;
+  text-decoration: underline !important;
+}
+
+.vfrc-message .markdown a:hover {
+  color: var(--primary-dark) !important;
+}
+
+/* ==========================================================
+   19. CAROUSELS & CARDS (si utilisés)
+   ========================================================== */
+.vfrc-carousel {
+  margin-left: var(--content-offset) !important;
+}
+
+.vfrc-card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-light) !important;
+  overflow: hidden !important;
+}
+
+/* ==========================================================
+   20. RESPONSIVE - MOBILE
+   ========================================================== */
+@media (max-width: 480px) {
+  :root {
+    --content-offset: 48px;
+    --body-1: 12px;
+    --button: 11px;
+    --heading-2: 18px;
+  }
+  
+  .vfrc-button:not(.vfrc-header--button) {
+    padding: 10px 14px !important;
+    font-size: 11px !important;
+  }
+  
+  #vfrc-send-message,
+  .vfrc-chat-input__send {
+    min-width: 80px !important;
+    padding: 8px 12px !important;
+  }
+  
+  textarea.vfrc-chat-input {
+    min-height: 50px !important;
+  }
+  
+  .vfrc-footer {
+    padding: var(--spacing-md) var(--spacing-sm) var(--spacing-md) 0 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --content-offset: 44px;
+    --avatar-size: 36px;
+  }
+}
+
+/* ==========================================================
+   21. ANIMATIONS (optionnel)
+   ========================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vfrc-system-response,
+.vfrc-user-response {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ==========================================================
+   22. PRINT STYLES (optionnel)
+   ========================================================== */
+@media print {
+  .vfrc-footer,
+  .vfrc-header--actions,
+  #vfrc-send-message {
+    display: none !important;
+  }
+  
+  .vfrc-chat--dialog {
+    overflow: visible !important;
+    height: auto !important;
+  }
+}
+
+/* ==========================================================
+   23. VARIANTES DE FOND (si besoin d'adapter)
+   
+   Si ton fond de page n'est pas blanc, modifie ces variables :
+   --bg-footer: #f5f5f5;     (gris clair)
+   --bg-footer: #fafafa;     (quasi blanc)
+   --bg-footer: #e8e8e8;     (gris moyen)
+   ========================================================== */
