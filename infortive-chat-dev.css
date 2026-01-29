@@ -1,8 +1,8 @@
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.40
+   Infortive × Voiceflow — Thème stable v9.41
    
+   v9.41 : Scrollbar 2px, puces centrage avec top: 0.7em
    v9.40 : Puces 9px, scrollbar fine 4px, footer sans ombre
-   v9.39 : Fix alignement puces
    v9.37 : Fix footer opaque
    Base : v9.36 original
    ========================================================== */
@@ -407,7 +407,9 @@ button.vfrc-button:not(.vfrc-header--button) {
   background-color: #1a1e23 !important;
   border-radius: 50% !important;
   position: absolute !important;
-  transform: translate(-14px, 9px) !important;
+  left: 0 !important;
+  top: 0.7em !important;  /* Aligné avec le milieu de la première ligne de texte */
+  transform: translateX(-14px) !important;
 }
 
 /* ==========================================================
@@ -479,27 +481,35 @@ textarea._1gdvh9ta::placeholder {
   color: #666666 !important;
 }
 /* ==========================================================
-   Scrollbar (plus fine)
+   Scrollbar (très fine - 2px)
    ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
-.vfrc-chat-dialog__container {
-  scrollbar-width: thin;
-  scrollbar-color: #F18400 transparent;
+.vfrc-chat-dialog__container,
+#voiceflow-chat-container,
+[id*="voiceflow"] {
+  scrollbar-width: thin !important;
+  scrollbar-color: #F18400 transparent !important;
 }
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 4px;
+.vfrc-chat-dialog__container::-webkit-scrollbar,
+#voiceflow-chat-container::-webkit-scrollbar,
+[id*="voiceflow"]::-webkit-scrollbar {
+  width: 2px !important;
 }
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400;
-  border-radius: 999px;
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb,
+#voiceflow-chat-container::-webkit-scrollbar-thumb,
+[id*="voiceflow"]::-webkit-scrollbar-thumb {
+  background: #F18400 !important;
+  border-radius: 999px !important;
 }
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent;
+.vfrc-chat-dialog__container::-webkit-scrollbar-track,
+#voiceflow-chat-container::-webkit-scrollbar-track,
+[id*="voiceflow"]::-webkit-scrollbar-track {
+  background: transparent !important;
 }
