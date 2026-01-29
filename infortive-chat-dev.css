@@ -1,8 +1,11 @@
-/* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.36
-   ========================================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================================
+   Infortive × Voiceflow — Thème stable v9.41
+   
+   v9.41 : Scrollbar 2px, puces centrage avec top: 0.7em, footer opaque sans ombre
+   Base : v9.36 original
+   ========================================================== */
 
 :root {
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -163,15 +166,16 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   FOOTER - TRANSPARENT
+   FOOTER - OPAQUE sans ombre
    ========================================================== */
 .vfrc-footer {
-  background: transparent !important;
-  position: relative !important;
-  z-index: 10 !important;
+  background: #ffffff !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
   box-shadow: none !important;
   border: none !important;
-  padding: 8px 8px 8px 0 !important;
+  padding: 12px 8px 12px 0 !important;
   margin: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -374,6 +378,69 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
+   LISTES (ul/ol) - FIX ALIGNEMENT PUCES
+   ========================================================== */
+.vfrc-message ul,
+.vfrc-message ol,
+.vfrc-message .markdown ul,
+.vfrc-message .markdown ol,
+._11kfxpg0 ul,
+._11kfxpg0 ol {
+  margin: 8px 0 !important;
+  padding-left: 20px !important;
+  list-style-position: outside !important;
+}
+
+.vfrc-message ul,
+.vfrc-message .markdown ul,
+._11kfxpg0 ul {
+  list-style-type: none !important;
+}
+
+.vfrc-message ol,
+.vfrc-message .markdown ol,
+._11kfxpg0 ol {
+  list-style-type: decimal !important;
+}
+
+.vfrc-message li,
+.vfrc-message .markdown li,
+._11kfxpg0 li {
+  font-family: var(--font-family) !important;
+  font-size: var(--body-1) !important;
+  font-weight: var(--font-regular) !important;
+  line-height: 1.5 !important;
+  margin-bottom: 4px !important;
+  padding-left: 4px !important;
+  display: list-item !important;
+  position: relative !important;
+  list-style: none !important;
+}
+
+.vfrc-message li:last-child,
+.vfrc-message .markdown li:last-child,
+._11kfxpg0 li:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Fix spécifique pour l'alignement vertical des puces */
+/* Voiceflow utilise ::before avec position absolute, pas ::marker natif */
+.vfrc-message .markdown ul li::before,
+.vfrc-message ul li::before,
+._11kfxpg0 ul li::before,
+.markdown ul li::before {
+  content: "" !important;
+  height: 4px !important;
+  width: 4px !important;
+  background-color: #1a1e23 !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0.7em !important;
+  transform: translateX(-14px) !important;
+}
+
+/* ==========================================================
    BULLES UTILISATEUR
    ========================================================== */
 .vfrc-user-response > div,
@@ -449,30 +516,38 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   Scrollbar
+   Scrollbar (très fine - 2px)
    ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
-.vfrc-chat-dialog__container {
-  scrollbar-width: thin;
-  scrollbar-color: #F18400 transparent;
+.vfrc-chat-dialog__container,
+#voiceflow-chat-container,
+[id*="voiceflow"] {
+  scrollbar-width: thin !important;
+  scrollbar-color: #F18400 transparent !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 10px;
+.vfrc-chat-dialog__container::-webkit-scrollbar,
+#voiceflow-chat-container::-webkit-scrollbar,
+[id*="voiceflow"]::-webkit-scrollbar {
+  width: 2px !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400;
-  border-radius: 999px;
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb,
+#voiceflow-chat-container::-webkit-scrollbar-thumb,
+[id*="voiceflow"]::-webkit-scrollbar-thumb {
+  background: #F18400 !important;
+  border-radius: 999px !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent;
+.vfrc-chat-dialog__container::-webkit-scrollbar-track,
+#voiceflow-chat-container::-webkit-scrollbar-track,
+[id*="voiceflow"]::-webkit-scrollbar-track {
+  background: transparent !important;
 }
