@@ -1,19 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.45
+   Infortive × Voiceflow — Thème stable v9.46
    
    🎛️ CONFIGURATION RAPIDE - Cherchez ces valeurs pour modifier :
    
    TAILLES TITRES :
-   - H1 : 20px (rechercher "font-size: 20px" dans section H1)
+   - H1 : 20px
    - H2 : 18px
    - H3 : 16px
    - H4 : 15px
    - H5/H6 : 14px
    
-   TAILLE TEXTE COURANT : 12px (rechercher "--body-size")
+   TAILLE TEXTE COURANT : 12px (rechercher "body-size")
    TAILLE HEADER : 20px (rechercher "header-title")
    SCROLLBAR : 2px (rechercher "scrollbar-width")
+   ALIGNEMENT : 48px (rechercher "content-offset")
    
    COULEURS :
    - Orange principal : #F18400
@@ -21,10 +22,6 @@
    - Bulle agent : rgba(217,217,217,0.35)
    - Bulle user : #073A59
    ========================================================== */
-
-/* Variable body-size pour faciliter les changements globaux */
-/* MODIFIEZ CETTE VALEUR POUR CHANGER LA TAILLE DU TEXTE COURANT */
-/* --body-size: 12px */
 
 /* ==========================================================
    SUPPRIMER FOND BLANC + OMBRE DU CHAT
@@ -162,11 +159,11 @@ img.vfrc-avatar {
 /* ==========================================================
    BOUTONS CHOIX - Alignement
    ========================================================== */
-/* footer-offset : 60px */
+/* Les boutons n'ont PAS besoin de margin-left car le conteneur est déjà décalé */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
-  margin-left: 48px !important;
+  margin-left: 0 !important;
 }
 
 /* ==========================================================
@@ -186,16 +183,16 @@ button.vfrc-button._1nzwwii0,
   box-sizing: border-box !important;
 }
 
-/* footer-offset : 60px */
+/* content-offset : 48px */
 .vfrc-footer__content {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: 60px !important;
-  width: calc(100% - 60px) !important;
-  max-width: calc(100% - 60px) !important;
+  margin-left: 48px !important;
+  width: calc(100% - 48px) !important;
+  max-width: calc(100% - 48px) !important;
   box-sizing: border-box !important;
 }
 
