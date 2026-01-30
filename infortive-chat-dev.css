@@ -1,16 +1,78 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.43
+   Infortive × Voiceflow — Thème stable v9.44
    
-   v9.43 : Valeurs en dur, body 12px, titres h1-h6 corrigés
-   v9.42 : Fix titres markdown
-   v9.41 : Scrollbar 2px, puces, footer opaque
-   Base : v9.36
+   v9.44 : Système de variables centralisé pour ajustements faciles
+   ========================================================== */
+
+/* ==========================================================
+   🎛️ PANNEAU DE CONFIGURATION - MODIFIEZ ICI VOS VALEURS
    ========================================================== */
 :root {
+  /* ===== POLICE ===== */
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --content-offset: 48px;
+  
+  /* ===== TAILLES TITRES (dans les bulles) ===== */
+  --size-h1: 20px;
+  --size-h2: 18px;
+  --size-h3: 16px;
+  --size-h4: 15px;
+  --size-h5: 14px;
+  --size-h6: 14px;
+  
+  /* ===== TAILLES TEXTE COURANT ===== */
+  --size-body: 12px;           /* Texte paragraphes et listes */
+  --size-textarea: 12px;       /* Texte dans l'input */
+  --size-button: 12px;         /* Texte boutons choix + envoyer */
+  --size-header-title: 20px;   /* Titre "Prise de brief mission" */
+  
+  /* ===== GRAISSE (FONT-WEIGHT) ===== */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  
+  /* ===== COULEURS PRINCIPALES ===== */
+  --color-primary: #F18400;           /* Orange Infortive */
+  --color-primary-dark: #d46f00;      /* Orange foncé (hover) */
+  --color-text: #1E293B;              /* Texte principal */
+  --color-text-gray: #4B5563;         /* Texte secondaire */
+  --color-text-light: #666666;        /* Placeholder */
+  --color-white: #ffffff;
+  
+  /* ===== COULEURS BULLES ===== */
+  --color-bubble-agent: rgba(217,217,217,0.35);   /* Fond bulle agent */
+  --color-bubble-user: #073A59;                    /* Fond bulle utilisateur */
+  
+  /* ===== COULEURS BOUTONS CHOIX ===== */
+  --color-btn-bg: #ffffff;
+  --color-btn-border: #D1D5DB;
+  --color-btn-text: #4B5563;
+  --color-btn-hover-bg: #F9FAFB;
+  --color-btn-hover-border: #9CA3AF;
+  
+  /* ===== ESPACEMENTS ===== */
+  --content-offset: 48px;             /* Décalage avatar (40px + 8px margin) */
+  --footer-offset: 60px;              /* Décalage footer/boutons */
+  --bubble-padding: 10px 14px;        /* Padding bulles */
+  --bubble-radius: 6px;               /* Border-radius bulles */
+  --button-padding: 12px 16px;        /* Padding boutons choix */
+  --button-radius: 6px;               /* Border-radius boutons */
+  
+  /* ===== AVATAR ===== */
+  --avatar-size: 40px;
+  --avatar-margin-right: 8px;
+  --avatar-margin-top: 12px;
+  
+  /* ===== TEXTAREA ===== */
+  --textarea-min-height: 60px;
+  --textarea-max-height: 300px;
+  
+  /* ===== SCROLLBAR ===== */
+  --scrollbar-width: 2px;
+  --scrollbar-color: #F18400;
 }
+
 /* ==========================================================
    SUPPRIMER FOND BLANC + OMBRE DU CHAT
    ========================================================== */
@@ -26,6 +88,7 @@
   box-shadow: none !important;
   border: none !important;
 }
+
 /* ==========================================================
    Header
    ========================================================== */
@@ -42,6 +105,7 @@
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
+
 .vfrc-header--button,
 button.vfrc-header--button,
 .vfrc-header--actions {
@@ -53,13 +117,14 @@ button.vfrc-header--button,
   height: 0 !important;
   overflow: hidden !important;
 }
+
 div.vfrc-header--title,
 .vfrc-header--title {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 20px !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--weight-bold) !important;
+  font-size: var(--size-header-title) !important;
   line-height: 1.3 !important;
-  color: #F18400 !important;
+  color: var(--color-primary) !important;
   padding: 0 0 12px 0 !important;
   margin: 0 !important;
   position: relative !important;
@@ -71,6 +136,7 @@ div.vfrc-header--title,
   box-sizing: border-box !important;
   background: transparent !important;
 }
+
 div.vfrc-header--title::after,
 .vfrc-header--title::after {
   content: "" !important;
@@ -80,9 +146,10 @@ div.vfrc-header--title::after,
   left: 0 !important;
   width: 100% !important;
   height: 1px !important;
-  background-color: #1E293B !important;
+  background-color: var(--color-text) !important;
   opacity: 0.5 !important;
 }
+
 /* ==========================================================
    Chat container reset
    ========================================================== */
@@ -101,6 +168,7 @@ div.vfrc-header--title::after,
   background: transparent !important;
   box-shadow: none !important;
 }
+
 /* ==========================================================
    Avatar
    ========================================================== */
@@ -111,15 +179,17 @@ div.vfrc-system-response {
   padding-left: 0 !important;
   padding-right: 8px !important;
 }
+
 .vfrc-avatar,
 img.vfrc-avatar {
   flex-shrink: 0 !important;
-  width: 40px !important;
-  height: 40px !important;
-  margin-right: 8px !important;
-  margin-top: 12px !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+  margin-right: var(--avatar-margin-right) !important;
+  margin-top: var(--avatar-margin-top) !important;
   align-self: flex-start !important;
 }
+
 /* ==========================================================
    Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
    ========================================================== */
@@ -132,19 +202,21 @@ img.vfrc-avatar {
   max-width: calc(100% - var(--content-offset) - 8px) !important;
   box-sizing: border-box !important;
 }
+
 /* ==========================================================
    BOUTONS CHOIX - TOUS avec margin-left pour alignement
    ========================================================== */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
-  margin-left: 60px !important;
+  margin-left: var(--footer-offset) !important;
 }
+
 /* ==========================================================
    FOOTER - OPAQUE sans ombre
    ========================================================== */
 .vfrc-footer {
-  background: #ffffff !important;
+  background: var(--color-white) !important;
   position: sticky !important;
   bottom: 0 !important;
   z-index: 100 !important;
@@ -156,17 +228,19 @@ button.vfrc-button._1nzwwii0,
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
+
 .vfrc-footer__content {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: 60px !important;
-  width: calc(100% - 60px) !important;
-  max-width: calc(100% - 60px) !important;
+  margin-left: var(--footer-offset) !important;
+  width: calc(100% - var(--footer-offset)) !important;
+  max-width: calc(100% - var(--footer-offset)) !important;
   box-sizing: border-box !important;
 }
+
 /* ==========================================================
    ZONE INPUT CONTENEUR : TRANSPARENT (pas de fond)
    ========================================================== */
@@ -181,6 +255,7 @@ div.vfrc-input-container {
   box-shadow: none !important;
   padding: 0 !important;
 }
+
 .vfrc-input-container:focus,
 .vfrc-input-container:focus-within,
 .vfrc-input-container:focus-visible,
@@ -192,6 +267,7 @@ div.vfrc-input-container {
   outline: none !important;
   box-shadow: none !important;
 }
+
 .vfrc-chat-input__container-inner,
 ._1gdvh9tc {
   background: transparent !important;
@@ -199,23 +275,24 @@ div.vfrc-input-container {
   padding: 0 !important;
   margin: 0 !important;
 }
+
 /* ==========================================================
    BOUTONS CHOIX (STYLE)
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 500 !important;
-  font-size: 12px !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--weight-medium) !important;
+  font-size: var(--size-button) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.03em !important;
   text-transform: uppercase !important;
-  padding: 12px 16px !important;
-  background: #ffffff !important;
-  border: 1px solid #D1D5DB !important;
-  color: #4B5563 !important;
+  padding: var(--button-padding) !important;
+  background: var(--color-btn-bg) !important;
+  border: 1px solid var(--color-btn-border) !important;
+  color: var(--color-btn-text) !important;
   box-shadow: none !important;
-  border-radius: 6px !important;
+  border-radius: var(--button-radius) !important;
   transition: all 0.2s ease !important;
   cursor: pointer !important;
   margin-top: 6px !important;
@@ -229,14 +306,17 @@ button.vfrc-button:not(.vfrc-header--button) {
   justify-content: flex-start !important;
   gap: 10px !important;
 }
+
 .vfrc-button:not(.vfrc-header--button):hover {
-  background: #F9FAFB !important;
-  border-color: #9CA3AF !important;
+  background: var(--color-btn-hover-bg) !important;
+  border-color: var(--color-btn-hover-border) !important;
   color: #374151 !important;
 }
+
 .vfrc-button:not(.vfrc-header--button):active {
   background: #F3F4F6 !important;
 }
+
 .vfrc-button-container,
 .vfrc-card--buttons {
   display: flex !important;
@@ -245,6 +325,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   gap: 8px !important;
   padding: 8px 0 !important;
 }
+
 /* ==========================================================
    BOUTON ENVOYER
    ========================================================== */
@@ -252,20 +333,22 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-chat-input__send svg {
   display: none !important;
 }
+
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 600;
-  font-size: 12px;
+  font-family: var(--font-family);
+  font-weight: var(--weight-semibold);
+  font-size: var(--size-button);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
+
 #vfrc-send-message,
 .vfrc-chat-input__send {
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1px solid rgba(240, 131, 0, 0.25) !important;
-  border-radius: 6px !important;
+  border-radius: var(--button-radius) !important;
   padding: 8px 16px !important;
   color: rgba(240, 131, 0, 0.5) !important;
   box-shadow: none !important;
@@ -281,21 +364,24 @@ button.vfrc-button:not(.vfrc-header--button) {
   flex-shrink: 0 !important;
   margin-left: 12px !important;
 }
+
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, #F18400, #d46f00) !important;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)) !important;
   border: none !important;
-  color: #ffffff !important;
+  color: var(--color-white) !important;
   box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
   cursor: pointer;
   opacity: 1;
 }
+
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
-  background: linear-gradient(135deg, #d46f00, #c56200) !important;
+  background: linear-gradient(135deg, var(--color-primary-dark), #c56200) !important;
   box-shadow: 0 4px 12px rgba(241, 132, 0, 0.4) !important;
   transform: translateY(-1px) !important;
 }
+
 .vfrc-chat-input__actions {
   display: flex !important;
   align-items: center !important;
@@ -308,88 +394,104 @@ button.vfrc-button:not(.vfrc-header--button) {
   border: none !important;
   box-shadow: none !important;
 }
+
 /* ==========================================================
    BULLES AGENT
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 12px !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--weight-regular) !important;
+  font-size: var(--size-body) !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
-  background: rgba(217,217,217,0.35) !important;
-  color: #1E293B !important;
-  border-radius: 6px !important;
-  padding: 10px 14px !important;
+  background: var(--color-bubble-agent) !important;
+  color: var(--color-text) !important;
+  border-radius: var(--bubble-radius) !important;
+  padding: var(--bubble-padding) !important;
   max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
 }
+
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--size-body) !important;
+  font-weight: var(--weight-regular) !important;
   line-height: 1.5 !important;
 }
+
 /* ==========================================================
    TITRES MARKDOWN DANS LES BULLES
    ========================================================== */
 .vfrc-message h1,
 .vfrc-message .markdown h1,
 ._11kfxpg0 h1 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 20px !important;
-  font-weight: 700 !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--size-h1) !important;
+  font-weight: var(--weight-bold) !important;
   line-height: 1.3 !important;
   margin: 16px 0 8px 0 !important;
-  color: #1E293B !important;
+  color: var(--color-text) !important;
 }
+
 .vfrc-message h2,
 .vfrc-message .markdown h2,
 ._11kfxpg0 h2 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 18px !important;
-  font-weight: 700 !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--size-h2) !important;
+  font-weight: var(--weight-bold) !important;
   line-height: 1.3 !important;
   margin: 14px 0 6px 0 !important;
-  color: #1E293B !important;
+  color: var(--color-text) !important;
 }
+
 .vfrc-message h3,
 .vfrc-message .markdown h3,
 ._11kfxpg0 h3 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--size-h3) !important;
+  font-weight: var(--weight-semibold) !important;
   line-height: 1.4 !important;
   margin: 12px 0 4px 0 !important;
-  color: #1E293B !important;
+  color: var(--color-text) !important;
 }
+
 .vfrc-message h4,
 .vfrc-message .markdown h4,
 ._11kfxpg0 h4 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--size-h4) !important;
+  font-weight: var(--weight-semibold) !important;
   line-height: 1.4 !important;
   margin: 10px 0 4px 0 !important;
-  color: #1E293B !important;
+  color: var(--color-text) !important;
 }
+
 .vfrc-message h5,
 .vfrc-message .markdown h5,
-.vfrc-message h6,
-.vfrc-message .markdown h6,
-._11kfxpg0 h5,
-._11kfxpg0 h6 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
+._11kfxpg0 h5 {
+  font-family: var(--font-family) !important;
+  font-size: var(--size-h5) !important;
+  font-weight: var(--weight-semibold) !important;
   line-height: 1.4 !important;
   margin: 8px 0 4px 0 !important;
-  color: #1E293B !important;
+  color: var(--color-text) !important;
 }
+
+.vfrc-message h6,
+.vfrc-message .markdown h6,
+._11kfxpg0 h6 {
+  font-family: var(--font-family) !important;
+  font-size: var(--size-h6) !important;
+  font-weight: var(--weight-semibold) !important;
+  line-height: 1.4 !important;
+  margin: 8px 0 4px 0 !important;
+  color: var(--color-text) !important;
+}
+
 /* Premier titre sans marge top */
 .vfrc-message h1:first-child,
 .vfrc-message h2:first-child,
@@ -401,13 +503,15 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-message .markdown h4:first-child {
   margin-top: 0 !important;
 }
+
 /* Strong/Bold */
 .vfrc-message strong,
 .vfrc-message .markdown strong,
 ._11kfxpg0 strong {
-  font-weight: 700 !important;
-  color: #1E293B !important;
+  font-weight: var(--weight-bold) !important;
+  color: var(--color-text) !important;
 }
+
 /* ==========================================================
    LISTES (ul/ol) - FIX ALIGNEMENT PUCES
    ========================================================== */
@@ -421,22 +525,25 @@ button.vfrc-button:not(.vfrc-header--button) {
   padding-left: 20px !important;
   list-style-position: outside !important;
 }
+
 .vfrc-message ul,
 .vfrc-message .markdown ul,
 ._11kfxpg0 ul {
   list-style-type: none !important;
 }
+
 .vfrc-message ol,
 .vfrc-message .markdown ol,
 ._11kfxpg0 ol {
   list-style-type: decimal !important;
 }
+
 .vfrc-message li,
 .vfrc-message .markdown li,
 ._11kfxpg0 li {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--size-body) !important;
+  font-weight: var(--weight-regular) !important;
   line-height: 1.5 !important;
   margin-bottom: 4px !important;
   padding-left: 4px !important;
@@ -444,11 +551,13 @@ button.vfrc-button:not(.vfrc-header--button) {
   position: relative !important;
   list-style: none !important;
 }
+
 .vfrc-message li:last-child,
 .vfrc-message .markdown li:last-child,
 ._11kfxpg0 li:last-child {
   margin-bottom: 0 !important;
 }
+
 .vfrc-message .markdown ul li::before,
 .vfrc-message ul li::before,
 ._11kfxpg0 ul li::before,
@@ -463,61 +572,67 @@ button.vfrc-button:not(.vfrc-header--button) {
   top: 0.7em !important;
   transform: translateX(-14px) !important;
 }
+
 /* ==========================================================
    BULLES UTILISATEUR
    ========================================================== */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
 ._15emaa40 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 12px !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--weight-regular) !important;
+  font-size: var(--size-body) !important;
   line-height: 1.5 !important;
   display: inline-block !important;
-  background: #073A59 !important;
-  color: #ffffff !important;
-  border-radius: 6px !important;
-  padding: 10px 14px !important;
+  background: var(--color-bubble-user) !important;
+  color: var(--color-white) !important;
+  border-radius: var(--bubble-radius) !important;
+  padding: var(--bubble-padding) !important;
   max-width: 90%;
 }
+
 .vfrc-user-response > div *,
 .vfrc-user-response .vfrc-message *,
 ._15emaa40 * {
-  color: #ffffff !important;
-  font-size: 12px !important;
+  color: var(--color-white) !important;
+  font-size: var(--size-body) !important;
 }
+
 .vfrc-message:not([class*="extension"]) { 
   margin: 12px 0 !important;
 }
+
 .vfrc-user-response {
   padding-left: var(--content-offset) !important;
   padding-right: 8px !important;
 }
+
 /* ==========================================================
    TEXTAREA : Fond gris comme les bulles agent
    ========================================================== */
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 12px !important;
+  font-family: var(--font-family) !important;
+  font-weight: var(--weight-regular) !important;
+  font-size: var(--size-textarea) !important;
   line-height: 1.5 !important;
   width: 100% !important;
   min-width: 200px !important;
-  min-height: 60px !important;
-  max-height: 300px !important;
+  min-height: var(--textarea-min-height) !important;
+  max-height: var(--textarea-max-height) !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: rgba(217,217,217,0.35) !important;
+  background: var(--color-bubble-agent) !important;
   border: none !important;
-  border-radius: 6px !important;
+  border-radius: var(--bubble-radius) !important;
   outline: none !important;
   box-shadow: none !important;
-  padding: 10px 14px !important;
+  padding: var(--bubble-padding) !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
   margin-left: 0 !important;
 }
+
 textarea.vfrc-chat-input:focus,
 textarea.vfrc-chat-input:focus-visible,
 textarea._1gdvh9ta:focus,
@@ -525,32 +640,37 @@ textarea._1gdvh9ta:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: rgba(217,217,217,0.35) !important;
+  background: var(--color-bubble-agent) !important;
 }
+
 textarea.vfrc-chat-input::placeholder,
 textarea._1gdvh9ta::placeholder {
-  color: #666666 !important;
+  color: var(--color-text-light) !important;
 }
+
 /* ==========================================================
-   Scrollbar (2px) - CLASSES INTERNES SHADOW DOM UNIQUEMENT
+   Scrollbar - CLASSES INTERNES SHADOW DOM UNIQUEMENT
    ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin !important;
-  scrollbar-color: #F18400 transparent !important;
+  scrollbar-color: var(--scrollbar-color) transparent !important;
 }
+
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
 .vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 2px !important;
+  width: var(--scrollbar-width) !important;
 }
+
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400 !important;
+  background: var(--scrollbar-color) !important;
   border-radius: 999px !important;
 }
+
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
