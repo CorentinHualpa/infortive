@@ -1,8 +1,8 @@
-// UploadToN8nWithLoader-dev.js – v8.1
-// © Corentin – Version avec chat actif + détection message user ROBUSTE
-// v8.1 : Détection via MutationObserver sur les messages user
-//        Fermeture garantie via remove() du DOM
-//        Variables webhook dans objet "variables"
+// UploadToN8nWithLoader-dev.js – v8.2
+// © Corentin – Interception AGRESSIVE des messages user
+// v8.2 : Intercepte les events au niveau le plus bas (capture phase)
+//        Empêche l'envoi natif à Voiceflow
+//        Fermeture garantie
 //
 export const UploadToN8nWithLoaderDev = {
   name: 'UploadToN8nWithLoaderDev',
@@ -15,199 +15,290 @@ export const UploadToN8nWithLoaderDev = {
       const isMe = s => /(^ext_)?UploadToN8nWithLoaderDev$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
-      console.error('[UploadToN8nWithLoaderDev.match] error:', e);
+      console.error('[UploadExt] match error:', e);
       return false;
     }
   },
   
   render({ trace, element }) {
     if (!element) {
-      console.error('[UploadToN8nWithLoaderDev] Élément parent introuvable');
+      console.error('[UploadExt] No element');
       return;
     }
     
-    console.log('[UploadToN8nWithLoaderDev] v8.1 - Initializing...');
+    console.log('[UploadExt] v8.2 - Init');
     
-    // ---------- STATE ----------
-    let isComponentActive = true;
+    // ══════════════════════════════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════════════════════════════
+    let isActive = true;
     let timedTimer = null;
-    let allCleanupFns = [];
+    const cleanupFns = [];
     
-    // ---------- HELPERS SHADOW DOM ----------
-    const findAllShadowRoots = () => {
+    // ══════════════════════════════════════════════════════════════
+    // SHADOW DOM HELPERS
+    // ══════════════════════════════════════════════════════════════
+    const getAllShadowRoots = () => {
       const roots = [];
       const walk = (node) => {
         if (node.shadowRoot) {
           roots.push(node.shadowRoot);
-          walk(node.shadowRoot);
+          node.shadowRoot.querySelectorAll('*').forEach(walk);
         }
-        node.querySelectorAll('*').forEach(child => {
-          if (child.shadowRoot) {
-            roots.push(child.shadowRoot);
-            walk(child.shadowRoot);
-          }
-        });
+        if (node.querySelectorAll) {
+          node.querySelectorAll('*').forEach(child => {
+            if (child.shadowRoot) {
+              roots.push(child.shadowRoot);
+              walk(child.shadowRoot);
+            }
+          });
+        }
       };
       walk(document);
       return roots;
     };
     
-    const findInShadowDOM = (selector) => {
+    const findInShadow = (selector) => {
       let el = document.querySelector(selector);
       if (el) return el;
-      for (const root of findAllShadowRoots()) {
+      for (const root of getAllShadowRoots()) {
         el = root.querySelector(selector);
         if (el) return el;
       }
       return null;
     };
     
-    // ---------- CLEANUP CENTRAL ----------
+    // ══════════════════════════════════════════════════════════════
+    // CLEANUP
+    // ══════════════════════════════════════════════════════════════
     const cleanup = () => {
-      console.log('[UploadToN8nWithLoaderDev] Cleanup called');
-      isComponentActive = false;
-      
-      if (timedTimer) {
-        clearInterval(timedTimer);
-        timedTimer = null;
-      }
-      
-      allCleanupFns.forEach(fn => {
-        try { fn(); } catch(e) { console.warn('Cleanup error:', e); }
-      });
-      allCleanupFns = [];
+      console.log('[UploadExt] Cleanup');
+      isActive = false;
+      if (timedTimer) { clearInterval(timedTimer); timedTimer = null; }
+      cleanupFns.forEach(fn => { try { fn(); } catch(e) {} });
+      cleanupFns.length = 0;
     };
     
-    // ---------- FERMETURE GARANTIE ----------
     const forceClose = () => {
-      console.log('[UploadToN8nWithLoaderDev] Force close');
+      console.log('[UploadExt] Force close');
       cleanup();
-      
-      // Méthode 1: display none
-      if (root) root.style.display = 'none';
-      
-      // Méthode 2: remove du DOM
-      try {
-        if (root && root.parentNode) {
-          root.parentNode.removeChild(root);
-        }
-      } catch(e) {}
-      
-      // Méthode 3: vider le contenu
-      try {
-        if (root) root.innerHTML = '';
-      } catch(e) {}
+      try { root.style.display = 'none'; } catch(e) {}
+      try { root.style.visibility = 'hidden'; } catch(e) {}
+      try { root.style.height = '0'; } catch(e) {}
+      try { root.style.overflow = 'hidden'; } catch(e) {}
+      try { if (root.parentNode) root.parentNode.removeChild(root); } catch(e) {}
     };
     
-    // ---------- ENVOI INTERACT ----------
     const sendInteract = (payload) => {
-      console.log('[UploadToN8nWithLoaderDev] Sending interact:', payload);
+      console.log('[UploadExt] Interact:', payload);
       try {
-        window?.voiceflow?.chat?.interact?.({
-          type: 'complete',
-          payload: payload
-        });
+        window?.voiceflow?.chat?.interact?.({ type: 'complete', payload });
       } catch(e) {
-        console.error('[UploadToN8nWithLoaderDev] Interact error:', e);
+        console.error('[UploadExt] Interact error:', e);
       }
     };
     
-    // ---------- DETECTION MESSAGE USER VIA MUTATION OBSERVER ----------
-    const setupUserMessageDetection = () => {
-      console.log('[UploadToN8nWithLoaderDev] Setting up user message detection...');
+    // ══════════════════════════════════════════════════════════════
+    // INTERCEPTION DES MESSAGES USER
+    // ══════════════════════════════════════════════════════════════
+    const setupInputInterception = () => {
+      console.log('[UploadExt] Setting up input interception...');
       
-      const selectors = [
-        '.vfrc-chat--dialog',
-        '[class*="Dialog"]', 
-        '[class*="dialog"]',
-        '.vfrc-chat',
-        '[class*="Messages"]',
-        '[class*="messages"]',
-        '[class*="chat"]'
+      // Chercher les éléments dans shadow DOM
+      const textareaSelectors = [
+        'textarea.vfrc-chat-input',
+        'textarea[id^="vf-chat-input"]',
+        'textarea[class*="chat"]',
+        'textarea[class*="input"]',
+        'textarea',
+        'input[type="text"][class*="chat"]'
       ];
       
-      let messageContainer = null;
+      const buttonSelectors = [
+        '#vfrc-send-message',
+        'button.vfrc-chat-input__send',
+        'button[type="submit"]',
+        'button[class*="send"]',
+        'button[aria-label*="send"]',
+        'button[aria-label*="Send"]'
+      ];
       
-      for (const selector of selectors) {
-        messageContainer = findInShadowDOM(selector);
-        if (messageContainer) {
-          console.log('[UploadToN8nWithLoaderDev] Found message container with:', selector);
+      const formSelectors = [
+        'form.vfrc-chat-input',
+        'form[class*="chat"]',
+        'form[class*="input"]',
+        'form'
+      ];
+      
+      let textarea = null;
+      let sendBtn = null;
+      let form = null;
+      
+      // Trouver le textarea
+      for (const sel of textareaSelectors) {
+        textarea = findInShadow(sel);
+        if (textarea) {
+          console.log('[UploadExt] Found textarea:', sel);
           break;
         }
       }
       
-      if (!messageContainer) {
-        console.warn('[UploadToN8nWithLoaderDev] No message container found');
-        return null;
+      // Trouver le bouton send
+      for (const sel of buttonSelectors) {
+        sendBtn = findInShadow(sel);
+        if (sendBtn) {
+          console.log('[UploadExt] Found send button:', sel);
+          break;
+        }
       }
       
-      const observer = new MutationObserver((mutations) => {
-        if (!isComponentActive) return;
+      // Trouver le form
+      for (const sel of formSelectors) {
+        form = findInShadow(sel);
+        if (form) {
+          console.log('[UploadExt] Found form:', sel);
+          break;
+        }
+      }
+      
+      if (!textarea) {
+        console.warn('[UploadExt] No textarea found!');
+      }
+      
+      // ─────────────────────────────────────────────────────────────
+      // HANDLER PRINCIPAL
+      // ─────────────────────────────────────────────────────────────
+      const handleUserInput = (e) => {
+        if (!isActive) return;
+        if (!textarea) return;
         
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType !== Node.ELEMENT_NODE) continue;
-            if (node.classList?.contains('upl')) continue;
-            if (node.querySelector?.('.upl')) continue;
-            
-            // Détecter message USER
-            const isUserMessage = 
-              node.classList?.contains('vfrc-user-response') ||
-              node.classList?.contains('vfrc-message--user') ||
-              node.querySelector?.('[class*="user"]') ||
-              node.querySelector?.('[class*="User"]') ||
-              (node.className && /user/i.test(node.className));
-            
-            if (isUserMessage) {
-              console.log('[UploadToN8nWithLoaderDev] User message detected!', node);
+        const text = textarea.value?.trim();
+        if (!text) return;
+        
+        console.log('[UploadExt] Intercepted user input:', text);
+        
+        // BLOQUER L'ÉVÉNEMENT NATIF
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        // Vider le textarea
+        textarea.value = '';
+        
+        // Trigger input event pour que Voiceflow update son state
+        try {
+          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        } catch(err) {}
+        
+        // Fermer et envoyer
+        forceClose();
+        sendInteract({
+          webhookSuccess: false,
+          buttonPath: 'write',
+          userMessage: text
+        });
+        
+        return false;
+      };
+      
+      // ─────────────────────────────────────────────────────────────
+      // ATTACHER LES LISTENERS (capture phase = true)
+      // ─────────────────────────────────────────────────────────────
+      
+      // Sur le form
+      if (form) {
+        const onSubmit = (e) => {
+          if (!isActive) return;
+          console.log('[UploadExt] Form submit intercepted');
+          handleUserInput(e);
+        };
+        form.addEventListener('submit', onSubmit, true);
+        cleanupFns.push(() => form.removeEventListener('submit', onSubmit, true));
+      }
+      
+      // Sur le bouton send
+      if (sendBtn) {
+        const onClick = (e) => {
+          if (!isActive) return;
+          console.log('[UploadExt] Send button click intercepted');
+          handleUserInput(e);
+        };
+        sendBtn.addEventListener('click', onClick, true);
+        sendBtn.addEventListener('mousedown', onClick, true);
+        sendBtn.addEventListener('pointerdown', onClick, true);
+        cleanupFns.push(() => {
+          sendBtn.removeEventListener('click', onClick, true);
+          sendBtn.removeEventListener('mousedown', onClick, true);
+          sendBtn.removeEventListener('pointerdown', onClick, true);
+        });
+      }
+      
+      // Sur le textarea (Enter key)
+      if (textarea) {
+        const onKeydown = (e) => {
+          if (!isActive) return;
+          if (e.key === 'Enter' && !e.shiftKey) {
+            console.log('[UploadExt] Enter key intercepted');
+            handleUserInput(e);
+          }
+        };
+        textarea.addEventListener('keydown', onKeydown, true);
+        textarea.addEventListener('keypress', onKeydown, true);
+        cleanupFns.push(() => {
+          textarea.removeEventListener('keydown', onKeydown, true);
+          textarea.removeEventListener('keypress', onKeydown, true);
+        });
+      }
+      
+      // ─────────────────────────────────────────────────────────────
+      // GLOBAL LISTENER (backup)
+      // Intercepte au niveau document/window
+      // ─────────────────────────────────────────────────────────────
+      const globalKeyHandler = (e) => {
+        if (!isActive) return;
+        if (e.key === 'Enter' && !e.shiftKey) {
+          // Vérifier si le focus est sur notre textarea
+          const activeEl = document.activeElement;
+          const shadowActive = activeEl?.shadowRoot?.activeElement;
+          
+          if (activeEl?.tagName === 'TEXTAREA' || shadowActive?.tagName === 'TEXTAREA') {
+            const ta = shadowActive || activeEl;
+            const text = ta.value?.trim();
+            if (text && ta !== fileInput) {
+              console.log('[UploadExt] Global Enter intercepted');
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
               
-              const textEl = node.querySelector?.('[class*="text"]') || 
-                            node.querySelector?.('p') || 
-                            node;
-              const userText = textEl?.textContent?.trim() || '';
-              
-              console.log('[UploadToN8nWithLoaderDev] User text:', userText);
+              ta.value = '';
               
               forceClose();
               sendInteract({
                 webhookSuccess: false,
                 buttonPath: 'write',
-                userMessage: userText
+                userMessage: text
               });
-              return;
-            }
-            
-            // Détecter réponse assistant
-            const isAssistantResponse = 
-              node.classList?.contains('vfrc-system-response') ||
-              node.classList?.contains('vfrc-assistant') ||
-              node.classList?.contains('vfrc-message--assistant') ||
-              node.querySelector?.('[class*="assistant"]') ||
-              node.querySelector?.('[class*="system"]');
-            
-            if (isAssistantResponse && !node.querySelector?.('.upl')) {
-              console.log('[UploadToN8nWithLoaderDev] Assistant response detected, closing...');
-              forceClose();
-              return;
             }
           }
         }
+      };
+      
+      document.addEventListener('keydown', globalKeyHandler, true);
+      window.addEventListener('keydown', globalKeyHandler, true);
+      cleanupFns.push(() => {
+        document.removeEventListener('keydown', globalKeyHandler, true);
+        window.removeEventListener('keydown', globalKeyHandler, true);
       });
       
-      observer.observe(messageContainer, { 
-        childList: true, 
-        subtree: true 
-      });
-      
-      console.log('[UploadToN8nWithLoaderDev] MutationObserver active');
-      
-      return () => observer.disconnect();
+      console.log('[UploadExt] Input interception ready');
     };
     
-    const cleanupDetection = setupUserMessageDetection();
-    if (cleanupDetection) allCleanupFns.push(cleanupDetection);
+    // Setup interception après un court délai (laisser le DOM se stabiliser)
+    setTimeout(setupInputInterception, 100);
     
-    // ---------- CONFIG ----------
+    // ══════════════════════════════════════════════════════════════
+    // CONFIG
+    // ══════════════════════════════════════════════════════════════
     const p = trace?.payload || {};
     const title         = p.title || '';
     const subtitle      = p.subtitle || '';
@@ -215,8 +306,7 @@ export const UploadToN8nWithLoaderDev = {
     const accept        = p.accept || '.pdf,.docx';
     const maxFileSizeMB = p.maxFileSizeMB || 25;
     const maxFiles      = p.maxFiles || 10;
-    
-    const variables = p.variables || {};
+    const variables     = p.variables || {};
     
     const colors = {
       text: '#111827',
@@ -224,7 +314,6 @@ export const UploadToN8nWithLoaderDev = {
       border: '#E5E7EB',
       bg: '#FAFAFA',
       white: '#FFFFFF',
-      accent: '#111827',
       success: '#10B981',
       error: '#EF4444',
       warning: '#F59E0B',
@@ -239,16 +328,7 @@ export const UploadToN8nWithLoaderDev = {
     const fileFieldName    = webhook.fileFieldName || 'files';
     const extra            = webhook.extra || {};
     
-    let requiredFiles;
-    let isSimpleMode = false;
-    
-    if (p.minFiles !== undefined && p.minFiles !== null) {
-      requiredFiles = Math.max(1, Math.min(Number(p.minFiles) || 1, maxFiles));
-      isSimpleMode = true;
-    } else {
-      requiredFiles = 1;
-      isSimpleMode = true;
-    }
+    const requiredFiles = Math.max(1, Math.min(Number(p.minFiles) || 1, maxFiles));
     
     const awaitResponse      = p.awaitResponse !== false;
     const polling            = p.polling || {};
@@ -271,11 +351,7 @@ export const UploadToN8nWithLoaderDev = {
     const autoCloseDelayMs = Number(loaderCfg.autoCloseDelayMs) > 0 ? Number(loaderCfg.autoCloseDelayMs) : 800;
     
     const defaultAutoSteps = [
-      { progress: 0 },
-      { progress: 30 },
-      { progress: 60 },
-      { progress: 85 },
-      { progress: 100 }
+      { progress: 0 }, { progress: 30 }, { progress: 60 }, { progress: 85 }, { progress: 100 }
     ];
     
     const timedPhases = Array.isArray(loaderCfg.phases) ? loaderCfg.phases : [];
@@ -283,183 +359,93 @@ export const UploadToN8nWithLoaderDev = {
     const stepMap = loaderCfg.stepMap || {};
     
     if (!webhookUrl) {
-      const div = document.createElement('div');
-      div.innerHTML = `<div style="padding:16px;font-size:13px;color:${colors.error}">
-        Configuration manquante : webhook.url
-      </div>`;
-      element.appendChild(div);
+      element.innerHTML = `<div style="padding:16px;color:${colors.error}">Config manquante: webhook.url</div>`;
       return;
     }
     
-    const hasTitle = title && title.trim() !== '';
-    const hasSubtitle = subtitle && subtitle.trim() !== '';
+    // ══════════════════════════════════════════════════════════════
+    // UI
+    // ══════════════════════════════════════════════════════════════
+    const hasTitle = title?.trim();
+    const hasSubtitle = subtitle?.trim();
     const showHeader = hasTitle || hasSubtitle;
     
     let hintText = '';
-    if (p.hint === false || p.hint === '') {
-      hintText = '';
-    } else if (typeof p.hint === 'string' && p.hint.trim() !== '') {
-      hintText = p.hint;
-    } else {
-      hintText = requiredFiles === 1 
-        ? `1 à ${maxFiles} fichiers` 
-        : `${requiredFiles} à ${maxFiles} fichiers`;
-    }
-    
-    const showHint = hintText && hintText.trim() !== '';
+    if (p.hint === false || p.hint === '') hintText = '';
+    else if (typeof p.hint === 'string' && p.hint.trim()) hintText = p.hint;
+    else hintText = `${requiredFiles} à ${maxFiles} fichiers`;
     
     const styles = `
       @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-      @keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-      
-      .upl {
-        width: 100%;
-        font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-        font-size: 14px;
-        color: ${colors.text};
-        animation: fadeIn 0.2s ease;
-      }
+      .upl { width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; font-size: 14px; color: ${colors.text}; animation: fadeIn 0.2s ease; }
       .upl * { box-sizing: border-box; }
-      .upl-card {
-        background: ${colors.white};
-        border: 1px solid ${colors.border};
-        border-radius: 8px;
-        overflow: hidden;
-      }
+      .upl-card { background: ${colors.white}; border: 1px solid ${colors.border}; border-radius: 8px; overflow: hidden; }
       .upl-header { padding: 20px 20px 0; }
-      .upl-title { font-size: 15px; font-weight: 600; color: ${colors.text}; margin: 0 0 2px; letter-spacing: -0.2px; }
-      .upl-subtitle { font-size: 13px; color: ${colors.textLight}; font-weight: 400; }
+      .upl-title { font-size: 15px; font-weight: 600; margin: 0 0 2px; }
+      .upl-subtitle { font-size: 13px; color: ${colors.textLight}; }
       .upl-body { padding: 20px; }
-      .upl-body.no-header { padding-top: 20px; }
-      .upl-zone {
-        background: ${colors.bg};
-        border-radius: 6px;
-        padding: 32px 20px;
-        text-align: center;
-        cursor: pointer;
-        transition: background 0.15s ease;
-        position: relative;
-      }
-      .upl-zone::before {
-        content: '';
-        position: absolute;
-        inset: 8px;
-        border: 1px dashed ${colors.border};
-        border-radius: 4px;
-        pointer-events: none;
-        transition: border-color 0.15s ease;
-      }
+      .upl-zone { background: ${colors.bg}; border-radius: 6px; padding: 32px 20px; text-align: center; cursor: pointer; position: relative; transition: background 0.15s; }
+      .upl-zone::before { content: ''; position: absolute; inset: 8px; border: 1px dashed ${colors.border}; border-radius: 4px; pointer-events: none; }
       .upl-zone:hover { background: #F3F4F6; }
-      .upl-zone:hover::before { border-color: ${colors.textLight}; }
       .upl-zone.drag { background: #F3F4F6; }
-      .upl-zone.drag::before { border-color: ${colors.text}; }
-      .upl-zone-icon { width: 32px; height: 32px; margin: 0 auto 10px; color: ${colors.textLight}; transition: color 0.15s ease; }
-      .upl-zone:hover .upl-zone-icon { color: ${colors.text}; }
-      .upl-zone-text { font-size: 13px; color: ${colors.textLight}; font-weight: 400; line-height: 1.5; }
+      .upl-zone-icon { width: 32px; height: 32px; margin: 0 auto 10px; color: ${colors.textLight}; }
+      .upl-zone-text { font-size: 13px; color: ${colors.textLight}; line-height: 1.5; }
       .upl-zone-hint { font-size: 11px; color: ${colors.textLight}; margin-top: 6px; opacity: 0.7; }
       .upl-list { margin-top: 16px; display: none; }
       .upl-list.show { display: block; }
-      .upl-item {
-        display: flex;
-        align-items: center;
-        padding: 10px 12px;
-        background: ${colors.bg};
-        border-radius: 6px;
-        margin-bottom: 6px;
-        animation: slideIn 0.15s ease;
-      }
-      .upl-item:last-child { margin-bottom: 0; }
-      .upl-item-icon { width: 16px; height: 16px; color: ${colors.textLight}; margin-right: 10px; flex-shrink: 0; }
+      .upl-item { display: flex; align-items: center; padding: 10px 12px; background: ${colors.bg}; border-radius: 6px; margin-bottom: 6px; }
+      .upl-item-icon { width: 16px; height: 16px; color: ${colors.textLight}; margin-right: 10px; }
       .upl-item-info { flex: 1; min-width: 0; }
-      .upl-item-name { font-size: 13px; font-weight: 500; color: ${colors.text}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .upl-item-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .upl-item-size { font-size: 11px; color: ${colors.textLight}; margin-top: 1px; }
-      .upl-item-del {
-        width: 24px; height: 24px; border: none; background: none;
-        color: ${colors.textLight}; cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 4px; margin-left: 8px; transition: all 0.1s ease;
-      }
-      .upl-item-del:hover { background: rgba(239, 68, 68, 0.1); color: ${colors.error}; }
-      .upl-meta {
-        display: flex; align-items: center; justify-content: space-between;
-        margin-top: 12px; padding-top: 12px; border-top: 1px solid ${colors.border};
-      }
+      .upl-item-del { width: 24px; height: 24px; border: none; background: none; color: ${colors.textLight}; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; margin-left: 8px; }
+      .upl-item-del:hover { background: rgba(239,68,68,0.1); color: ${colors.error}; }
+      .upl-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid ${colors.border}; }
       .upl-count { font-size: 12px; color: ${colors.textLight}; }
       .upl-count.ok { color: ${colors.success}; }
-      .upl-actions { display: flex; gap: 8px; }
-      .upl-btn {
-        padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
-        cursor: pointer; transition: all 0.1s ease; border: 1px solid transparent;
-      }
-      .upl-btn-primary { background: ${colors.text}; color: ${colors.white}; border-color: ${colors.text}; }
-      .upl-btn-primary:hover:not(:disabled) { background: #374151; border-color: #374151; }
+      .upl-btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; }
+      .upl-btn-primary { background: ${colors.text}; color: ${colors.white}; }
+      .upl-btn-primary:hover:not(:disabled) { background: #374151; }
       .upl-btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
-      .upl-msg { margin-top: 12px; padding: 10px 12px; border-radius: 6px; font-size: 12px; display: none; animation: fadeIn 0.15s ease; }
+      .upl-msg { margin-top: 12px; padding: 10px 12px; border-radius: 6px; font-size: 12px; display: none; }
       .upl-msg.show { display: block; }
-      .upl-msg.err { background: rgba(239, 68, 68, 0.08); color: ${colors.error}; }
-      .upl-msg.ok { background: rgba(16, 185, 129, 0.08); color: ${colors.success}; }
-      .upl-msg.warn { background: rgba(245, 158, 11, 0.08); color: ${colors.warning}; }
-      .upl-msg.load { background: ${colors.bg}; color: ${colors.textLight}; }
-      .upl-loader { display: none; padding: 32px 24px; animation: fadeIn 0.25s ease; }
+      .upl-msg.err { background: rgba(239,68,68,0.08); color: ${colors.error}; }
+      .upl-msg.warn { background: rgba(245,158,11,0.08); color: ${colors.warning}; }
+      .upl-loader { display: none; padding: 32px 24px; }
       .upl-loader.show { display: block; }
-      .upl-loader.hide { animation: fadeOut 0.2s ease; }
       .upl-loader-container { display: flex; align-items: center; gap: 16px; }
-      .upl-loader-bar { flex: 1; height: 8px; background: ${colors.border}; border-radius: 4px; overflow: hidden; position: relative; }
-      .upl-loader-fill {
-        height: 100%; width: 0%; background: ${colors.text}; border-radius: 4px;
-        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
-      }
-      .upl-loader-fill::after {
-        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-        background-size: 200% 100%; animation: shimmer 2s infinite;
-      }
-      .upl-loader-pct { font-size: 15px; font-weight: 600; color: ${colors.text}; font-variant-numeric: tabular-nums; min-width: 48px; text-align: right; }
+      .upl-loader-bar { flex: 1; height: 8px; background: ${colors.border}; border-radius: 4px; overflow: hidden; }
+      .upl-loader-fill { height: 100%; width: 0%; background: ${colors.text}; border-radius: 4px; transition: width 0.4s; position: relative; }
+      .upl-loader-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer 2s infinite; }
+      .upl-loader-pct { font-size: 15px; font-weight: 600; min-width: 48px; text-align: right; }
       .upl-loader.complete .upl-loader-fill { background: ${colors.success}; }
-      .upl-loader.complete .upl-loader-fill::after { animation: none; }
       .upl-loader.complete .upl-loader-pct { color: ${colors.success}; }
-      .upl-overlay { display: none; position: absolute; inset: 0; background: transparent; z-index: 10; border-radius: 8px; pointer-events: all; }
+      .upl-overlay { display: none; position: absolute; inset: 0; z-index: 10; }
       .upl-overlay.show { display: block; }
     `;
     
     const icons = {
-      upload: `<svg class="upl-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>`,
-      file: `<svg class="upl-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>`,
-      x: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`
+      upload: `<svg class="upl-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>`,
+      file: `<svg class="upl-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>`,
+      x: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`
     };
     
-    // ---------- UI ----------
     const root = document.createElement('div');
     root.className = 'upl';
     root.style.position = 'relative';
     root.dataset.uploadExtension = 'true';
     
-    const styleTag = document.createElement('style');
-    styleTag.textContent = styles;
-    root.appendChild(styleTag);
-    
-    let headerHTML = '';
-    if (showHeader) {
-      headerHTML = `<div class="upl-header">`;
-      if (hasTitle) headerHTML += `<div class="upl-title">${title}</div>`;
-      if (hasSubtitle) headerHTML += `<div class="upl-subtitle">${subtitle}</div>`;
-      headerHTML += `</div>`;
-    }
-    
-    const hintHTML = showHint ? `<div class="upl-zone-hint">${hintText}</div>` : '';
-    const bodyClass = showHeader ? 'upl-body' : 'upl-body no-header';
-    
-    root.innerHTML += `
+    root.innerHTML = `
+      <style>${styles}</style>
       <div class="upl-overlay"></div>
       <div class="upl-card">
-        ${headerHTML}
-        <div class="${bodyClass}">
+        ${showHeader ? `<div class="upl-header">${hasTitle ? `<div class="upl-title">${title}</div>` : ''}${hasSubtitle ? `<div class="upl-subtitle">${subtitle}</div>` : ''}</div>` : ''}
+        <div class="upl-body">
           <div class="upl-zone">
             ${icons.upload}
             <div class="upl-zone-text">${description}</div>
-            ${hintHTML}
+            ${hintText ? `<div class="upl-zone-hint">${hintText}</div>` : ''}
             <input type="file" accept="${accept}" multiple style="display:none" />
           </div>
           <div class="upl-list"></div>
@@ -473,9 +459,7 @@ export const UploadToN8nWithLoaderDev = {
         </div>
         <div class="upl-loader">
           <div class="upl-loader-container">
-            <div class="upl-loader-bar">
-              <div class="upl-loader-fill"></div>
-            </div>
+            <div class="upl-loader-bar"><div class="upl-loader-fill"></div></div>
             <div class="upl-loader-pct">0%</div>
           </div>
         </div>
@@ -499,23 +483,12 @@ export const UploadToN8nWithLoaderDev = {
     let selectedFiles = [];
     
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const formatSize = (bytes) => bytes < 1024 ? bytes + ' o' : bytes < 1024*1024 ? (bytes/1024).toFixed(1) + ' Ko' : (bytes/(1024*1024)).toFixed(1) + ' Mo';
     
-    function formatSize(bytes) {
-      if (bytes < 1024) return bytes + ' o';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
-      return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
-    }
+    const showMsg = (text, type = 'warn') => { msgDiv.textContent = text; msgDiv.className = `upl-msg show ${type}`; };
+    const hideMsg = () => { msgDiv.className = 'upl-msg'; };
     
-    function showMsg(text, type = 'load') {
-      msgDiv.textContent = text;
-      msgDiv.className = `upl-msg show ${type}`;
-    }
-    
-    function hideMsg() {
-      msgDiv.className = 'upl-msg';
-    }
-    
-    function updateList() {
+    const updateList = () => {
       filesList.innerHTML = '';
       hideMsg();
       
@@ -538,72 +511,43 @@ export const UploadToN8nWithLoaderDev = {
       selectedFiles.forEach((file, i) => {
         const item = document.createElement('div');
         item.className = 'upl-item';
-        item.innerHTML = `
-          ${icons.file}
-          <div class="upl-item-info">
-            <div class="upl-item-name">${file.name}</div>
-            <div class="upl-item-size">${formatSize(file.size)}</div>
-          </div>
-          <button class="upl-item-del" data-i="${i}">${icons.x}</button>
-        `;
+        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.name}</div><div class="upl-item-size">${formatSize(file.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
         filesList.appendChild(item);
       });
       
       root.querySelectorAll('.upl-item-del').forEach(btn => {
-        btn.onclick = () => {
-          selectedFiles.splice(parseInt(btn.dataset.i), 1);
-          updateList();
-        };
+        btn.onclick = () => { selectedFiles.splice(parseInt(btn.dataset.i), 1); updateList(); };
       });
       
       sendBtn.disabled = !enough;
       
       if (selectedFiles.length > 0 && !enough) {
-        const m = requiredFiles - selectedFiles.length;
-        showMsg(`${m} fichier${m > 1 ? 's' : ''} manquant${m > 1 ? 's' : ''}`, 'warn');
+        showMsg(`${requiredFiles - selectedFiles.length} fichier(s) manquant(s)`, 'warn');
       }
-    }
+    };
     
-    function addFiles(files) {
+    const addFiles = (files) => {
       const ok = [], errs = [];
       for (const f of files) {
-        if (selectedFiles.length + ok.length >= maxFiles) {
-          errs.push('Limite atteinte');
-          break;
-        }
-        if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) {
-          errs.push(`${f.name} trop volumineux`);
-          continue;
-        }
-        if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) {
-          continue;
-        }
+        if (selectedFiles.length + ok.length >= maxFiles) { errs.push('Limite'); break; }
+        if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
+        if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
         ok.push(f);
       }
-      if (ok.length) {
-        selectedFiles.push(...ok);
-        updateList();
-      }
+      if (ok.length) { selectedFiles.push(...ok); updateList(); }
       if (errs.length) showMsg(errs.join(' · '), 'err');
-    }
+    };
     
     uploadZone.onclick = () => fileInput.click();
     uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('drag'); };
     uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
-    uploadZone.ondrop = e => {
-      e.preventDefault();
-      uploadZone.classList.remove('drag');
-      addFiles(Array.from(e.dataTransfer?.files || []));
-    };
-    fileInput.onchange = () => {
-      addFiles(Array.from(fileInput.files || []));
-      fileInput.value = '';
-    };
+    uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
+    fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
     
     sendBtn.onclick = async () => {
-      if (!selectedFiles.length || selectedFiles.length < requiredFiles) return;
+      if (selectedFiles.length < requiredFiles) return;
       
-      console.log('[UploadToN8nWithLoaderDev] Starting upload...');
+      console.log('[UploadExt] Starting upload...');
       
       root.style.pointerEvents = 'none';
       overlay.classList.add('show');
@@ -612,9 +556,8 @@ export const UploadToN8nWithLoaderDev = {
       const startTime = Date.now();
       const ui = showLoaderUI();
       
-      if (loaderMode === 'auto') ui.auto(defaultAutoSteps);
-      else if (loaderMode === 'timed') ui.timed(buildPlan());
-      else { ui.set(5); }
+      if (loaderMode === 'timed') ui.timed(buildPlan());
+      else ui.auto(defaultAutoSteps);
       
       try {
         const resp = await post({
@@ -623,123 +566,86 @@ export const UploadToN8nWithLoaderDev = {
           files: selectedFiles, fileFieldName, extra, vfContext, variables
         });
         
-        console.log('[UploadToN8nWithLoaderDev] Upload response:', resp);
+        console.log('[UploadExt] Response:', resp);
         
         let data = resp?.data ?? null;
         
         if (awaitResponse && pollingEnabled) {
           const jobId = data?.jobId;
-          const statusUrl = data?.statusUrl || p?.polling?.statusUrl;
+          const statusUrl = data?.statusUrl || polling?.statusUrl;
           if (statusUrl || jobId) {
             data = await poll({
               statusUrl: statusUrl || `${webhookUrl.split('/webhook')[0]}/rest/jobs/${jobId}`,
-              headers: pollingHeaders, intervalMs: pollingIntervalMs,
-              maxAttempts: pollingMaxAttempts,
+              headers: pollingHeaders, intervalMs: pollingIntervalMs, maxAttempts: pollingMaxAttempts,
               onTick: st => {
-                if (loaderMode === 'external') {
-                  const pct = Number.isFinite(st?.percent) ? clamp(st.percent, 0, 100) : undefined;
-                  const key = st?.phase;
-                  const map = key && stepMap[key] ? stepMap[key] : null;
-                  if (pct != null) ui.set(pct);
-                  else if (map?.progress != null) ui.set(map.progress);
-                }
+                if (loaderMode === 'external' && Number.isFinite(st?.percent)) ui.set(st.percent);
               }
             });
           }
         }
         
         const elapsed = Date.now() - startTime;
-        const remain = minLoadingTimeMs - elapsed;
-        if (remain > 0) {
-          ui.to(98, Math.min(remain, 1500));
-          await new Promise(r => setTimeout(r, remain));
+        if (minLoadingTimeMs - elapsed > 0) {
+          ui.to(98, Math.min(minLoadingTimeMs - elapsed, 1500));
+          await new Promise(r => setTimeout(r, minLoadingTimeMs - elapsed));
         }
         
         ui.done(data);
         
       } catch (err) {
-        console.error('[UploadToN8nWithLoaderDev] Upload error:', err);
+        console.error('[UploadExt] Error:', err);
         forceClose();
-        sendInteract({ 
-          webhookSuccess: false, 
-          error: String(err?.message || err), 
-          buttonPath: 'error' 
-        });
+        sendInteract({ webhookSuccess: false, error: String(err?.message || err), buttonPath: 'error' });
       }
     };
     
     function showLoaderUI() {
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
+      let cur = 0, locked = false;
       
-      let cur = 0;
-      let locked = false;
-      
-      const paint = () => {
-        loaderFill.style.width = `${cur}%`;
-        loaderPct.textContent = `${Math.round(cur)}%`;
-      };
-      paint();
-      
-      const clear = () => { 
-        if (timedTimer) { 
-          clearInterval(timedTimer); 
-          timedTimer = null; 
-        } 
-      };
+      const paint = () => { loaderFill.style.width = `${cur}%`; loaderPct.textContent = `${Math.round(cur)}%`; };
+      const clear = () => { if (timedTimer) { clearInterval(timedTimer); timedTimer = null; } };
       
       return {
         auto(steps) {
           let i = 0;
-          const go = () => {
-            if (i >= steps.length || locked) return;
-            const s = steps[i];
-            this.to(s.progress, 1800, () => { i++; go(); });
-          };
+          const go = () => { if (i >= steps.length || locked) return; this.to(steps[i].progress, 1800, () => { i++; go(); }); };
           go();
         },
-        
         timed(plan) {
           let idx = 0;
           const next = () => {
             if (idx >= plan.length || locked) return;
-            const p = plan[idx++];
-            const t0 = Date.now(), t1 = t0 + p.durationMs;
+            const p = plan[idx++], t0 = Date.now(), t1 = t0 + p.durationMs;
             clear();
             timedTimer = setInterval(() => {
               if (locked) { clear(); return; }
-              const now = Date.now();
-              const r = clamp((now - t0) / p.durationMs, 0, 1);
-              const newVal = p.progressStart + (p.progressEnd - p.progressStart) * r;
-              if (newVal > cur) { cur = newVal; paint(); }
-              if (now >= t1) { clear(); cur = Math.max(cur, p.progressEnd); paint(); next(); }
+              const r = clamp((Date.now() - t0) / p.durationMs, 0, 1);
+              const nv = p.progressStart + (p.progressEnd - p.progressStart) * r;
+              if (nv > cur) { cur = nv; paint(); }
+              if (Date.now() >= t1) { clear(); cur = Math.max(cur, p.progressEnd); paint(); next(); }
             }, 80);
           };
           next();
         },
-        
         set(p) { if (!locked && p > cur) { cur = clamp(p, 0, 100); paint(); } },
-        
         to(target, ms = 1200, cb) {
-          const targetClamped = clamp(target, 0, 100);
-          if (targetClamped <= cur) { if (cb) cb(); return; }
-          const s = cur, e = targetClamped, t0 = performance.now();
-          const step = t => {
-            if (locked) { if (cb) cb(); return; }
-            const k = clamp((t - t0) / ms, 0, 1);
-            const newVal = s + (e - s) * k;
-            if (newVal > cur) { cur = newVal; paint(); }
+          const t = clamp(target, 0, 100);
+          if (t <= cur) { cb?.(); return; }
+          const s = cur, t0 = performance.now();
+          const step = now => {
+            if (locked) { cb?.(); return; }
+            const k = clamp((now - t0) / ms, 0, 1), nv = s + (t - s) * k;
+            if (nv > cur) { cur = nv; paint(); }
             if (k < 1) requestAnimationFrame(step);
-            else if (cb) cb();
+            else cb?.();
           };
           requestAnimationFrame(step);
         },
-        
         done(data) {
-          console.log('[UploadToN8nWithLoaderDev] Done, closing...');
-          locked = true;
-          clear();
-          
+          console.log('[UploadExt] Done');
+          locked = true; clear();
           this.to(100, 400, () => {
             loader.classList.add('complete');
             setTimeout(() => {
@@ -758,29 +664,18 @@ export const UploadToN8nWithLoaderDev = {
     
     function buildPlan() {
       const haveSeconds = timedPhases.every(ph => Number(ph.seconds) > 0);
-      let total = haveSeconds ? timedPhases.reduce((s, ph) => s + Number(ph.seconds), 0) : totalSeconds;
-      const weightsSum = timedPhases.reduce((s, ph) => s + (Number(ph.weight) || 0), 0) || timedPhases.length;
-      const alloc = timedPhases.map((ph) => {
-        const sec = haveSeconds ? Number(ph.seconds) : (Number(ph.weight) || 1) / weightsSum * total;
-        return { key: ph.key, seconds: sec };
-      });
+      const total = haveSeconds ? timedPhases.reduce((s, ph) => s + Number(ph.seconds), 0) : totalSeconds;
+      const alloc = timedPhases.map(ph => ({ seconds: haveSeconds ? Number(ph.seconds) : total / timedPhases.length }));
       const startP = 5, endP = 98;
       const totalMs = alloc.reduce((s, a) => s + a.seconds * 1000, 0);
       let acc = 0, last = startP;
-      const plan = alloc.map((a, i) => {
+      return alloc.map((a, i) => {
         const pStart = i === 0 ? startP : last;
         const pEnd = i === alloc.length - 1 ? endP : startP + (endP - startP) * ((acc + a.seconds * 1000) / totalMs);
         acc += a.seconds * 1000;
         last = pEnd;
         return { durationMs: Math.max(500, a.seconds * 1000), progressStart: pStart, progressEnd: pEnd };
       });
-      if (!plan.length) {
-        return defaultAutoSteps.map((s, i, arr) => ({
-          durationMs: i === 0 ? 1000 : 1500,
-          progressStart: i ? arr[i - 1].progress : 0, progressEnd: s.progress
-        }));
-      }
-      return plan;
     }
     
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
@@ -791,37 +686,27 @@ export const UploadToN8nWithLoaderDev = {
           const to = setTimeout(() => ctrl.abort(), timeoutMs);
           const fd = new FormData();
           files.forEach(f => fd.append(fileFieldName, f, f.name));
-          
           Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
-          Object.entries(variables).forEach(([k, v]) => {
-            fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''));
-          });
-          
+          Object.entries(variables).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
           if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
           if (vfContext.user_id) fd.append('user_id', vfContext.user_id);
-          if (vfContext.locale) fd.append('locale', vfContext.locale);
-          
-          const h = { ...headers };
-          delete h['Content-Type'];
+          const h = { ...headers }; delete h['Content-Type'];
           const r = await fetch(url, { method, headers: h, body: fd, signal: ctrl.signal });
           clearTimeout(to);
-          if (!r.ok) throw new Error(`Erreur ${r.status}`);
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return { ok: true, data: await r.json().catch(() => null) };
-        } catch (e) {
-          err = e;
-          if (i < retries) await new Promise(r => setTimeout(r, 900));
-        }
+        } catch (e) { err = e; if (i < retries) await new Promise(r => setTimeout(r, 900)); }
       }
-      throw err || new Error('Échec');
+      throw err || new Error('Failed');
     }
     
     async function poll({ statusUrl, headers, intervalMs, maxAttempts, onTick }) {
       for (let i = 1; i <= maxAttempts; i++) {
         const r = await fetch(statusUrl, { headers });
-        if (!r.ok) throw new Error(`Polling ${r.status}`);
+        if (!r.ok) throw new Error(`Poll ${r.status}`);
         const j = await r.json().catch(() => ({}));
-        if (j?.status === 'error') throw new Error(j?.error || 'Erreur');
-        if (typeof onTick === 'function') onTick({ percent: j?.percent, phase: j?.phase, message: j?.message });
+        if (j?.status === 'error') throw new Error(j?.error || 'Error');
+        onTick?.({ percent: j?.percent, phase: j?.phase });
         if (j?.status === 'done') return j?.data ?? j;
         await new Promise(r => setTimeout(r, intervalMs));
       }
