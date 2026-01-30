@@ -1,18 +1,17 @@
-// UploadToN8nWithLoader-dev.js – v8.2
-// © Corentin – Interception AGRESSIVE des messages user
-// v8.2 : Intercepte les events au niveau le plus bas (capture phase)
-//        Empêche l'envoi natif à Voiceflow
-//        Fermeture garantie
+// UploadToN8nWithLoader.js – v9.0
+// © Corentin – Architecture non-bloquante avec listen: false
+// L'utilisateur peut uploader OU taper dans le chat natif
 //
-export const UploadToN8nWithLoaderDev = {
-  name: 'UploadToN8nWithLoaderDev',
+export const UploadToN8nWithLoader = {
+  name: 'UploadToN8nWithLoader',
   type: 'response',
+  
   match(context) {
     try {
       const t = context?.trace || {};
       const type = t.type || '';
       const pname = t.payload?.name || '';
-      const isMe = s => /(^ext_)?UploadToN8nWithLoaderDev$/i.test(s || '');
+      const isMe = s => /(^ext_)?UploadToN8nWithLoader$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
       console.error('[UploadExt] match error:', e);
@@ -26,275 +25,15 @@ export const UploadToN8nWithLoaderDev = {
       return;
     }
     
-    console.log('[UploadExt] v8.2 - Init');
+    console.log('[UploadExt] v9.0 - Init (non-bloquant)');
     
     // ══════════════════════════════════════════════════════════════
     // STATE
     // ══════════════════════════════════════════════════════════════
     let isActive = true;
+    let hasInteracted = false; // Pour éviter les doubles interactions
     let timedTimer = null;
     const cleanupFns = [];
-    
-    // ══════════════════════════════════════════════════════════════
-    // SHADOW DOM HELPERS
-    // ══════════════════════════════════════════════════════════════
-    const getAllShadowRoots = () => {
-      const roots = [];
-      const walk = (node) => {
-        if (node.shadowRoot) {
-          roots.push(node.shadowRoot);
-          node.shadowRoot.querySelectorAll('*').forEach(walk);
-        }
-        if (node.querySelectorAll) {
-          node.querySelectorAll('*').forEach(child => {
-            if (child.shadowRoot) {
-              roots.push(child.shadowRoot);
-              walk(child.shadowRoot);
-            }
-          });
-        }
-      };
-      walk(document);
-      return roots;
-    };
-    
-    const findInShadow = (selector) => {
-      let el = document.querySelector(selector);
-      if (el) return el;
-      for (const root of getAllShadowRoots()) {
-        el = root.querySelector(selector);
-        if (el) return el;
-      }
-      return null;
-    };
-    
-    // ══════════════════════════════════════════════════════════════
-    // CLEANUP
-    // ══════════════════════════════════════════════════════════════
-    const cleanup = () => {
-      console.log('[UploadExt] Cleanup');
-      isActive = false;
-      if (timedTimer) { clearInterval(timedTimer); timedTimer = null; }
-      cleanupFns.forEach(fn => { try { fn(); } catch(e) {} });
-      cleanupFns.length = 0;
-    };
-    
-    const forceClose = () => {
-      console.log('[UploadExt] Force close');
-      cleanup();
-      try { root.style.display = 'none'; } catch(e) {}
-      try { root.style.visibility = 'hidden'; } catch(e) {}
-      try { root.style.height = '0'; } catch(e) {}
-      try { root.style.overflow = 'hidden'; } catch(e) {}
-      try { if (root.parentNode) root.parentNode.removeChild(root); } catch(e) {}
-    };
-    
-    const sendInteract = (payload) => {
-      console.log('[UploadExt] Interact:', payload);
-      try {
-        window?.voiceflow?.chat?.interact?.({ type: 'complete', payload });
-      } catch(e) {
-        console.error('[UploadExt] Interact error:', e);
-      }
-    };
-    
-    // ══════════════════════════════════════════════════════════════
-    // INTERCEPTION DES MESSAGES USER
-    // ══════════════════════════════════════════════════════════════
-    const setupInputInterception = () => {
-      console.log('[UploadExt] Setting up input interception...');
-      
-      // Chercher les éléments dans shadow DOM
-      const textareaSelectors = [
-        'textarea.vfrc-chat-input',
-        'textarea[id^="vf-chat-input"]',
-        'textarea[class*="chat"]',
-        'textarea[class*="input"]',
-        'textarea',
-        'input[type="text"][class*="chat"]'
-      ];
-      
-      const buttonSelectors = [
-        '#vfrc-send-message',
-        'button.vfrc-chat-input__send',
-        'button[type="submit"]',
-        'button[class*="send"]',
-        'button[aria-label*="send"]',
-        'button[aria-label*="Send"]'
-      ];
-      
-      const formSelectors = [
-        'form.vfrc-chat-input',
-        'form[class*="chat"]',
-        'form[class*="input"]',
-        'form'
-      ];
-      
-      let textarea = null;
-      let sendBtn = null;
-      let form = null;
-      
-      // Trouver le textarea
-      for (const sel of textareaSelectors) {
-        textarea = findInShadow(sel);
-        if (textarea) {
-          console.log('[UploadExt] Found textarea:', sel);
-          break;
-        }
-      }
-      
-      // Trouver le bouton send
-      for (const sel of buttonSelectors) {
-        sendBtn = findInShadow(sel);
-        if (sendBtn) {
-          console.log('[UploadExt] Found send button:', sel);
-          break;
-        }
-      }
-      
-      // Trouver le form
-      for (const sel of formSelectors) {
-        form = findInShadow(sel);
-        if (form) {
-          console.log('[UploadExt] Found form:', sel);
-          break;
-        }
-      }
-      
-      if (!textarea) {
-        console.warn('[UploadExt] No textarea found!');
-      }
-      
-      // ─────────────────────────────────────────────────────────────
-      // HANDLER PRINCIPAL
-      // ─────────────────────────────────────────────────────────────
-      const handleUserInput = (e) => {
-        if (!isActive) return;
-        if (!textarea) return;
-        
-        const text = textarea.value?.trim();
-        if (!text) return;
-        
-        console.log('[UploadExt] Intercepted user input:', text);
-        
-        // BLOQUER L'ÉVÉNEMENT NATIF
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        // Vider le textarea
-        textarea.value = '';
-        
-        // Trigger input event pour que Voiceflow update son state
-        try {
-          textarea.dispatchEvent(new Event('input', { bubbles: true }));
-        } catch(err) {}
-        
-        // Fermer et envoyer
-        forceClose();
-        sendInteract({
-          webhookSuccess: false,
-          buttonPath: 'write',
-          userMessage: text
-        });
-        
-        return false;
-      };
-      
-      // ─────────────────────────────────────────────────────────────
-      // ATTACHER LES LISTENERS (capture phase = true)
-      // ─────────────────────────────────────────────────────────────
-      
-      // Sur le form
-      if (form) {
-        const onSubmit = (e) => {
-          if (!isActive) return;
-          console.log('[UploadExt] Form submit intercepted');
-          handleUserInput(e);
-        };
-        form.addEventListener('submit', onSubmit, true);
-        cleanupFns.push(() => form.removeEventListener('submit', onSubmit, true));
-      }
-      
-      // Sur le bouton send
-      if (sendBtn) {
-        const onClick = (e) => {
-          if (!isActive) return;
-          console.log('[UploadExt] Send button click intercepted');
-          handleUserInput(e);
-        };
-        sendBtn.addEventListener('click', onClick, true);
-        sendBtn.addEventListener('mousedown', onClick, true);
-        sendBtn.addEventListener('pointerdown', onClick, true);
-        cleanupFns.push(() => {
-          sendBtn.removeEventListener('click', onClick, true);
-          sendBtn.removeEventListener('mousedown', onClick, true);
-          sendBtn.removeEventListener('pointerdown', onClick, true);
-        });
-      }
-      
-      // Sur le textarea (Enter key)
-      if (textarea) {
-        const onKeydown = (e) => {
-          if (!isActive) return;
-          if (e.key === 'Enter' && !e.shiftKey) {
-            console.log('[UploadExt] Enter key intercepted');
-            handleUserInput(e);
-          }
-        };
-        textarea.addEventListener('keydown', onKeydown, true);
-        textarea.addEventListener('keypress', onKeydown, true);
-        cleanupFns.push(() => {
-          textarea.removeEventListener('keydown', onKeydown, true);
-          textarea.removeEventListener('keypress', onKeydown, true);
-        });
-      }
-      
-      // ─────────────────────────────────────────────────────────────
-      // GLOBAL LISTENER (backup)
-      // Intercepte au niveau document/window
-      // ─────────────────────────────────────────────────────────────
-      const globalKeyHandler = (e) => {
-        if (!isActive) return;
-        if (e.key === 'Enter' && !e.shiftKey) {
-          // Vérifier si le focus est sur notre textarea
-          const activeEl = document.activeElement;
-          const shadowActive = activeEl?.shadowRoot?.activeElement;
-          
-          if (activeEl?.tagName === 'TEXTAREA' || shadowActive?.tagName === 'TEXTAREA') {
-            const ta = shadowActive || activeEl;
-            const text = ta.value?.trim();
-            if (text && ta !== fileInput) {
-              console.log('[UploadExt] Global Enter intercepted');
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation();
-              
-              ta.value = '';
-              
-              forceClose();
-              sendInteract({
-                webhookSuccess: false,
-                buttonPath: 'write',
-                userMessage: text
-              });
-            }
-          }
-        }
-      };
-      
-      document.addEventListener('keydown', globalKeyHandler, true);
-      window.addEventListener('keydown', globalKeyHandler, true);
-      cleanupFns.push(() => {
-        document.removeEventListener('keydown', globalKeyHandler, true);
-        window.removeEventListener('keydown', globalKeyHandler, true);
-      });
-      
-      console.log('[UploadExt] Input interception ready');
-    };
-    
-    // Setup interception après un court délai (laisser le DOM se stabiliser)
-    setTimeout(setupInputInterception, 100);
     
     // ══════════════════════════════════════════════════════════════
     // CONFIG
@@ -302,7 +41,7 @@ export const UploadToN8nWithLoaderDev = {
     const p = trace?.payload || {};
     const title         = p.title || '';
     const subtitle      = p.subtitle || '';
-    const description   = p.description || 'Déposez vos fichiers ici';
+    const description   = p.description || 'Déposez vos fichiers ici ou tapez un message ci-dessous';
     const accept        = p.accept || '.pdf,.docx';
     const maxFileSizeMB = p.maxFileSizeMB || 25;
     const maxFiles      = p.maxFiles || 10;
@@ -356,12 +95,77 @@ export const UploadToN8nWithLoaderDev = {
     
     const timedPhases = Array.isArray(loaderCfg.phases) ? loaderCfg.phases : [];
     const totalSeconds = Number(loaderCfg.totalSeconds) > 0 ? Number(loaderCfg.totalSeconds) : 120;
-    const stepMap = loaderCfg.stepMap || {};
     
     if (!webhookUrl) {
       element.innerHTML = `<div style="padding:16px;color:${colors.error}">Config manquante: webhook.url</div>`;
       return;
     }
+    
+    // ══════════════════════════════════════════════════════════════
+    // CLEANUP & CLOSE
+    // ══════════════════════════════════════════════════════════════
+    const cleanup = () => {
+      console.log('[UploadExt] Cleanup');
+      isActive = false;
+      if (timedTimer) { clearInterval(timedTimer); timedTimer = null; }
+      cleanupFns.forEach(fn => { try { fn(); } catch(e) {} });
+      cleanupFns.length = 0;
+    };
+    
+    const forceClose = () => {
+      if (!isActive) return;
+      console.log('[UploadExt] Force close');
+      cleanup();
+      try { root.style.display = 'none'; } catch(e) {}
+      try { root.style.visibility = 'hidden'; } catch(e) {}
+      try { root.style.height = '0'; } catch(e) {}
+      try { root.style.overflow = 'hidden'; } catch(e) {}
+      try { if (root.parentNode) root.parentNode.removeChild(root); } catch(e) {}
+    };
+    
+    const sendInteract = (payload) => {
+      if (hasInteracted) {
+        console.log('[UploadExt] Already interacted, skipping');
+        return;
+      }
+      hasInteracted = true;
+      console.log('[UploadExt] Interact:', payload);
+      try {
+        window?.voiceflow?.chat?.interact?.({ type: 'complete', payload });
+      } catch(e) {
+        console.error('[UploadExt] Interact error:', e);
+      }
+    };
+    
+    // ══════════════════════════════════════════════════════════════
+    // ÉCOUTE DES MESSAGES UTILISATEUR (CHAT NATIF)
+    // ══════════════════════════════════════════════════════════════
+    const handleVoiceflowMessage = (event) => {
+      if (!isActive) return;
+      
+      // Vérifier si c'est un événement Voiceflow
+      if (event.data && typeof event.data === 'string') {
+        try {
+          const data = JSON.parse(event.data);
+          
+          // Détecter une interaction (message utilisateur ou autre)
+          if (data.type === 'voiceflow:interact') {
+            console.log('[UploadExt] Voiceflow interaction détectée - fermeture UI');
+            forceClose();
+          }
+        } catch (e) {
+          // Pas un JSON valide, ignorer
+        }
+      }
+    };
+    
+    // Ajouter le listener global
+    window.addEventListener('message', handleVoiceflowMessage);
+    cleanupFns.push(() => {
+      window.removeEventListener('message', handleVoiceflowMessage);
+    });
+    
+    console.log('[UploadExt] Listener voiceflow:interact actif');
     
     // ══════════════════════════════════════════════════════════════
     // UI
@@ -423,6 +227,7 @@ export const UploadToN8nWithLoaderDev = {
       .upl-loader.complete .upl-loader-pct { color: ${colors.success}; }
       .upl-overlay { display: none; position: absolute; inset: 0; z-index: 10; }
       .upl-overlay.show { display: block; }
+      .upl-chat-hint { margin-top: 12px; padding: 10px; background: #EFF6FF; border-radius: 6px; text-align: center; font-size: 12px; color: #3B82F6; }
     `;
     
     const icons = {
@@ -456,6 +261,7 @@ export const UploadToN8nWithLoaderDev = {
             </div>
           </div>
           <div class="upl-msg"></div>
+          <div class="upl-chat-hint">💬 Vous pouvez aussi taper un message dans le chat ci-dessous</div>
         </div>
         <div class="upl-loader">
           <div class="upl-loader-container">
@@ -529,7 +335,7 @@ export const UploadToN8nWithLoaderDev = {
     const addFiles = (files) => {
       const ok = [], errs = [];
       for (const f of files) {
-        if (selectedFiles.length + ok.length >= maxFiles) { errs.push('Limite'); break; }
+        if (selectedFiles.length + ok.length >= maxFiles) { errs.push('Limite atteinte'); break; }
         if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
         if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
         ok.push(f);
@@ -544,8 +350,12 @@ export const UploadToN8nWithLoaderDev = {
     uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
     fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
     
+    // ══════════════════════════════════════════════════════════════
+    // UPLOAD HANDLER
+    // ══════════════════════════════════════════════════════════════
     sendBtn.onclick = async () => {
       if (selectedFiles.length < requiredFiles) return;
+      if (!isActive) return;
       
       console.log('[UploadExt] Starting upload...');
       
@@ -599,6 +409,9 @@ export const UploadToN8nWithLoaderDev = {
       }
     };
     
+    // ══════════════════════════════════════════════════════════════
+    // LOADER UI
+    // ══════════════════════════════════════════════════════════════
     function showLoaderUI() {
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
@@ -662,6 +475,9 @@ export const UploadToN8nWithLoaderDev = {
       };
     }
     
+    // ══════════════════════════════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════════════════════════════
     function buildPlan() {
       const haveSeconds = timedPhases.every(ph => Number(ph.seconds) > 0);
       const total = haveSeconds ? timedPhases.reduce((s, ph) => s + Number(ph.seconds), 0) : totalSeconds;
@@ -716,4 +532,6 @@ export const UploadToN8nWithLoaderDev = {
     return cleanup;
   }
 };
-try { window.UploadToN8nWithLoaderDev = UploadToN8nWithLoaderDev; } catch {}
+
+// Export global
+try { window.UploadToN8nWithLoader = UploadToN8nWithLoader; } catch {}
