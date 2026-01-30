@@ -1,17 +1,15 @@
-// UploadToN8nWithLoader.js – v9.2
-// © Corentin – Compatible Custom Action avec stop on action
-// L'utilisateur peut uploader OU taper dans le chat natif
+// UploaderDev.js – v9.3
+// © Corentin – Sans hint chat
 //
-export const UploadToN8nWithLoader = {
-  name: 'UploadToN8nWithLoader',
+export const UploaderDev = {
+  name: 'UploaderDev',
   type: 'response',
-  
   match(context) {
     try {
       const t = context?.trace || {};
       const type = t.type || '';
       const pname = t.payload?.name || '';
-      const isMe = s => /(^ext_)?UploadToN8nWithLoader$/i.test(s || '');
+      const isMe = s => /(^ext_)?UploaderDev(Dev)?$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
       console.error('[UploadExt] match error:', e);
@@ -21,28 +19,120 @@ export const UploadToN8nWithLoader = {
   
   render({ trace, element }) {
     if (!element) {
-      console.error('[UploadExt] No element');
+      console.error('[UploadExt] Élément parent introuvable');
       return;
     }
     
-    console.log('[UploadExt] v9.2 - Init (Custom Action + stop on action)');
+    console.log('[UploadExt] v9.3 - Init');
     
-    // ══════════════════════════════════════════════════════════════
-    // STATE
-    // ══════════════════════════════════════════════════════════════
-    let isActive = true;
-    let hasInteracted = false;
-    let isUploading = false; // NOUVEAU : track si upload en cours
+    const findChatContainer = () => {
+      let container = document.querySelector('#voiceflow-chat-container');
+      if (container?.shadowRoot) return container;
+      container = document.querySelector('#voiceflow-chat');
+      if (container?.shadowRoot) return container;
+      const allWithShadow = document.querySelectorAll('*');
+      for (const el of allWithShadow) {
+        if (el.shadowRoot?.querySelector('[class*="vfrc"]')) return el;
+      }
+      return null;
+    };
+    
+    let isComponentActive = true;
+    let isUploading = false;
     let timedTimer = null;
-    const cleanupFns = [];
+    let cleanupObserver = null;
     
-    // ══════════════════════════════════════════════════════════════
-    // CONFIG
-    // ══════════════════════════════════════════════════════════════
+    const setupAutoUnlock = () => {
+      const container = findChatContainer();
+      if (!container?.shadowRoot) {
+        console.log('[UploadExt] Pas de shadowRoot, auto-unlock désactivé');
+        return null;
+      }
+      
+      const shadowRoot = container.shadowRoot;
+      const selectors = [
+        '.vfrc-chat--dialog',
+        '[class*="Dialog"]',
+        '[class*="dialog"]',
+        '.vfrc-chat',
+        '[class*="Messages"]',
+        '[class*="messages"]'
+      ];
+      
+      let dialogEl = null;
+      for (const sel of selectors) {
+        dialogEl = shadowRoot.querySelector(sel);
+        if (dialogEl) break;
+      }
+      
+      if (!dialogEl) {
+        console.log('[UploadExt] Pas de dialog trouvé');
+        return null;
+      }
+      
+      console.log('[UploadExt] Auto-unlock configuré');
+      
+      const observer = new MutationObserver((mutations) => {
+        if (!isComponentActive) return;
+        if (isUploading) return;
+        
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType !== Node.ELEMENT_NODE) continue;
+            if (node.dataset?.uploadExtension === 'true') continue;
+            
+            const isUserMessage = 
+              node.classList?.contains('vfrc-user-response') ||
+              node.classList?.contains('vfrc-message--user') ||
+              node.querySelector?.('[class*="user"]');
+            
+            const isSystemResponse = 
+              node.classList?.contains('vfrc-system-response') ||
+              node.classList?.contains('vfrc-assistant') ||
+              node.querySelector?.('[class*="assistant"]') ||
+              node.querySelector?.('[class*="system"]');
+            
+            if (isUserMessage || isSystemResponse) {
+              console.log('[UploadExt] Activité détectée, fermeture UI');
+              autoUnlock();
+              return;
+            }
+          }
+        }
+      });
+      
+      observer.observe(dialogEl, { childList: true, subtree: true });
+      return () => observer.disconnect();
+    };
+    
+    const autoUnlock = () => {
+      if (!isComponentActive) return;
+      console.log('[UploadExt] Auto-unlock triggered');
+      isComponentActive = false;
+      
+      if (cleanupObserver) {
+        cleanupObserver();
+        cleanupObserver = null;
+      }
+      
+      if (timedTimer) {
+        clearInterval(timedTimer);
+        timedTimer = null;
+      }
+      
+      root.style.display = 'none';
+    };
+    
+    setTimeout(() => {
+      if (isComponentActive && !isUploading) {
+        cleanupObserver = setupAutoUnlock();
+      }
+    }, 500);
+    
     const p = trace?.payload || {};
     const title         = p.title || '';
     const subtitle      = p.subtitle || '';
-    const description   = p.description || 'Déposez vos fichiers ici ou tapez un message ci-dessous';
+    const description   = p.description || 'Déposez vos fichiers ici';
     const accept        = p.accept || '.pdf,.docx';
     const maxFileSizeMB = p.maxFileSizeMB || 25;
     const maxFiles      = p.maxFiles || 10;
@@ -102,94 +192,6 @@ export const UploadToN8nWithLoader = {
       return;
     }
     
-    // ══════════════════════════════════════════════════════════════
-    // CLEANUP & CLOSE
-    // ══════════════════════════════════════════════════════════════
-    const cleanup = () => {
-      console.log('[UploadExt] Cleanup');
-      isActive = false;
-      if (timedTimer) { clearInterval(timedTimer); timedTimer = null; }
-      cleanupFns.forEach(fn => { try { fn(); } catch(e) {} });
-      cleanupFns.length = 0;
-    };
-    
-    const forceClose = () => {
-      if (!isActive) return;
-      console.log('[UploadExt] Force close');
-      cleanup();
-      try { root.style.display = 'none'; } catch(e) {}
-      try { root.style.visibility = 'hidden'; } catch(e) {}
-      try { root.style.height = '0'; } catch(e) {}
-      try { root.style.overflow = 'hidden'; } catch(e) {}
-      try { if (root.parentNode) root.parentNode.removeChild(root); } catch(e) {}
-    };
-    
-    const sendInteract = (payload) => {
-      if (hasInteracted) {
-        console.log('[UploadExt] Already interacted, skipping');
-        return;
-      }
-      hasInteracted = true;
-      console.log('[UploadExt] Interact:', payload);
-      try {
-        window?.voiceflow?.chat?.interact?.({ type: 'complete', payload });
-      } catch(e) {
-        console.error('[UploadExt] Interact error:', e);
-      }
-    };
-    
-    // ══════════════════════════════════════════════════════════════
-    // ÉCOUTE DES MESSAGES UTILISATEUR (pour fermer l'UI seulement)
-    // Voiceflow capture déjà last_utterance, on ferme juste l'UI
-    // ══════════════════════════════════════════════════════════════
-    const LISTEN_DELAY_MS = 1500;
-    let listeningEnabled = false;
-    
-    const handleVoiceflowMessage = (event) => {
-      if (!isActive || !listeningEnabled) return;
-      
-      // Ne pas fermer si upload en cours
-      if (isUploading) {
-        console.log('[UploadExt] Event ignoré - upload en cours');
-        return;
-      }
-      
-      if (event.data && typeof event.data === 'string') {
-        try {
-          const data = JSON.parse(event.data);
-          
-          // Détecter quand Voiceflow reçoit un message (l'utilisateur a tapé)
-          if (data.type === 'voiceflow:interact') {
-            console.log('[UploadExt] Utilisateur a tapé un message - fermeture UI');
-            // On ferme juste l'UI, on n'envoie RIEN car Voiceflow a déjà le message dans last_utterance
-            forceClose();
-          }
-        } catch (e) {
-          // Ignorer
-        }
-      }
-    };
-    
-    window.addEventListener('message', handleVoiceflowMessage);
-    cleanupFns.push(() => {
-      window.removeEventListener('message', handleVoiceflowMessage);
-    });
-    
-    // Activer l'écoute après délai
-    const listenTimeout = setTimeout(() => {
-      if (isActive && !isUploading) {
-        listeningEnabled = true;
-        console.log('[UploadExt] Écoute activée (après ' + LISTEN_DELAY_MS + 'ms)');
-      }
-    }, LISTEN_DELAY_MS);
-    
-    cleanupFns.push(() => clearTimeout(listenTimeout));
-    
-    console.log('[UploadExt] Listener configuré - activation dans ' + LISTEN_DELAY_MS + 'ms');
-    
-    // ══════════════════════════════════════════════════════════════
-    // UI
-    // ══════════════════════════════════════════════════════════════
     const hasTitle = title?.trim();
     const hasSubtitle = subtitle?.trim();
     const showHeader = hasTitle || hasSubtitle;
@@ -247,7 +249,6 @@ export const UploadToN8nWithLoader = {
       .upl-loader.complete .upl-loader-pct { color: ${colors.success}; }
       .upl-overlay { display: none; position: absolute; inset: 0; z-index: 10; }
       .upl-overlay.show { display: block; }
-      .upl-chat-hint { margin-top: 12px; padding: 10px; background: #EFF6FF; border-radius: 6px; text-align: center; font-size: 12px; color: #3B82F6; }
     `;
     
     const icons = {
@@ -281,7 +282,6 @@ export const UploadToN8nWithLoader = {
             </div>
           </div>
           <div class="upl-msg"></div>
-          <div class="upl-chat-hint">💬 Vous pouvez aussi taper un message dans le chat ci-dessous</div>
         </div>
         <div class="upl-loader">
           <div class="upl-loader-container">
@@ -370,18 +370,18 @@ export const UploadToN8nWithLoader = {
     uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
     fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
     
-    // ══════════════════════════════════════════════════════════════
-    // UPLOAD HANDLER
-    // ══════════════════════════════════════════════════════════════
     sendBtn.onclick = async () => {
       if (selectedFiles.length < requiredFiles) return;
-      if (!isActive) return;
+      if (!isComponentActive) return;
       
       console.log('[UploadExt] Starting upload...');
       
-      // Marquer qu'un upload est en cours (désactive la fermeture auto)
       isUploading = true;
-      listeningEnabled = false;
+      
+      if (cleanupObserver) {
+        cleanupObserver();
+        cleanupObserver = null;
+      }
       
       root.style.pointerEvents = 'none';
       overlay.classList.add('show');
@@ -429,18 +429,25 @@ export const UploadToN8nWithLoader = {
       } catch (err) {
         console.error('[UploadExt] Error:', err);
         isUploading = false;
-        forceClose();
-        sendInteract({ 
-          webhookSuccess: false, 
-          error: String(err?.message || err), 
-          buttonPath: 'error' 
+        isComponentActive = false;
+        loader.classList.remove('show');
+        bodyDiv.style.display = '';
+        showMsg(String(err?.message || err), 'err');
+        sendBtn.disabled = false;
+        root.style.pointerEvents = '';
+        overlay.classList.remove('show');
+        
+        window?.voiceflow?.chat?.interact?.({
+          type: 'complete',
+          payload: { 
+            webhookSuccess: false, 
+            error: String(err?.message || err), 
+            buttonPath: 'error' 
+          }
         });
       }
     };
     
-    // ══════════════════════════════════════════════════════════════
-    // LOADER UI
-    // ══════════════════════════════════════════════════════════════
     function showLoaderUI() {
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
@@ -486,18 +493,23 @@ export const UploadToN8nWithLoader = {
           requestAnimationFrame(step);
         },
         done(data) {
-          console.log('[UploadExt] Upload terminé avec succès');
+          console.log('[UploadExt] Upload terminé');
           locked = true; clear();
           this.to(100, 400, () => {
             loader.classList.add('complete');
             setTimeout(() => {
               isUploading = false;
-              forceClose();
-              sendInteract({
-                webhookSuccess: true,
-                webhookResponse: data,
-                files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
-                buttonPath: 'success'
+              isComponentActive = false;
+              root.style.display = 'none';
+              
+              window?.voiceflow?.chat?.interact?.({
+                type: 'complete',
+                payload: {
+                  webhookSuccess: true,
+                  webhookResponse: data,
+                  files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+                  buttonPath: 'success'
+                }
               });
             }, autoCloseDelayMs);
           });
@@ -505,9 +517,6 @@ export const UploadToN8nWithLoader = {
       };
     }
     
-    // ══════════════════════════════════════════════════════════════
-    // HELPERS
-    // ══════════════════════════════════════════════════════════════
     function buildPlan() {
       const haveSeconds = timedPhases.every(ph => Number(ph.seconds) > 0);
       const total = haveSeconds ? timedPhases.reduce((s, ph) => s + Number(ph.seconds), 0) : totalSeconds;
@@ -559,9 +568,12 @@ export const UploadToN8nWithLoader = {
       throw new Error('Timeout');
     }
     
-    return cleanup;
+    return () => { 
+      if (timedTimer) clearInterval(timedTimer); 
+      if (cleanupObserver) cleanupObserver();
+      isComponentActive = false;
+    };
   }
 };
 
-// Export global
-try { window.UploadToN8nWithLoader = UploadToN8nWithLoader; } catch {}
+try { window.UploaderDev = UploaderDev; } catch {}
