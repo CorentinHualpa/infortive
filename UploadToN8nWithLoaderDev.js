@@ -41,87 +41,89 @@ export const UploadToN8nWithLoaderDev = {
     // ---------- STATE ----------
     let isComponentActive = true;
     let cleanupObserver = null;
-    let cleanupInputListener = null;
+    let cleanupUserMsgObserver = null;
     let timedTimer = null;
     
-    // ---------- LISTENER MESSAGE USER ----------
-    const setupUserInputListener = () => {
+    // ---------- OBSERVER MESSAGE USER (via DOM) ----------
+    const setupUserMessageObserver = () => {
       const container = findChatContainer();
-      if (!container?.shadowRoot) return null;
+      if (!container?.shadowRoot) {
+        console.log('[UploadToN8nWithLoaderDev] No shadowRoot found for user message observer');
+        return null;
+      }
       
       const shadowRoot = container.shadowRoot;
       
-      // Trouver le formulaire ou le bouton d'envoi
-      const form = shadowRoot.querySelector('form');
-      const sendBtn = 
-        shadowRoot.querySelector('#vfrc-send-message') ||
-        shadowRoot.querySelector('button.vfrc-chat-input__send') ||
-        shadowRoot.querySelector('button[type="submit"]');
-      const textarea = 
-        shadowRoot.querySelector('textarea.vfrc-chat-input') ||
-        shadowRoot.querySelector('textarea[id^="vf-chat-input"]') ||
-        shadowRoot.querySelector('textarea');
+      // Trouver le conteneur des messages
+      const selectors = [
+        '.vfrc-chat--dialog',
+        '[class*="Dialog"]',
+        '[class*="dialog"]',
+        '.vfrc-chat',
+        '[class*="Messages"]',
+        '[class*="messages"]'
+      ];
       
-      if (!textarea) return null;
-      
-      const handleUserMessage = (e) => {
-        if (!isComponentActive) return;
-        
-        const message = textarea.value?.trim();
-        if (!message) return;
-        
-        // Empêcher l'envoi normal
-        e.preventDefault();
-        e.stopPropagation();
-        
-        console.log('[UploadToN8nWithLoaderDev] User typed message:', message);
-        
-        // Fermer l'extension et envoyer le message
-        closeAndSendUserMessage(message);
-      };
-      
-      // Écouter submit sur le form
-      if (form) {
-        form.addEventListener('submit', handleUserMessage, true);
+      let dialogEl = null;
+      for (const sel of selectors) {
+        dialogEl = shadowRoot.querySelector(sel);
+        if (dialogEl) break;
       }
       
-      // Écouter click sur le bouton send
-      if (sendBtn) {
-        sendBtn.addEventListener('click', handleUserMessage, true);
+      if (!dialogEl) {
+        console.log('[UploadToN8nWithLoaderDev] No dialog element found');
+        return null;
       }
       
-      // Écouter Enter dans le textarea
-      const handleKeydown = (e) => {
+      console.log('[UploadToN8nWithLoaderDev] User message observer setup on:', dialogEl.className);
+      
+      const observer = new MutationObserver((mutations) => {
         if (!isComponentActive) return;
-        if (e.key === 'Enter' && !e.shiftKey) {
-          const message = textarea.value?.trim();
-          if (message) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeAndSendUserMessage(message);
+        
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType !== Node.ELEMENT_NODE) continue;
+            
+            // Détecter un message utilisateur
+            const isUserMessage = 
+              node.classList?.contains('vfrc-user-response') ||
+              node.classList?.contains('vfrc-message--user') ||
+              node.querySelector?.('[class*="user"]') ||
+              node.querySelector?.('[class*="User"]') ||
+              (node.className && typeof node.className === 'string' && node.className.toLowerCase().includes('user'));
+            
+            if (isUserMessage) {
+              // Extraire le texte du message
+              const messageText = node.textContent?.trim() || '';
+              console.log('[UploadToN8nWithLoaderDev] User message detected:', messageText);
+              
+              if (messageText) {
+                closeAndSendUserMessage(messageText);
+                return;
+              }
+            }
           }
         }
-      };
-      textarea.addEventListener('keydown', handleKeydown, true);
+      });
       
-      return () => {
-        if (form) form.removeEventListener('submit', handleUserMessage, true);
-        if (sendBtn) sendBtn.removeEventListener('click', handleUserMessage, true);
-        textarea.removeEventListener('keydown', handleKeydown, true);
-      };
+      observer.observe(dialogEl, { childList: true, subtree: true });
+      return () => observer.disconnect();
     };
     
     const closeAndSendUserMessage = (message) => {
+      if (!isComponentActive) return;
       isComponentActive = false;
+      
+      console.log('[UploadToN8nWithLoaderDev] Closing extension, user wrote:', message);
       
       // Cleanup
       if (cleanupObserver) {
         cleanupObserver();
         cleanupObserver = null;
       }
-      if (cleanupInputListener) {
-        cleanupInputListener();
-        cleanupInputListener = null;
+      if (cleanupUserMsgObserver) {
+        cleanupUserMsgObserver();
+        cleanupUserMsgObserver = null;
       }
       if (timedTimer) {
         clearInterval(timedTimer);
@@ -130,13 +132,6 @@ export const UploadToN8nWithLoaderDev = {
       
       // Masquer l'extension
       root.style.display = 'none';
-      
-      // Vider le textarea
-      const container = findChatContainer();
-      if (container?.shadowRoot) {
-        const textarea = container.shadowRoot.querySelector('textarea');
-        if (textarea) textarea.value = '';
-      }
       
       // Envoyer l'interact avec le message user
       window?.voiceflow?.chat?.interact?.({
@@ -149,8 +144,8 @@ export const UploadToN8nWithLoaderDev = {
       });
     };
     
-    // Setup du listener dès le départ
-    cleanupInputListener = setupUserInputListener();
+    // Setup de l'observer dès le départ
+    cleanupUserMsgObserver = setupUserMessageObserver();
     
     // ---------- AUTO-UNLOCK : Détecte si une autre action est déclenchée ----------
     const setupAutoUnlock = () => {
@@ -1008,9 +1003,9 @@ ${docs}</div>
       sendBtn.disabled = true;
       
       // Désactiver le listener de message user pendant l'upload
-      if (cleanupInputListener) {
-        cleanupInputListener();
-        cleanupInputListener = null;
+      if (cleanupUserMsgObserver) {
+        cleanupUserMsgObserver();
+        cleanupUserMsgObserver = null;
       }
       
       const startTime = Date.now();
@@ -1287,7 +1282,7 @@ ${docs}</div>
     return () => { 
       if (timedTimer) clearInterval(timedTimer); 
       if (cleanupObserver) cleanupObserver();
-      if (cleanupInputListener) cleanupInputListener();
+      if (cleanupUserMsgObserver) cleanupUserMsgObserver();
       isComponentActive = false;
     };
   }
