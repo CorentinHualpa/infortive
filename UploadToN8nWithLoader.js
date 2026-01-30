@@ -1,6 +1,6 @@
-// UploadToN8nWithLoader.js – v9.1
-// © Corentin – Architecture non-bloquante avec listen: false
-// v9.1 : Correction du délai d'écoute pour éviter fermeture immédiate
+// UploadToN8nWithLoader.js – v9.2
+// © Corentin – Compatible Custom Action avec stop on action
+// L'utilisateur peut uploader OU taper dans le chat natif
 //
 export const UploadToN8nWithLoader = {
   name: 'UploadToN8nWithLoader',
@@ -25,14 +25,14 @@ export const UploadToN8nWithLoader = {
       return;
     }
     
-    console.log('[UploadExt] v9.1 - Init (non-bloquant avec délai écoute)');
+    console.log('[UploadExt] v9.2 - Init (Custom Action + stop on action)');
     
     // ══════════════════════════════════════════════════════════════
     // STATE
     // ══════════════════════════════════════════════════════════════
     let isActive = true;
     let hasInteracted = false;
-    let listeningEnabled = false; // NOUVEAU : contrôle du délai d'écoute
+    let isUploading = false; // NOUVEAU : track si upload en cours
     let timedTimer = null;
     const cleanupFns = [];
     
@@ -108,7 +108,6 @@ export const UploadToN8nWithLoader = {
     const cleanup = () => {
       console.log('[UploadExt] Cleanup');
       isActive = false;
-      listeningEnabled = false;
       if (timedTimer) { clearInterval(timedTimer); timedTimer = null; }
       cleanupFns.forEach(fn => { try { fn(); } catch(e) {} });
       cleanupFns.length = 0;
@@ -140,67 +139,51 @@ export const UploadToN8nWithLoader = {
     };
     
     // ══════════════════════════════════════════════════════════════
-    // ÉCOUTE DES MESSAGES UTILISATEUR (CHAT NATIF)
+    // ÉCOUTE DES MESSAGES UTILISATEUR (pour fermer l'UI seulement)
+    // Voiceflow capture déjà last_utterance, on ferme juste l'UI
     // ══════════════════════════════════════════════════════════════
-    const LISTEN_DELAY_MS = 2000; // Délai avant d'écouter (évite fermeture immédiate)
+    const LISTEN_DELAY_MS = 1500;
+    let listeningEnabled = false;
     
     const handleVoiceflowMessage = (event) => {
-      // Ignorer si l'extension n'est plus active
-      if (!isActive) {
-        console.log('[UploadExt] Event ignoré - extension inactive');
+      if (!isActive || !listeningEnabled) return;
+      
+      // Ne pas fermer si upload en cours
+      if (isUploading) {
+        console.log('[UploadExt] Event ignoré - upload en cours');
         return;
       }
       
-      // Ignorer si l'écoute n'est pas encore activée
-      if (!listeningEnabled) {
-        console.log('[UploadExt] Event ignoré - délai initial non écoulé');
-        return;
-      }
-      
-      // Ignorer si on a déjà interagi (upload en cours ou terminé)
-      if (hasInteracted) {
-        console.log('[UploadExt] Event ignoré - interaction déjà effectuée');
-        return;
-      }
-      
-      // Vérifier si c'est un événement Voiceflow
       if (event.data && typeof event.data === 'string') {
         try {
           const data = JSON.parse(event.data);
           
-          console.log('[UploadExt] Event reçu:', data.type, data);
-          
-          // Détecter une interaction utilisateur (message texte)
+          // Détecter quand Voiceflow reçoit un message (l'utilisateur a tapé)
           if (data.type === 'voiceflow:interact') {
-            console.log('[UploadExt] Message utilisateur détecté - fermeture UI');
+            console.log('[UploadExt] Utilisateur a tapé un message - fermeture UI');
+            // On ferme juste l'UI, on n'envoie RIEN car Voiceflow a déjà le message dans last_utterance
             forceClose();
-            // Note: on n'appelle PAS sendInteract ici car Voiceflow a déjà reçu le message
-            // Le flow suivra automatiquement le chemin defaultTo ('error' / 'user-text')
           }
         } catch (e) {
-          // Pas un JSON valide, ignorer silencieusement
+          // Ignorer
         }
       }
     };
     
-    // Ajouter le listener global
     window.addEventListener('message', handleVoiceflowMessage);
     cleanupFns.push(() => {
       window.removeEventListener('message', handleVoiceflowMessage);
-      console.log('[UploadExt] Listener retiré');
     });
     
-    // Activer l'écoute après le délai
+    // Activer l'écoute après délai
     const listenTimeout = setTimeout(() => {
-      if (isActive) {
+      if (isActive && !isUploading) {
         listeningEnabled = true;
-        console.log('[UploadExt] Écoute des interactions ACTIVÉE (après ' + LISTEN_DELAY_MS + 'ms)');
+        console.log('[UploadExt] Écoute activée (après ' + LISTEN_DELAY_MS + 'ms)');
       }
     }, LISTEN_DELAY_MS);
     
-    cleanupFns.push(() => {
-      clearTimeout(listenTimeout);
-    });
+    cleanupFns.push(() => clearTimeout(listenTimeout));
     
     console.log('[UploadExt] Listener configuré - activation dans ' + LISTEN_DELAY_MS + 'ms');
     
@@ -396,7 +379,8 @@ export const UploadToN8nWithLoader = {
       
       console.log('[UploadExt] Starting upload...');
       
-      // Désactiver l'écoute des messages utilisateur pendant l'upload
+      // Marquer qu'un upload est en cours (désactive la fermeture auto)
+      isUploading = true;
       listeningEnabled = false;
       
       root.style.pointerEvents = 'none';
@@ -444,6 +428,7 @@ export const UploadToN8nWithLoader = {
         
       } catch (err) {
         console.error('[UploadExt] Error:', err);
+        isUploading = false;
         forceClose();
         sendInteract({ 
           webhookSuccess: false, 
@@ -506,6 +491,7 @@ export const UploadToN8nWithLoader = {
           this.to(100, 400, () => {
             loader.classList.add('complete');
             setTimeout(() => {
+              isUploading = false;
               forceClose();
               sendInteract({
                 webhookSuccess: true,
