@@ -2,25 +2,8 @@
 /* ==========================================================
    Infortive × Voiceflow — Thème stable v9.46
    
-   🎛️ CONFIGURATION RAPIDE - Cherchez ces valeurs pour modifier :
-   
-   TAILLES TITRES :
-   - H1 : 20px
-   - H2 : 18px
-   - H3 : 16px
-   - H4 : 15px
-   - H5/H6 : 14px
-   
-   TAILLE TEXTE COURANT : 12px (rechercher "body-size")
-   TAILLE HEADER : 20px (rechercher "header-title")
-   SCROLLBAR : 2px (rechercher "scrollbar-width")
-   ALIGNEMENT : 48px (rechercher "content-offset")
-   
-   COULEURS :
-   - Orange principal : #F18400
-   - Texte : #1E293B
-   - Bulle agent : rgba(217,217,217,0.35)
-   - Bulle user : #073A59
+   v9.46 : Fix alignement boutons (suppression double margin)
+   v9.45 : Valeurs en dur, body 12px, titres h1-h6 corrigés
    ========================================================== */
 
 /* ==========================================================
@@ -158,8 +141,8 @@ img.vfrc-avatar {
 
 /* ==========================================================
    BOUTONS CHOIX - Alignement
+   Le conteneur est déjà décalé de 48px, donc boutons à 0
    ========================================================== */
-/* Les boutons n'ont PAS besoin de margin-left car le conteneur est déjà décalé */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
@@ -183,7 +166,7 @@ button.vfrc-button._1nzwwii0,
   box-sizing: border-box !important;
 }
 
-/* content-offset : 48px */
+/* footer-offset : 48px */
 .vfrc-footer__content {
   background: transparent !important;
   box-shadow: none !important;
