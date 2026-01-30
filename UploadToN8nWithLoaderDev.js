@@ -1,8 +1,8 @@
-// UploadToN8nWithLoader-dev.js – v8.0
-// © Corentin – Version avec chat actif + détection message user
-// v8.0 : Chat input toujours actif, détection écriture user → path "write"
-//        Variables webhook dans objet "variables" pour flexibilité
-//        Suppression du path "back"
+// UploadToN8nWithLoader-dev.js – v8.1
+// © Corentin – Version avec chat actif + détection message user ROBUSTE
+// v8.1 : Détection via MutationObserver sur les messages user
+//        Fermeture garantie via remove() du DOM
+//        Variables webhook dans objet "variables"
 //
 export const UploadToN8nWithLoaderDev = {
   name: 'UploadToN8nWithLoaderDev',
@@ -26,149 +26,120 @@ export const UploadToN8nWithLoaderDev = {
       return;
     }
     
-    const findChatContainer = () => {
-      let container = document.querySelector('#voiceflow-chat-container');
-      if (container?.shadowRoot) return container;
-      container = document.querySelector('#voiceflow-chat');
-      if (container?.shadowRoot) return container;
-      const allWithShadow = document.querySelectorAll('*');
-      for (const el of allWithShadow) {
-        if (el.shadowRoot?.querySelector('[class*="vfrc"]')) return el;
+    console.log('[UploadToN8nWithLoaderDev] v8.1 - Initializing...');
+    
+    // ---------- STATE ----------
+    let isComponentActive = true;
+    let timedTimer = null;
+    let allCleanupFns = [];
+    
+    // ---------- HELPERS SHADOW DOM ----------
+    const findAllShadowRoots = () => {
+      const roots = [];
+      const walk = (node) => {
+        if (node.shadowRoot) {
+          roots.push(node.shadowRoot);
+          walk(node.shadowRoot);
+        }
+        node.querySelectorAll('*').forEach(child => {
+          if (child.shadowRoot) {
+            roots.push(child.shadowRoot);
+            walk(child.shadowRoot);
+          }
+        });
+      };
+      walk(document);
+      return roots;
+    };
+    
+    const findInShadowDOM = (selector) => {
+      let el = document.querySelector(selector);
+      if (el) return el;
+      for (const root of findAllShadowRoots()) {
+        el = root.querySelector(selector);
+        if (el) return el;
       }
       return null;
     };
     
-    // ---------- STATE ----------
-    let isComponentActive = true;
-    let cleanupObserver = null;
-    let cleanupUserMsgObserver = null;
-    let timedTimer = null;
-    
-    // ---------- OBSERVER MESSAGE USER (via DOM) ----------
-    const setupUserMessageObserver = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) {
-        console.log('[UploadToN8nWithLoaderDev] No shadowRoot found for user message observer');
-        return null;
-      }
-      
-      const shadowRoot = container.shadowRoot;
-      
-      // Trouver le conteneur des messages
-      const selectors = [
-        '.vfrc-chat--dialog',
-        '[class*="Dialog"]',
-        '[class*="dialog"]',
-        '.vfrc-chat',
-        '[class*="Messages"]',
-        '[class*="messages"]'
-      ];
-      
-      let dialogEl = null;
-      for (const sel of selectors) {
-        dialogEl = shadowRoot.querySelector(sel);
-        if (dialogEl) break;
-      }
-      
-      if (!dialogEl) {
-        console.log('[UploadToN8nWithLoaderDev] No dialog element found');
-        return null;
-      }
-      
-      console.log('[UploadToN8nWithLoaderDev] User message observer setup on:', dialogEl.className);
-      
-      const observer = new MutationObserver((mutations) => {
-        if (!isComponentActive) return;
-        
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType !== Node.ELEMENT_NODE) continue;
-            
-            // Détecter un message utilisateur
-            const isUserMessage = 
-              node.classList?.contains('vfrc-user-response') ||
-              node.classList?.contains('vfrc-message--user') ||
-              node.querySelector?.('[class*="user"]') ||
-              node.querySelector?.('[class*="User"]') ||
-              (node.className && typeof node.className === 'string' && node.className.toLowerCase().includes('user'));
-            
-            if (isUserMessage) {
-              // Extraire le texte du message
-              const messageText = node.textContent?.trim() || '';
-              console.log('[UploadToN8nWithLoaderDev] User message detected:', messageText);
-              
-              if (messageText) {
-                closeAndSendUserMessage(messageText);
-                return;
-              }
-            }
-          }
-        }
-      });
-      
-      observer.observe(dialogEl, { childList: true, subtree: true });
-      return () => observer.disconnect();
-    };
-    
-    const closeAndSendUserMessage = (message) => {
-      if (!isComponentActive) return;
+    // ---------- CLEANUP CENTRAL ----------
+    const cleanup = () => {
+      console.log('[UploadToN8nWithLoaderDev] Cleanup called');
       isComponentActive = false;
       
-      console.log('[UploadToN8nWithLoaderDev] Closing extension, user wrote:', message);
-      
-      // Cleanup
-      if (cleanupObserver) {
-        cleanupObserver();
-        cleanupObserver = null;
-      }
-      if (cleanupUserMsgObserver) {
-        cleanupUserMsgObserver();
-        cleanupUserMsgObserver = null;
-      }
       if (timedTimer) {
         clearInterval(timedTimer);
         timedTimer = null;
       }
       
-      // Masquer l'extension
-      root.style.display = 'none';
-      
-      // Envoyer l'interact avec le message user
-      window?.voiceflow?.chat?.interact?.({
-        type: 'complete',
-        payload: {
-          webhookSuccess: false,
-          buttonPath: 'write',
-          userMessage: message
-        }
+      allCleanupFns.forEach(fn => {
+        try { fn(); } catch(e) { console.warn('Cleanup error:', e); }
       });
+      allCleanupFns = [];
     };
     
-    // Setup de l'observer dès le départ
-    cleanupUserMsgObserver = setupUserMessageObserver();
-    
-    // ---------- AUTO-UNLOCK : Détecte si une autre action est déclenchée ----------
-    const setupAutoUnlock = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) return null;
+    // ---------- FERMETURE GARANTIE ----------
+    const forceClose = () => {
+      console.log('[UploadToN8nWithLoaderDev] Force close');
+      cleanup();
       
-      const shadowRoot = container.shadowRoot;
+      // Méthode 1: display none
+      if (root) root.style.display = 'none';
+      
+      // Méthode 2: remove du DOM
+      try {
+        if (root && root.parentNode) {
+          root.parentNode.removeChild(root);
+        }
+      } catch(e) {}
+      
+      // Méthode 3: vider le contenu
+      try {
+        if (root) root.innerHTML = '';
+      } catch(e) {}
+    };
+    
+    // ---------- ENVOI INTERACT ----------
+    const sendInteract = (payload) => {
+      console.log('[UploadToN8nWithLoaderDev] Sending interact:', payload);
+      try {
+        window?.voiceflow?.chat?.interact?.({
+          type: 'complete',
+          payload: payload
+        });
+      } catch(e) {
+        console.error('[UploadToN8nWithLoaderDev] Interact error:', e);
+      }
+    };
+    
+    // ---------- DETECTION MESSAGE USER VIA MUTATION OBSERVER ----------
+    const setupUserMessageDetection = () => {
+      console.log('[UploadToN8nWithLoaderDev] Setting up user message detection...');
+      
       const selectors = [
         '.vfrc-chat--dialog',
-        '[class*="Dialog"]',
+        '[class*="Dialog"]', 
         '[class*="dialog"]',
         '.vfrc-chat',
         '[class*="Messages"]',
-        '[class*="messages"]'
+        '[class*="messages"]',
+        '[class*="chat"]'
       ];
       
-      let dialogEl = null;
-      for (const sel of selectors) {
-        dialogEl = shadowRoot.querySelector(sel);
-        if (dialogEl) break;
+      let messageContainer = null;
+      
+      for (const selector of selectors) {
+        messageContainer = findInShadowDOM(selector);
+        if (messageContainer) {
+          console.log('[UploadToN8nWithLoaderDev] Found message container with:', selector);
+          break;
+        }
       }
       
-      if (!dialogEl) return null;
+      if (!messageContainer) {
+        console.warn('[UploadToN8nWithLoaderDev] No message container found');
+        return null;
+      }
       
       const observer = new MutationObserver((mutations) => {
         if (!isComponentActive) return;
@@ -176,52 +147,65 @@ export const UploadToN8nWithLoaderDev = {
         for (const mutation of mutations) {
           for (const node of mutation.addedNodes) {
             if (node.nodeType !== Node.ELEMENT_NODE) continue;
-            if (node.dataset?.uploadExtension === 'true') continue;
+            if (node.classList?.contains('upl')) continue;
+            if (node.querySelector?.('.upl')) continue;
             
-            const isSystemResponse = 
+            // Détecter message USER
+            const isUserMessage = 
+              node.classList?.contains('vfrc-user-response') ||
+              node.classList?.contains('vfrc-message--user') ||
+              node.querySelector?.('[class*="user"]') ||
+              node.querySelector?.('[class*="User"]') ||
+              (node.className && /user/i.test(node.className));
+            
+            if (isUserMessage) {
+              console.log('[UploadToN8nWithLoaderDev] User message detected!', node);
+              
+              const textEl = node.querySelector?.('[class*="text"]') || 
+                            node.querySelector?.('p') || 
+                            node;
+              const userText = textEl?.textContent?.trim() || '';
+              
+              console.log('[UploadToN8nWithLoaderDev] User text:', userText);
+              
+              forceClose();
+              sendInteract({
+                webhookSuccess: false,
+                buttonPath: 'write',
+                userMessage: userText
+              });
+              return;
+            }
+            
+            // Détecter réponse assistant
+            const isAssistantResponse = 
               node.classList?.contains('vfrc-system-response') ||
               node.classList?.contains('vfrc-assistant') ||
+              node.classList?.contains('vfrc-message--assistant') ||
               node.querySelector?.('[class*="assistant"]') ||
-              node.querySelector?.('[class*="system"]') ||
-              node.querySelector?.('[class*="Agent"]') ||
-              node.querySelector?.('[class*="extension"]') ||
-              node.querySelector?.('.upl');
+              node.querySelector?.('[class*="system"]');
             
-            if (isSystemResponse) {
-              console.log('[UploadToN8nWithLoaderDev] Another action detected, auto-unlocking...');
-              autoUnlock();
+            if (isAssistantResponse && !node.querySelector?.('.upl')) {
+              console.log('[UploadToN8nWithLoaderDev] Assistant response detected, closing...');
+              forceClose();
               return;
             }
           }
         }
       });
       
-      observer.observe(dialogEl, { childList: true, subtree: true });
+      observer.observe(messageContainer, { 
+        childList: true, 
+        subtree: true 
+      });
+      
+      console.log('[UploadToN8nWithLoaderDev] MutationObserver active');
+      
       return () => observer.disconnect();
     };
     
-    const autoUnlock = () => {
-      if (!isComponentActive) return;
-      isComponentActive = false;
-      
-      if (cleanupObserver) {
-        cleanupObserver();
-        cleanupObserver = null;
-      }
-      if (cleanupInputListener) {
-        cleanupInputListener();
-        cleanupInputListener = null;
-      }
-      
-      root.style.display = 'none';
-      
-      if (timedTimer) {
-        clearInterval(timedTimer);
-        timedTimer = null;
-      }
-    };
-    
-    cleanupObserver = setupAutoUnlock();
+    const cleanupDetection = setupUserMessageDetection();
+    if (cleanupDetection) allCleanupFns.push(cleanupDetection);
     
     // ---------- CONFIG ----------
     const p = trace?.payload || {};
@@ -232,14 +216,8 @@ export const UploadToN8nWithLoaderDev = {
     const maxFileSizeMB = p.maxFileSizeMB || 25;
     const maxFiles      = p.maxFiles || 10;
     
-    // ═══════════════════════════════════════════════════════════════
-    // 📦 VARIABLES À ENVOYER AU WEBHOOK (objet flexible)
-    // ═══════════════════════════════════════════════════════════════
     const variables = p.variables || {};
     
-    // ═══════════════════════════════════════════════════════════════
-    // 🎨 PALETTE ULTRA MINIMALE - MONOCHROME
-    // ═══════════════════════════════════════════════════════════════
     const colors = {
       text: '#111827',
       textLight: '#9CA3AF',
@@ -263,15 +241,13 @@ export const UploadToN8nWithLoaderDev = {
     
     let requiredFiles;
     let isSimpleMode = false;
-    let isOBMS = false;
     
     if (p.minFiles !== undefined && p.minFiles !== null) {
       requiredFiles = Math.max(1, Math.min(Number(p.minFiles) || 1, maxFiles));
       isSimpleMode = true;
     } else {
-      const obmsValue = (extra.obms || 'non').toLowerCase().trim();
-      isOBMS = obmsValue === 'oui';
-      requiredFiles = isOBMS ? 2 : 3;
+      requiredFiles = 1;
+      isSimpleMode = true;
     }
     
     const awaitResponse      = p.awaitResponse !== false;
@@ -280,9 +256,6 @@ export const UploadToN8nWithLoaderDev = {
     const pollingIntervalMs  = Number.isFinite(polling.intervalMs) ? polling.intervalMs : 2000;
     const pollingMaxAttempts = Number.isFinite(polling.maxAttempts) ? polling.maxAttempts : 120;
     const pollingHeaders     = polling.headers || {};
-    
-    const pathSuccess = p.pathSuccess || 'Default';
-    const pathError   = p.pathError || 'Fail';
     
     const sendButtonText = p.sendButtonText || 'Envoyer';
     
@@ -307,7 +280,6 @@ export const UploadToN8nWithLoaderDev = {
     
     const timedPhases = Array.isArray(loaderCfg.phases) ? loaderCfg.phases : [];
     const totalSeconds = Number(loaderCfg.totalSeconds) > 0 ? Number(loaderCfg.totalSeconds) : 120;
-    
     const stepMap = loaderCfg.stepMap || {};
     
     if (!webhookUrl) {
@@ -319,9 +291,6 @@ export const UploadToN8nWithLoaderDev = {
       return;
     }
     
-    // ═══════════════════════════════════════════════════════════════
-    // 📝 GESTION HEADER & HINT
-    // ═══════════════════════════════════════════════════════════════
     const hasTitle = title && title.trim() !== '';
     const hasSubtitle = subtitle && subtitle.trim() !== '';
     const showHeader = hasTitle || hasSubtitle;
@@ -332,40 +301,18 @@ export const UploadToN8nWithLoaderDev = {
     } else if (typeof p.hint === 'string' && p.hint.trim() !== '') {
       hintText = p.hint;
     } else {
-      let requiredDocsInfo;
-      if (isSimpleMode) {
-        requiredDocsInfo = requiredFiles === 1 
-          ? `1 à ${maxFiles} fichiers` 
-          : `${requiredFiles} à ${maxFiles} fichiers`;
-      } else {
-        requiredDocsInfo = `${requiredFiles} documents requis`;
-      }
-      hintText = requiredDocsInfo;
+      hintText = requiredFiles === 1 
+        ? `1 à ${maxFiles} fichiers` 
+        : `${requiredFiles} à ${maxFiles} fichiers`;
     }
     
     const showHint = hintText && hintText.trim() !== '';
     
-    let docsListOBMS = '• Lettre de mission / Descriptif du poste\n• CV du candidat';
-    let docsListFull = '• Lettre de mission / Descriptif du poste\n• CV du candidat\n• Profil AssessFirst du candidat';
-    
-    // ---------- STYLES ULTRA MINIMAUX ----------
     const styles = `
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-      }
-      @keyframes slideIn {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-      }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+      @keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
       
       .upl {
         width: 100%;
@@ -374,44 +321,18 @@ export const UploadToN8nWithLoaderDev = {
         color: ${colors.text};
         animation: fadeIn 0.2s ease;
       }
-      
-      .upl * {
-        box-sizing: border-box;
-      }
-      
+      .upl * { box-sizing: border-box; }
       .upl-card {
         background: ${colors.white};
         border: 1px solid ${colors.border};
         border-radius: 8px;
         overflow: hidden;
       }
-      
-      .upl-header {
-        padding: 20px 20px 0;
-      }
-      
-      .upl-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: ${colors.text};
-        margin: 0 0 2px;
-        letter-spacing: -0.2px;
-      }
-      
-      .upl-subtitle {
-        font-size: 13px;
-        color: ${colors.textLight};
-        font-weight: 400;
-      }
-      
-      .upl-body {
-        padding: 20px;
-      }
-      
-      .upl-body.no-header {
-        padding-top: 20px;
-      }
-      
+      .upl-header { padding: 20px 20px 0; }
+      .upl-title { font-size: 15px; font-weight: 600; color: ${colors.text}; margin: 0 0 2px; letter-spacing: -0.2px; }
+      .upl-subtitle { font-size: 13px; color: ${colors.textLight}; font-weight: 400; }
+      .upl-body { padding: 20px; }
+      .upl-body.no-header { padding-top: 20px; }
       .upl-zone {
         background: ${colors.bg};
         border-radius: 6px;
@@ -421,7 +342,6 @@ export const UploadToN8nWithLoaderDev = {
         transition: background 0.15s ease;
         position: relative;
       }
-      
       .upl-zone::before {
         content: '';
         position: absolute;
@@ -431,58 +351,16 @@ export const UploadToN8nWithLoaderDev = {
         pointer-events: none;
         transition: border-color 0.15s ease;
       }
-      
-      .upl-zone:hover {
-        background: #F3F4F6;
-      }
-      
-      .upl-zone:hover::before {
-        border-color: ${colors.textLight};
-      }
-      
-      .upl-zone.drag {
-        background: #F3F4F6;
-      }
-      
-      .upl-zone.drag::before {
-        border-color: ${colors.text};
-      }
-      
-      .upl-zone-icon {
-        width: 32px;
-        height: 32px;
-        margin: 0 auto 10px;
-        color: ${colors.textLight};
-        transition: color 0.15s ease;
-      }
-      
-      .upl-zone:hover .upl-zone-icon {
-        color: ${colors.text};
-      }
-      
-      .upl-zone-text {
-        font-size: 13px;
-        color: ${colors.textLight};
-        font-weight: 400;
-        line-height: 1.5;
-      }
-      
-      .upl-zone-hint {
-        font-size: 11px;
-        color: ${colors.textLight};
-        margin-top: 6px;
-        opacity: 0.7;
-      }
-      
-      .upl-list {
-        margin-top: 16px;
-        display: none;
-      }
-      
-      .upl-list.show {
-        display: block;
-      }
-      
+      .upl-zone:hover { background: #F3F4F6; }
+      .upl-zone:hover::before { border-color: ${colors.textLight}; }
+      .upl-zone.drag { background: #F3F4F6; }
+      .upl-zone.drag::before { border-color: ${colors.text}; }
+      .upl-zone-icon { width: 32px; height: 32px; margin: 0 auto 10px; color: ${colors.textLight}; transition: color 0.15s ease; }
+      .upl-zone:hover .upl-zone-icon { color: ${colors.text}; }
+      .upl-zone-text { font-size: 13px; color: ${colors.textLight}; font-weight: 400; line-height: 1.5; }
+      .upl-zone-hint { font-size: 11px; color: ${colors.textLight}; margin-top: 6px; opacity: 0.7; }
+      .upl-list { margin-top: 16px; display: none; }
+      .upl-list.show { display: block; }
       .upl-item {
         display: flex;
         align-items: center;
@@ -492,298 +370,71 @@ export const UploadToN8nWithLoaderDev = {
         margin-bottom: 6px;
         animation: slideIn 0.15s ease;
       }
-      
-      .upl-item:last-child {
-        margin-bottom: 0;
-      }
-      
-      .upl-item-icon {
-        width: 16px;
-        height: 16px;
-        color: ${colors.textLight};
-        margin-right: 10px;
-        flex-shrink: 0;
-      }
-      
-      .upl-item-info {
-        flex: 1;
-        min-width: 0;
-      }
-      
-      .upl-item-name {
-        font-size: 13px;
-        font-weight: 500;
-        color: ${colors.text};
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      
-      .upl-item-size {
-        font-size: 11px;
-        color: ${colors.textLight};
-        margin-top: 1px;
-      }
-      
+      .upl-item:last-child { margin-bottom: 0; }
+      .upl-item-icon { width: 16px; height: 16px; color: ${colors.textLight}; margin-right: 10px; flex-shrink: 0; }
+      .upl-item-info { flex: 1; min-width: 0; }
+      .upl-item-name { font-size: 13px; font-weight: 500; color: ${colors.text}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .upl-item-size { font-size: 11px; color: ${colors.textLight}; margin-top: 1px; }
       .upl-item-del {
-        width: 24px;
-        height: 24px;
-        border: none;
-        background: none;
-        color: ${colors.textLight};
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        margin-left: 8px;
-        transition: all 0.1s ease;
+        width: 24px; height: 24px; border: none; background: none;
+        color: ${colors.textLight}; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 4px; margin-left: 8px; transition: all 0.1s ease;
       }
-      
-      .upl-item-del:hover {
-        background: rgba(239, 68, 68, 0.1);
-        color: ${colors.error};
-      }
-      
+      .upl-item-del:hover { background: rgba(239, 68, 68, 0.1); color: ${colors.error}; }
       .upl-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid ${colors.border};
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 12px; padding-top: 12px; border-top: 1px solid ${colors.border};
       }
-      
-      .upl-count {
-        font-size: 12px;
-        color: ${colors.textLight};
-      }
-      
-      .upl-count.ok {
-        color: ${colors.success};
-      }
-      
-      .upl-actions {
-        display: flex;
-        gap: 8px;
-      }
-      
+      .upl-count { font-size: 12px; color: ${colors.textLight}; }
+      .upl-count.ok { color: ${colors.success}; }
+      .upl-actions { display: flex; gap: 8px; }
       .upl-btn {
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.1s ease;
-        border: 1px solid transparent;
+        padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+        cursor: pointer; transition: all 0.1s ease; border: 1px solid transparent;
       }
-      
-      .upl-btn-primary {
-        background: ${colors.text};
-        color: ${colors.white};
-        border-color: ${colors.text};
-      }
-      
-      .upl-btn-primary:hover:not(:disabled) {
-        background: #374151;
-        border-color: #374151;
-      }
-      
-      .upl-btn-primary:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-      }
-      
-      .upl-btn-ghost {
-        background: transparent;
-        color: ${colors.textLight};
-        border-color: ${colors.border};
-      }
-      
-      .upl-btn-ghost:hover {
-        background: ${colors.bg};
-        color: ${colors.text};
-      }
-      
-      .upl-msg {
-        margin-top: 12px;
-        padding: 10px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        display: none;
-        animation: fadeIn 0.15s ease;
-      }
-      
-      .upl-msg.show {
-        display: block;
-      }
-      
-      .upl-msg.err {
-        background: rgba(239, 68, 68, 0.08);
-        color: ${colors.error};
-      }
-      
-      .upl-msg.ok {
-        background: rgba(16, 185, 129, 0.08);
-        color: ${colors.success};
-      }
-      
-      .upl-msg.warn {
-        background: rgba(245, 158, 11, 0.08);
-        color: ${colors.warning};
-      }
-      
-      .upl-msg.load {
-        background: ${colors.bg};
-        color: ${colors.textLight};
-      }
-      
-      /* ═══════════════════════════════════════════════════════════════
-         🎯 LOADER MINIMALISTE - Barre + Pourcentage uniquement
-         ═══════════════════════════════════════════════════════════════ */
-      .upl-loader {
-        display: none;
-        padding: 32px 24px;
-        animation: fadeIn 0.25s ease;
-      }
-      
-      .upl-loader.show {
-        display: block;
-      }
-      
-      .upl-loader.hide {
-        animation: fadeOut 0.2s ease;
-      }
-      
-      .upl-loader-container {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      
-      .upl-loader-bar {
-        flex: 1;
-        height: 8px;
-        background: ${colors.border};
-        border-radius: 4px;
-        overflow: hidden;
-        position: relative;
-      }
-      
+      .upl-btn-primary { background: ${colors.text}; color: ${colors.white}; border-color: ${colors.text}; }
+      .upl-btn-primary:hover:not(:disabled) { background: #374151; border-color: #374151; }
+      .upl-btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+      .upl-msg { margin-top: 12px; padding: 10px 12px; border-radius: 6px; font-size: 12px; display: none; animation: fadeIn 0.15s ease; }
+      .upl-msg.show { display: block; }
+      .upl-msg.err { background: rgba(239, 68, 68, 0.08); color: ${colors.error}; }
+      .upl-msg.ok { background: rgba(16, 185, 129, 0.08); color: ${colors.success}; }
+      .upl-msg.warn { background: rgba(245, 158, 11, 0.08); color: ${colors.warning}; }
+      .upl-msg.load { background: ${colors.bg}; color: ${colors.textLight}; }
+      .upl-loader { display: none; padding: 32px 24px; animation: fadeIn 0.25s ease; }
+      .upl-loader.show { display: block; }
+      .upl-loader.hide { animation: fadeOut 0.2s ease; }
+      .upl-loader-container { display: flex; align-items: center; gap: 16px; }
+      .upl-loader-bar { flex: 1; height: 8px; background: ${colors.border}; border-radius: 4px; overflow: hidden; position: relative; }
       .upl-loader-fill {
-        height: 100%;
-        width: 0%;
-        background: ${colors.text};
-        border-radius: 4px;
-        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
+        height: 100%; width: 0%; background: ${colors.text}; border-radius: 4px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
       }
-      
-      /* Effet shimmer subtil sur la barre */
       .upl-loader-fill::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          rgba(255, 255, 255, 0.3) 50%,
-          transparent 100%
-        );
-        background-size: 200% 100%;
-        animation: shimmer 2s infinite;
+        content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+        background-size: 200% 100%; animation: shimmer 2s infinite;
       }
-      
-      .upl-loader-pct {
-        font-size: 15px;
-        font-weight: 600;
-        color: ${colors.text};
-        font-variant-numeric: tabular-nums;
-        min-width: 48px;
-        text-align: right;
-      }
-      
-      /* État complété */
-      .upl-loader.complete .upl-loader-fill {
-        background: ${colors.success};
-      }
-      
-      .upl-loader.complete .upl-loader-fill::after {
-        animation: none;
-      }
-      
-      .upl-loader.complete .upl-loader-pct {
-        color: ${colors.success};
-      }
-      
-      /* VALIDATION */
-      .upl-valid {
-        margin-top: 16px;
-        padding: 16px;
-        background: rgba(245, 158, 11, 0.06);
-        border: 1px solid rgba(245, 158, 11, 0.15);
-        border-radius: 6px;
-        animation: slideIn 0.15s ease;
-      }
-      
-      .upl-valid-title {
-        font-size: 13px;
-        font-weight: 500;
-        color: ${colors.warning};
-        margin-bottom: 8px;
-      }
-      
-      .upl-valid-text {
-        font-size: 12px;
-        color: ${colors.text};
-        line-height: 1.5;
-        white-space: pre-line;
-        margin-bottom: 12px;
-      }
-      
-      .upl-valid-actions {
-        display: flex;
-        gap: 8px;
-      }
-      
-      /* OVERLAY */
-      .upl-overlay {
-        display: none;
-        position: absolute;
-        inset: 0;
-        background: transparent;
-        z-index: 10;
-        border-radius: 8px;
-        pointer-events: all;
-      }
-      
-      .upl-overlay.show {
-        display: block;
-      }
+      .upl-loader-pct { font-size: 15px; font-weight: 600; color: ${colors.text}; font-variant-numeric: tabular-nums; min-width: 48px; text-align: right; }
+      .upl-loader.complete .upl-loader-fill { background: ${colors.success}; }
+      .upl-loader.complete .upl-loader-fill::after { animation: none; }
+      .upl-loader.complete .upl-loader-pct { color: ${colors.success}; }
+      .upl-overlay { display: none; position: absolute; inset: 0; background: transparent; z-index: 10; border-radius: 8px; pointer-events: all; }
+      .upl-overlay.show { display: block; }
     `;
     
-    // ---------- ICÔNES SVG MINIMALISTES ----------
     const icons = {
-      upload: `<svg class="upl-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 15V3m0 0l-4 4m4-4l4 4"/>
-        <path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/>
-      </svg>`,
-      file: `<svg class="upl-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <path d="M14 2v6h6"/>
-      </svg>`,
-      x: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M18 6L6 18M6 6l12 12"/>
-      </svg>`
+      upload: `<svg class="upl-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>`,
+      file: `<svg class="upl-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>`,
+      x: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`
     };
     
     // ---------- UI ----------
     const root = document.createElement('div');
     root.className = 'upl';
     root.style.position = 'relative';
+    root.dataset.uploadExtension = 'true';
     
     const styleTag = document.createElement('style');
     styleTag.textContent = styles;
@@ -811,20 +462,15 @@ export const UploadToN8nWithLoaderDev = {
             ${hintHTML}
             <input type="file" accept="${accept}" multiple style="display:none" />
           </div>
-          
           <div class="upl-list"></div>
-          
           <div class="upl-meta" style="display:none">
             <div class="upl-count"></div>
             <div class="upl-actions">
               <button class="upl-btn upl-btn-primary send-btn" disabled>${sendButtonText}</button>
             </div>
           </div>
-          
           <div class="upl-msg"></div>
         </div>
-        
-        <!-- LOADER MINIMALISTE -->
         <div class="upl-loader">
           <div class="upl-loader-container">
             <div class="upl-loader-bar">
@@ -837,7 +483,6 @@ export const UploadToN8nWithLoaderDev = {
     `;
     element.appendChild(root);
     
-    // ---------- DOM refs ----------
     const uploadZone = root.querySelector('.upl-zone');
     const fileInput = root.querySelector('input[type="file"]');
     const filesList = root.querySelector('.upl-list');
@@ -851,10 +496,8 @@ export const UploadToN8nWithLoaderDev = {
     const overlay = root.querySelector('.upl-overlay');
     const bodyDiv = root.querySelector('.upl-body');
     
-    // ---------- STATE ----------
     let selectedFiles = [];
     
-    // ---------- Helpers ----------
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     
     function formatSize(bytes) {
@@ -872,14 +515,8 @@ export const UploadToN8nWithLoaderDev = {
       msgDiv.className = 'upl-msg';
     }
     
-    function clearValidation() {
-      const v = root.querySelector('.upl-valid');
-      if (v) v.remove();
-    }
-    
     function updateList() {
       filesList.innerHTML = '';
-      clearValidation();
       hideMsg();
       
       if (!selectedFiles.length) {
@@ -921,7 +558,7 @@ export const UploadToN8nWithLoaderDev = {
       
       sendBtn.disabled = !enough;
       
-      if (selectedFiles.length > 0 && !enough && !isSimpleMode) {
+      if (selectedFiles.length > 0 && !enough) {
         const m = requiredFiles - selectedFiles.length;
         showMsg(`${m} fichier${m > 1 ? 's' : ''} manquant${m > 1 ? 's' : ''}`, 'warn');
       }
@@ -950,37 +587,6 @@ export const UploadToN8nWithLoaderDev = {
       if (errs.length) showMsg(errs.join(' · '), 'err');
     }
     
-    function validate() {
-      if (isSimpleMode) return selectedFiles.length >= requiredFiles;
-      
-      if (selectedFiles.length < requiredFiles) {
-        clearValidation();
-        const docs = isOBMS ? docsListOBMS : docsListFull;
-        
-        const div = document.createElement('div');
-        div.className = 'upl-valid';
-        div.innerHTML = `
-          <div class="upl-valid-title">Documents manquants</div>
-          <div class="upl-valid-text">${selectedFiles.length}/${requiredFiles} fichiers sélectionnés.
-Requis :
-${docs}</div>
-          <div class="upl-valid-actions">
-            <button class="upl-btn upl-btn-primary" data-a="add">Ajouter</button>
-          </div>
-        `;
-        bodyDiv.appendChild(div);
-        
-        div.querySelector('[data-a="add"]').onclick = () => {
-          clearValidation();
-          fileInput.click();
-        };
-        
-        return false;
-      }
-      return true;
-    }
-    
-    // ---------- Events ----------
     uploadZone.onclick = () => fileInput.click();
     uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('drag'); };
     uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
@@ -995,18 +601,13 @@ ${docs}</div>
     };
     
     sendBtn.onclick = async () => {
-      if (!selectedFiles.length || !validate()) return;
+      if (!selectedFiles.length || selectedFiles.length < requiredFiles) return;
+      
+      console.log('[UploadToN8nWithLoaderDev] Starting upload...');
       
       root.style.pointerEvents = 'none';
       overlay.classList.add('show');
-      clearValidation();
       sendBtn.disabled = true;
-      
-      // Désactiver le listener de message user pendant l'upload
-      if (cleanupUserMsgObserver) {
-        cleanupUserMsgObserver();
-        cleanupUserMsgObserver = null;
-      }
       
       const startTime = Date.now();
       const ui = showLoaderUI();
@@ -1021,6 +622,8 @@ ${docs}</div>
           timeoutMs: webhookTimeoutMs, retries: webhookRetries,
           files: selectedFiles, fileFieldName, extra, vfContext, variables
         });
+        
+        console.log('[UploadToN8nWithLoaderDev] Upload response:', resp);
         
         let data = resp?.data ?? null;
         
@@ -1055,25 +658,16 @@ ${docs}</div>
         ui.done(data);
         
       } catch (err) {
-        isComponentActive = false;
-        if (cleanupObserver) {
-          cleanupObserver();
-          cleanupObserver = null;
-        }
-        loader.classList.remove('show');
-        bodyDiv.style.display = '';
-        showMsg(String(err?.message || err), 'err');
-        sendBtn.disabled = false;
-        root.style.pointerEvents = '';
-        overlay.classList.remove('show');
-        window?.voiceflow?.chat?.interact?.({
-          type: 'complete',
-          payload: { webhookSuccess: false, error: String(err?.message || err), buttonPath: 'error' }
+        console.error('[UploadToN8nWithLoaderDev] Upload error:', err);
+        forceClose();
+        sendInteract({ 
+          webhookSuccess: false, 
+          error: String(err?.message || err), 
+          buttonPath: 'error' 
         });
       }
     };
     
-    // ---------- Loader Minimaliste ----------
     function showLoaderUI() {
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
@@ -1117,49 +711,24 @@ ${docs}</div>
               const now = Date.now();
               const r = clamp((now - t0) / p.durationMs, 0, 1);
               const newVal = p.progressStart + (p.progressEnd - p.progressStart) * r;
-              // FIX: Ne jamais faire descendre la barre
-              if (newVal > cur) {
-                cur = newVal;
-                paint();
-              }
-              if (now >= t1) { 
-                clear(); 
-                cur = Math.max(cur, p.progressEnd); 
-                paint(); 
-                next(); 
-              }
+              if (newVal > cur) { cur = newVal; paint(); }
+              if (now >= t1) { clear(); cur = Math.max(cur, p.progressEnd); paint(); next(); }
             }, 80);
           };
           next();
         },
         
-        // FIX: set() ne peut que faire monter la barre, jamais descendre
-        set(p) { 
-          if (!locked && p > cur) { 
-            cur = clamp(p, 0, 100); 
-            paint(); 
-          } 
-        },
+        set(p) { if (!locked && p > cur) { cur = clamp(p, 0, 100); paint(); } },
         
-        // FIX: to() ne peut que faire monter la barre
         to(target, ms = 1200, cb) {
           const targetClamped = clamp(target, 0, 100);
-          // Si la cible est inférieure à cur, on skip l'animation
-          if (targetClamped <= cur) {
-            if (cb) cb();
-            return;
-          }
-          const s = cur;
-          const e = targetClamped;
-          const t0 = performance.now();
+          if (targetClamped <= cur) { if (cb) cb(); return; }
+          const s = cur, e = targetClamped, t0 = performance.now();
           const step = t => {
             if (locked) { if (cb) cb(); return; }
             const k = clamp((t - t0) / ms, 0, 1);
             const newVal = s + (e - s) * k;
-            if (newVal > cur) {
-              cur = newVal;
-              paint();
-            }
+            if (newVal > cur) { cur = newVal; paint(); }
             if (k < 1) requestAnimationFrame(step);
             else if (cb) cb();
           };
@@ -1167,35 +736,20 @@ ${docs}</div>
         },
         
         done(data) {
+          console.log('[UploadToN8nWithLoaderDev] Done, closing...');
           locked = true;
-          isComponentActive = false;
-          if (cleanupObserver) {
-            cleanupObserver();
-            cleanupObserver = null;
-          }
           clear();
           
-          // Toujours terminer à 100%
           this.to(100, 400, () => {
             loader.classList.add('complete');
             setTimeout(() => {
-              loader.classList.add('hide');
-              setTimeout(() => {
-                loader.classList.remove('show', 'hide', 'complete');
-                root.style.display = 'none';
-                overlay.classList.remove('show');
-                
-                // Envoyer directement le complete sans écran de confirmation
-                window?.voiceflow?.chat?.interact?.({
-                  type: 'complete',
-                  payload: {
-                    webhookSuccess: true,
-                    webhookResponse: data,
-                    files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
-                    buttonPath: 'success'
-                  }
-                });
-              }, 200);
+              forceClose();
+              sendInteract({
+                webhookSuccess: true,
+                webhookResponse: data,
+                files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+                buttonPath: 'success'
+              });
             }, autoCloseDelayMs);
           });
         }
@@ -1206,7 +760,7 @@ ${docs}</div>
       const haveSeconds = timedPhases.every(ph => Number(ph.seconds) > 0);
       let total = haveSeconds ? timedPhases.reduce((s, ph) => s + Number(ph.seconds), 0) : totalSeconds;
       const weightsSum = timedPhases.reduce((s, ph) => s + (Number(ph.weight) || 0), 0) || timedPhases.length;
-      const alloc = timedPhases.map((ph, i) => {
+      const alloc = timedPhases.map((ph) => {
         const sec = haveSeconds ? Number(ph.seconds) : (Number(ph.weight) || 1) / weightsSum * total;
         return { key: ph.key, seconds: sec };
       });
@@ -1229,7 +783,6 @@ ${docs}</div>
       return plan;
     }
     
-    // ---------- Network ----------
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
       let err;
       for (let i = 0; i <= retries; i++) {
@@ -1239,15 +792,11 @@ ${docs}</div>
           const fd = new FormData();
           files.forEach(f => fd.append(fileFieldName, f, f.name));
           
-          // Ajouter extra
           Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
-          
-          // Ajouter variables (objet flexible)
           Object.entries(variables).forEach(([k, v]) => {
             fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''));
           });
           
-          // Ajouter contexte VF
           if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
           if (vfContext.user_id) fd.append('user_id', vfContext.user_id);
           if (vfContext.locale) fd.append('locale', vfContext.locale);
@@ -1279,12 +828,7 @@ ${docs}</div>
       throw new Error('Timeout');
     }
     
-    return () => { 
-      if (timedTimer) clearInterval(timedTimer); 
-      if (cleanupObserver) cleanupObserver();
-      if (cleanupUserMsgObserver) cleanupUserMsgObserver();
-      isComponentActive = false;
-    };
+    return cleanup;
   }
 };
 try { window.UploadToN8nWithLoaderDev = UploadToN8nWithLoaderDev; } catch {}
