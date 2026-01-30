@@ -1,9 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.46
+   Infortive × Voiceflow — Thème stable v9.47
    
-   v9.46 : Fix alignement boutons (suppression double margin)
-   v9.45 : Valeurs en dur, body 12px, titres h1-h6 corrigés
+   v9.47 : Alignement restauré depuis v9.36
    ========================================================== */
 
 /* ==========================================================
@@ -114,7 +113,6 @@ div.vfrc-system-response {
   padding-right: 8px !important;
 }
 
-/* avatar-size : 40px */
 .vfrc-avatar,
 img.vfrc-avatar {
   flex-shrink: 0 !important;
@@ -127,8 +125,8 @@ img.vfrc-avatar {
 
 /* ==========================================================
    Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
+   Copié exactement de v9.36
    ========================================================== */
-/* content-offset : 48px */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
   margin-left: 48px !important;
@@ -140,42 +138,39 @@ img.vfrc-avatar {
 }
 
 /* ==========================================================
-   BOUTONS CHOIX - Alignement
-   Le conteneur est déjà décalé de 48px, donc boutons à 0
+   BOUTONS CHOIX - Alignement (copié de v9.36)
    ========================================================== */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
-  margin-left: 0 !important;
+  margin-left: 60px !important;
 }
 
 /* ==========================================================
-   FOOTER - OPAQUE sans ombre
+   FOOTER - TRANSPARENT (copié de v9.36)
    ========================================================== */
 .vfrc-footer {
-  background: #ffffff !important;
-  position: sticky !important;
-  bottom: 0 !important;
-  z-index: 100 !important;
+  background: transparent !important;
+  position: relative !important;
+  z-index: 10 !important;
   box-shadow: none !important;
   border: none !important;
-  padding: 12px 8px 12px 0 !important;
+  padding: 8px 8px 8px 0 !important;
   margin: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* footer-offset : 48px */
 .vfrc-footer__content {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: 48px !important;
-  width: calc(100% - 48px) !important;
-  max-width: calc(100% - 48px) !important;
+  margin-left: 60px !important;
+  width: calc(100% - 60px) !important;
+  max-width: calc(100% - 60px) !important;
   box-sizing: border-box !important;
 }
 
@@ -217,7 +212,6 @@ div.vfrc-input-container {
 /* ==========================================================
    BOUTONS CHOIX (STYLE)
    ========================================================== */
-/* button-size : 12px */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -273,7 +267,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   display: none !important;
 }
 
-/* button-size : 12px */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
@@ -338,7 +331,6 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* ==========================================================
    BULLES AGENT
    ========================================================== */
-/* body-size : 12px */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -356,7 +348,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   word-break: break-word;
 }
 
-/* body-size : 12px */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -368,7 +359,6 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* ==========================================================
    TITRES MARKDOWN DANS LES BULLES
    ========================================================== */
-/* H1 : 20px */
 .vfrc-message h1,
 .vfrc-message .markdown h1,
 ._11kfxpg0 h1 {
@@ -380,7 +370,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #1E293B !important;
 }
 
-/* H2 : 18px */
 .vfrc-message h2,
 .vfrc-message .markdown h2,
 ._11kfxpg0 h2 {
@@ -392,7 +381,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #1E293B !important;
 }
 
-/* H3 : 16px */
 .vfrc-message h3,
 .vfrc-message .markdown h3,
 ._11kfxpg0 h3 {
@@ -404,7 +392,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #1E293B !important;
 }
 
-/* H4 : 15px */
 .vfrc-message h4,
 .vfrc-message .markdown h4,
 ._11kfxpg0 h4 {
@@ -416,7 +403,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #1E293B !important;
 }
 
-/* H5 : 14px */
 .vfrc-message h5,
 .vfrc-message .markdown h5,
 ._11kfxpg0 h5 {
@@ -428,7 +414,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #1E293B !important;
 }
 
-/* H6 : 14px */
 .vfrc-message h6,
 .vfrc-message .markdown h6,
 ._11kfxpg0 h6 {
@@ -440,7 +425,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   color: #1E293B !important;
 }
 
-/* Premier titre sans marge top */
 .vfrc-message h1:first-child,
 .vfrc-message h2:first-child,
 .vfrc-message h3:first-child,
@@ -452,7 +436,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   margin-top: 0 !important;
 }
 
-/* Strong/Bold */
 .vfrc-message strong,
 .vfrc-message .markdown strong,
 ._11kfxpg0 strong {
@@ -486,7 +469,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   list-style-type: decimal !important;
 }
 
-/* body-size : 12px */
 .vfrc-message li,
 .vfrc-message .markdown li,
 ._11kfxpg0 li {
@@ -525,7 +507,6 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* ==========================================================
    BULLES UTILISATEUR
    ========================================================== */
-/* body-size : 12px */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
 ._15emaa40 {
@@ -541,7 +522,6 @@ button.vfrc-button:not(.vfrc-header--button) {
   max-width: 90%;
 }
 
-/* body-size : 12px */
 .vfrc-user-response > div *,
 .vfrc-user-response .vfrc-message *,
 ._15emaa40 * {
@@ -553,7 +533,7 @@ button.vfrc-button:not(.vfrc-header--button) {
   margin: 12px 0 !important;
 }
 
-/* content-offset : 48px */
+/* Alignement utilisateur (copié de v9.36) */
 .vfrc-user-response {
   padding-left: 48px !important;
   padding-right: 8px !important;
@@ -562,7 +542,6 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* ==========================================================
    TEXTAREA
    ========================================================== */
-/* body-size : 12px */
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -604,7 +583,6 @@ textarea._1gdvh9ta::placeholder {
 /* ==========================================================
    Scrollbar
    ========================================================== */
-/* scrollbar-width : 2px */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
