@@ -129,7 +129,7 @@ img.vfrc-avatar {
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
-  margin-left: 48px !important;
+  margin-left: 0px !important;
   padding-left: 0 !important;
   padding-right: 8px !important;
   width: calc(100% - 48px - 8px) !important;
