@@ -1,77 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.44
+   Infortive × Voiceflow — Thème stable v9.45
    
-   v9.44 : Système de variables centralisé pour ajustements faciles
+   🎛️ CONFIGURATION RAPIDE - Cherchez ces valeurs pour modifier :
+   
+   TAILLES TITRES :
+   - H1 : 20px (rechercher "font-size: 20px" dans section H1)
+   - H2 : 18px
+   - H3 : 16px
+   - H4 : 15px
+   - H5/H6 : 14px
+   
+   TAILLE TEXTE COURANT : 12px (rechercher "--body-size")
+   TAILLE HEADER : 20px (rechercher "header-title")
+   SCROLLBAR : 2px (rechercher "scrollbar-width")
+   
+   COULEURS :
+   - Orange principal : #F18400
+   - Texte : #1E293B
+   - Bulle agent : rgba(217,217,217,0.35)
+   - Bulle user : #073A59
    ========================================================== */
 
-/* ==========================================================
-   🎛️ PANNEAU DE CONFIGURATION - MODIFIEZ ICI VOS VALEURS
-   ========================================================== */
-:root {
-  /* ===== POLICE ===== */
-  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  
-  /* ===== TAILLES TITRES (dans les bulles) ===== */
-  --size-h1: 20px;
-  --size-h2: 18px;
-  --size-h3: 16px;
-  --size-h4: 15px;
-  --size-h5: 14px;
-  --size-h6: 14px;
-  
-  /* ===== TAILLES TEXTE COURANT ===== */
-  --size-body: 12px;           /* Texte paragraphes et listes */
-  --size-textarea: 12px;       /* Texte dans l'input */
-  --size-button: 12px;         /* Texte boutons choix + envoyer */
-  --size-header-title: 20px;   /* Titre "Prise de brief mission" */
-  
-  /* ===== GRAISSE (FONT-WEIGHT) ===== */
-  --weight-regular: 400;
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
-  
-  /* ===== COULEURS PRINCIPALES ===== */
-  --color-primary: #F18400;           /* Orange Infortive */
-  --color-primary-dark: #d46f00;      /* Orange foncé (hover) */
-  --color-text: #1E293B;              /* Texte principal */
-  --color-text-gray: #4B5563;         /* Texte secondaire */
-  --color-text-light: #666666;        /* Placeholder */
-  --color-white: #ffffff;
-  
-  /* ===== COULEURS BULLES ===== */
-  --color-bubble-agent: rgba(217,217,217,0.35);   /* Fond bulle agent */
-  --color-bubble-user: #073A59;                    /* Fond bulle utilisateur */
-  
-  /* ===== COULEURS BOUTONS CHOIX ===== */
-  --color-btn-bg: #ffffff;
-  --color-btn-border: #D1D5DB;
-  --color-btn-text: #4B5563;
-  --color-btn-hover-bg: #F9FAFB;
-  --color-btn-hover-border: #9CA3AF;
-  
-  /* ===== ESPACEMENTS ===== */
-  --content-offset: 48px;             /* Décalage avatar (40px + 8px margin) */
-  --footer-offset: 60px;              /* Décalage footer/boutons */
-  --bubble-padding: 10px 14px;        /* Padding bulles */
-  --bubble-radius: 6px;               /* Border-radius bulles */
-  --button-padding: 12px 16px;        /* Padding boutons choix */
-  --button-radius: 6px;               /* Border-radius boutons */
-  
-  /* ===== AVATAR ===== */
-  --avatar-size: 40px;
-  --avatar-margin-right: 8px;
-  --avatar-margin-top: 12px;
-  
-  /* ===== TEXTAREA ===== */
-  --textarea-min-height: 60px;
-  --textarea-max-height: 300px;
-  
-  /* ===== SCROLLBAR ===== */
-  --scrollbar-width: 2px;
-  --scrollbar-color: #F18400;
-}
+/* Variable body-size pour faciliter les changements globaux */
+/* MODIFIEZ CETTE VALEUR POUR CHANGER LA TAILLE DU TEXTE COURANT */
+/* --body-size: 12px */
 
 /* ==========================================================
    SUPPRIMER FOND BLANC + OMBRE DU CHAT
@@ -118,13 +71,14 @@ button.vfrc-header--button,
   overflow: hidden !important;
 }
 
+/* header-title : 20px */
 div.vfrc-header--title,
 .vfrc-header--title {
-  font-family: var(--font-family) !important;
-  font-weight: var(--weight-bold) !important;
-  font-size: var(--size-header-title) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 20px !important;
   line-height: 1.3 !important;
-  color: var(--color-primary) !important;
+  color: #F18400 !important;
   padding: 0 0 12px 0 !important;
   margin: 0 !important;
   position: relative !important;
@@ -146,7 +100,7 @@ div.vfrc-header--title::after,
   left: 0 !important;
   width: 100% !important;
   height: 1px !important;
-  background-color: var(--color-text) !important;
+  background-color: #1E293B !important;
   opacity: 0.5 !important;
 }
 
@@ -180,43 +134,46 @@ div.vfrc-system-response {
   padding-right: 8px !important;
 }
 
+/* avatar-size : 40px */
 .vfrc-avatar,
 img.vfrc-avatar {
   flex-shrink: 0 !important;
-  width: var(--avatar-size) !important;
-  height: var(--avatar-size) !important;
-  margin-right: var(--avatar-margin-right) !important;
-  margin-top: var(--avatar-margin-top) !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin-right: 8px !important;
+  margin-top: 12px !important;
   align-self: flex-start !important;
 }
 
 /* ==========================================================
    Boutons d'action (conteneur) - ALIGNÉ AVEC BULLES
    ========================================================== */
+/* content-offset : 48px */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
-  margin-left: var(--content-offset) !important;
+  margin-left: 48px !important;
   padding-left: 0 !important;
   padding-right: 8px !important;
-  width: calc(100% - var(--content-offset) - 8px) !important;
-  max-width: calc(100% - var(--content-offset) - 8px) !important;
+  width: calc(100% - 48px - 8px) !important;
+  max-width: calc(100% - 48px - 8px) !important;
   box-sizing: border-box !important;
 }
 
 /* ==========================================================
-   BOUTONS CHOIX - TOUS avec margin-left pour alignement
+   BOUTONS CHOIX - Alignement
    ========================================================== */
+/* footer-offset : 60px */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
 ._1nzwwii0._1o5z0oa0 {
-  margin-left: var(--footer-offset) !important;
+  margin-left: 60px !important;
 }
 
 /* ==========================================================
    FOOTER - OPAQUE sans ombre
    ========================================================== */
 .vfrc-footer {
-  background: var(--color-white) !important;
+  background: #ffffff !important;
   position: sticky !important;
   bottom: 0 !important;
   z-index: 100 !important;
@@ -229,20 +186,21 @@ button.vfrc-button._1nzwwii0,
   box-sizing: border-box !important;
 }
 
+/* footer-offset : 60px */
 .vfrc-footer__content {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-left: var(--footer-offset) !important;
-  width: calc(100% - var(--footer-offset)) !important;
-  max-width: calc(100% - var(--footer-offset)) !important;
+  margin-left: 60px !important;
+  width: calc(100% - 60px) !important;
+  max-width: calc(100% - 60px) !important;
   box-sizing: border-box !important;
 }
 
 /* ==========================================================
-   ZONE INPUT CONTENEUR : TRANSPARENT (pas de fond)
+   ZONE INPUT CONTENEUR : TRANSPARENT
    ========================================================== */
 .vfrc-input-container,
 ._1gdvh9t2,
@@ -279,20 +237,21 @@ div.vfrc-input-container {
 /* ==========================================================
    BOUTONS CHOIX (STYLE)
    ========================================================== */
+/* button-size : 12px */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
-  font-family: var(--font-family) !important;
-  font-weight: var(--weight-medium) !important;
-  font-size: var(--size-button) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
   line-height: 1.4 !important;
   letter-spacing: 0.03em !important;
   text-transform: uppercase !important;
-  padding: var(--button-padding) !important;
-  background: var(--color-btn-bg) !important;
-  border: 1px solid var(--color-btn-border) !important;
-  color: var(--color-btn-text) !important;
+  padding: 12px 16px !important;
+  background: #ffffff !important;
+  border: 1px solid #D1D5DB !important;
+  color: #4B5563 !important;
   box-shadow: none !important;
-  border-radius: var(--button-radius) !important;
+  border-radius: 6px !important;
   transition: all 0.2s ease !important;
   cursor: pointer !important;
   margin-top: 6px !important;
@@ -308,8 +267,8 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 .vfrc-button:not(.vfrc-header--button):hover {
-  background: var(--color-btn-hover-bg) !important;
-  border-color: var(--color-btn-hover-border) !important;
+  background: #F9FAFB !important;
+  border-color: #9CA3AF !important;
   color: #374151 !important;
 }
 
@@ -334,12 +293,13 @@ button.vfrc-button:not(.vfrc-header--button) {
   display: none !important;
 }
 
+/* button-size : 12px */
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
-  font-family: var(--font-family);
-  font-weight: var(--weight-semibold);
-  font-size: var(--size-button);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -348,7 +308,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-chat-input__send {
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1px solid rgba(240, 131, 0, 0.25) !important;
-  border-radius: var(--button-radius) !important;
+  border-radius: 6px !important;
   padding: 8px 16px !important;
   color: rgba(240, 131, 0, 0.5) !important;
   box-shadow: none !important;
@@ -367,9 +327,9 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 #vfrc-send-message:not([disabled]),
 .vfrc-chat-input__send:not([disabled]) {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)) !important;
+  background: linear-gradient(135deg, #F18400, #d46f00) !important;
   border: none !important;
-  color: var(--color-white) !important;
+  color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
   cursor: pointer;
   opacity: 1;
@@ -377,7 +337,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 #vfrc-send-message:not([disabled]):hover,
 .vfrc-chat-input__send:not([disabled]):hover {
-  background: linear-gradient(135deg, var(--color-primary-dark), #c56200) !important;
+  background: linear-gradient(135deg, #d46f00, #c56200) !important;
   box-shadow: 0 4px 12px rgba(241, 132, 0, 0.4) !important;
   transform: translateY(-1px) !important;
 }
@@ -398,98 +358,106 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* ==========================================================
    BULLES AGENT
    ========================================================== */
+/* body-size : 12px */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--weight-regular) !important;
-  font-size: var(--size-body) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
-  background: var(--color-bubble-agent) !important;
-  color: var(--color-text) !important;
-  border-radius: var(--bubble-radius) !important;
-  padding: var(--bubble-padding) !important;
+  background: rgba(217,217,217,0.35) !important;
+  color: #1E293B !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
   max-width: 90%;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
+/* body-size : 12px */
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-body) !important;
-  font-weight: var(--weight-regular) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
   line-height: 1.5 !important;
 }
 
 /* ==========================================================
    TITRES MARKDOWN DANS LES BULLES
    ========================================================== */
+/* H1 : 20px */
 .vfrc-message h1,
 .vfrc-message .markdown h1,
 ._11kfxpg0 h1 {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-h1) !important;
-  font-weight: var(--weight-bold) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
   line-height: 1.3 !important;
   margin: 16px 0 8px 0 !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
+/* H2 : 18px */
 .vfrc-message h2,
 .vfrc-message .markdown h2,
 ._11kfxpg0 h2 {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-h2) !important;
-  font-weight: var(--weight-bold) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
   line-height: 1.3 !important;
   margin: 14px 0 6px 0 !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
+/* H3 : 16px */
 .vfrc-message h3,
 .vfrc-message .markdown h3,
 ._11kfxpg0 h3 {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-h3) !important;
-  font-weight: var(--weight-semibold) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
   line-height: 1.4 !important;
   margin: 12px 0 4px 0 !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
+/* H4 : 15px */
 .vfrc-message h4,
 .vfrc-message .markdown h4,
 ._11kfxpg0 h4 {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-h4) !important;
-  font-weight: var(--weight-semibold) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
   line-height: 1.4 !important;
   margin: 10px 0 4px 0 !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
+/* H5 : 14px */
 .vfrc-message h5,
 .vfrc-message .markdown h5,
 ._11kfxpg0 h5 {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-h5) !important;
-  font-weight: var(--weight-semibold) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
   line-height: 1.4 !important;
   margin: 8px 0 4px 0 !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
+/* H6 : 14px */
 .vfrc-message h6,
 .vfrc-message .markdown h6,
 ._11kfxpg0 h6 {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-h6) !important;
-  font-weight: var(--weight-semibold) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
   line-height: 1.4 !important;
   margin: 8px 0 4px 0 !important;
-  color: var(--color-text) !important;
+  color: #1E293B !important;
 }
 
 /* Premier titre sans marge top */
@@ -508,8 +476,8 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-message strong,
 .vfrc-message .markdown strong,
 ._11kfxpg0 strong {
-  font-weight: var(--weight-bold) !important;
-  color: var(--color-text) !important;
+  font-weight: 700 !important;
+  color: #1E293B !important;
 }
 
 /* ==========================================================
@@ -538,12 +506,13 @@ button.vfrc-button:not(.vfrc-header--button) {
   list-style-type: decimal !important;
 }
 
+/* body-size : 12px */
 .vfrc-message li,
 .vfrc-message .markdown li,
 ._11kfxpg0 li {
-  font-family: var(--font-family) !important;
-  font-size: var(--size-body) !important;
-  font-weight: var(--weight-regular) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
   line-height: 1.5 !important;
   margin-bottom: 4px !important;
   padding-left: 4px !important;
@@ -576,58 +545,62 @@ button.vfrc-button:not(.vfrc-header--button) {
 /* ==========================================================
    BULLES UTILISATEUR
    ========================================================== */
+/* body-size : 12px */
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
 ._15emaa40 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--weight-regular) !important;
-  font-size: var(--size-body) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
   line-height: 1.5 !important;
   display: inline-block !important;
-  background: var(--color-bubble-user) !important;
-  color: var(--color-white) !important;
-  border-radius: var(--bubble-radius) !important;
-  padding: var(--bubble-padding) !important;
+  background: #073A59 !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  padding: 10px 14px !important;
   max-width: 90%;
 }
 
+/* body-size : 12px */
 .vfrc-user-response > div *,
 .vfrc-user-response .vfrc-message *,
 ._15emaa40 * {
-  color: var(--color-white) !important;
-  font-size: var(--size-body) !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
 }
 
 .vfrc-message:not([class*="extension"]) { 
   margin: 12px 0 !important;
 }
 
+/* content-offset : 48px */
 .vfrc-user-response {
-  padding-left: var(--content-offset) !important;
+  padding-left: 48px !important;
   padding-right: 8px !important;
 }
 
 /* ==========================================================
-   TEXTAREA : Fond gris comme les bulles agent
+   TEXTAREA
    ========================================================== */
+/* body-size : 12px */
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
-  font-family: var(--font-family) !important;
-  font-weight: var(--weight-regular) !important;
-  font-size: var(--size-textarea) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
   line-height: 1.5 !important;
   width: 100% !important;
   min-width: 200px !important;
-  min-height: var(--textarea-min-height) !important;
-  max-height: var(--textarea-max-height) !important;
+  min-height: 60px !important;
+  max-height: 300px !important;
   overflow-y: auto !important;
   resize: vertical !important;
-  background: var(--color-bubble-agent) !important;
+  background: rgba(217,217,217,0.35) !important;
   border: none !important;
-  border-radius: var(--bubble-radius) !important;
+  border-radius: 6px !important;
   outline: none !important;
   box-shadow: none !important;
-  padding: var(--bubble-padding) !important;
+  padding: 10px 14px !important;
   box-sizing: border-box !important;
   flex: 1 1 auto !important;
   margin-left: 0 !important;
@@ -640,34 +613,35 @@ textarea._1gdvh9ta:focus-visible {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background: var(--color-bubble-agent) !important;
+  background: rgba(217,217,217,0.35) !important;
 }
 
 textarea.vfrc-chat-input::placeholder,
 textarea._1gdvh9ta::placeholder {
-  color: var(--color-text-light) !important;
+  color: #666666 !important;
 }
 
 /* ==========================================================
-   Scrollbar - CLASSES INTERNES SHADOW DOM UNIQUEMENT
+   Scrollbar
    ========================================================== */
+/* scrollbar-width : 2px */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
 .vfrc-chat-dialog__container {
   scrollbar-width: thin !important;
-  scrollbar-color: var(--scrollbar-color) transparent !important;
+  scrollbar-color: #F18400 transparent !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
 .vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: var(--scrollbar-width) !important;
+  width: 2px !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-color) !important;
+  background: #F18400 !important;
   border-radius: 999px !important;
 }
 
