@@ -608,3 +608,54 @@ textarea._1gdvh9ta::placeholder {
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
   background: transparent !important;
 }
+
+
+/* ==========================================================
+   RESPONSIVE MOBILE (< 640px)
+   ========================================================== */
+@media (max-width: 640px) {
+  
+  /* Masquer l'avatar */
+  .vfrc-avatar,
+  img.vfrc-avatar {
+    display: none !important;
+  }
+  
+  /* Réajuster les bulles agent (plus de décalage avatar) */
+  .vfrc-system-response,
+  div.vfrc-system-response {
+    padding-left: 8px !important;
+  }
+  
+  /* Réajuster les boutons de choix */
+  .vfrc-button._1nzwwii0,
+  button.vfrc-button._1nzwwii0,
+  ._1nzwwii0._1o5z0oa0 {
+    margin-left: 8px !important;
+  }
+  
+  /* Réajuster le conteneur des boutons */
+  .vfrc-system-response--actions,
+  .vfrc-system-response--actions.g3dqfd6 {
+    margin-left: 0 !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+  }
+  
+  /* Réajuster le footer/input */
+  .vfrc-footer__content {
+    margin-left: 8px !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+  }
+  
+  /* Réajuster les bulles utilisateur */
+  .vfrc-user-response {
+    padding-left: 8px !important;
+  }
+  
+  /* Ajouter padding en bas pour le bouton fixe */
+  .vfrc-footer {
+    padding-bottom: 60px !important;
+  }
+}
