@@ -621,7 +621,7 @@ textarea._1gdvh9ta::placeholder {
     display: none !important;
   }
   
-  /* Réajuster les bulles agent (plus de décalage avatar) */
+  /* Réajuster les bulles agent */
   .vfrc-system-response,
   div.vfrc-system-response {
     padding-left: 8px !important;
@@ -642,7 +642,12 @@ textarea._1gdvh9ta::placeholder {
     max-width: calc(100% - 16px) !important;
   }
   
-  /* Réajuster le footer/input */
+  /* Réajuster le footer/input - COMPACT */
+  .vfrc-footer {
+    padding: 6px 8px 6px 0 !important;
+    padding-bottom: 6px !important;
+  }
+  
   .vfrc-footer__content {
     margin-left: 8px !important;
     width: calc(100% - 16px) !important;
@@ -652,10 +657,5 @@ textarea._1gdvh9ta::placeholder {
   /* Réajuster les bulles utilisateur */
   .vfrc-user-response {
     padding-left: 8px !important;
-  }
-  
-  /* Ajouter padding en bas pour le bouton fixe */
-  .vfrc-footer {
-    padding-bottom: 60px !important;
   }
 }
