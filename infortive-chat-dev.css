@@ -654,3 +654,9 @@ textarea._1gdvh9ta::placeholder {
     padding-left: 8px !important;
   }
 }
+
+  div.vfrc-header--title,
+  .vfrc-header--title {
+    padding-left: 4px !important;  /* ← Ajuste cette valeur */
+  }
+}
