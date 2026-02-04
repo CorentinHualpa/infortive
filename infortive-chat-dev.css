@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.48
+   Infortive × Voiceflow — Thème stable v9.49
    
-   v9.48 : Responsive mobile - avatar masqué, marges ajustées
+   v9.49 : Fix scrollbar 2px + fix chevauchement footer/chat
    ========================================================== */
 
 /* ==========================================================
@@ -145,12 +145,12 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   FOOTER - TRANSPARENT
+   FOOTER - FOND OPAQUE POUR ÉVITER CHEVAUCHEMENT
    ========================================================== */
 .vfrc-footer {
-  background: transparent !important;
+  background: #ffffff !important;
   position: relative !important;
-  z-index: 10 !important;
+  z-index: 100 !important;
   box-shadow: none !important;
   border: none !important;
   padding: 8px 8px 8px 0 !important;
@@ -578,31 +578,43 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   Scrollbar
+   Scrollbar - FIXE À 2px
    ========================================================== */
 .vfrc-chat--dialog,
 .vfrc-chat-dialog,
-.vfrc-chat-dialog__container {
+.vfrc-chat-dialog__container,
+.vfrc-chat__container-inner,
+.vfrc-chat {
   scrollbar-width: thin !important;
   scrollbar-color: #F18400 transparent !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar,
 .vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar {
+.vfrc-chat-dialog__container::-webkit-scrollbar,
+.vfrc-chat__container-inner::-webkit-scrollbar,
+.vfrc-chat::-webkit-scrollbar,
+*::-webkit-scrollbar {
   width: 2px !important;
+  height: 2px !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb,
+.vfrc-chat__container-inner::-webkit-scrollbar-thumb,
+.vfrc-chat::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
   background: #F18400 !important;
   border-radius: 999px !important;
 }
 
 .vfrc-chat--dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
+.vfrc-chat-dialog__container::-webkit-scrollbar-track,
+.vfrc-chat__container-inner::-webkit-scrollbar-track,
+.vfrc-chat::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
   background: transparent !important;
 }
 
@@ -653,10 +665,10 @@ textarea._1gdvh9ta::placeholder {
   .vfrc-user-response {
     padding-left: 8px !important;
   }
-}
-
+  
+  /* Header mobile */
   div.vfrc-header--title,
   .vfrc-header--title {
-    padding-left: 4px !important;  /* ← Ajuste cette valeur */
+    padding-left: 4px !important;
   }
 }
