@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.49
+   Infortive × Voiceflow — Thème stable v9.50
    
-   v9.49 : Fix scrollbar 2px + fix chevauchement footer/chat
+   v9.50 : Fix scrollbar selon recommandations support Voiceflow
    ========================================================== */
 
 /* ==========================================================
@@ -578,43 +578,51 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   Scrollbar - FIXE À 2px
+   SCROLLBAR - FIX SELON SUPPORT VOICEFLOW
    ========================================================== */
-.vfrc-chat--dialog,
-.vfrc-chat-dialog,
-.vfrc-chat-dialog__container,
-.vfrc-chat__container-inner,
-.vfrc-chat {
-  scrollbar-width: thin !important;
-  scrollbar-color: #F18400 transparent !important;
+
+/* Forcer l'affichage du scroll sur le bon conteneur */
+.vfrc-chat-dialog__container {
+  overflow-y: scroll !important;
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: #F18400 transparent !important; /* Firefox */
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar,
-.vfrc-chat-dialog::-webkit-scrollbar,
-.vfrc-chat-dialog__container::-webkit-scrollbar,
-.vfrc-chat__container-inner::-webkit-scrollbar,
-.vfrc-chat::-webkit-scrollbar,
-*::-webkit-scrollbar {
+/* Webkit (Chrome, Safari, Edge) - Cibler le bon conteneur */
+.vfrc-chat-dialog__container::-webkit-scrollbar {
   width: 2px !important;
-  height: 2px !important;
+  -webkit-appearance: none !important;
+  display: block !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb,
-.vfrc-chat__container-inner::-webkit-scrollbar-thumb,
-.vfrc-chat::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-thumb {
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
   background: #F18400 !important;
   border-radius: 999px !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog__container::-webkit-scrollbar-track,
-.vfrc-chat__container-inner::-webkit-scrollbar-track,
-.vfrc-chat::-webkit-scrollbar-track,
-*::-webkit-scrollbar-track {
+.vfrc-chat-dialog__container::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+/* Fallback sur autres conteneurs potentiels */
+.vfrc-chat--dialog {
+  overflow-y: scroll !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #F18400 transparent !important;
+}
+
+.vfrc-chat--dialog::-webkit-scrollbar {
+  width: 2px !important;
+  -webkit-appearance: none !important;
+  display: block !important;
+}
+
+.vfrc-chat--dialog::-webkit-scrollbar-thumb {
+  background: #F18400 !important;
+  border-radius: 999px !important;
+}
+
+.vfrc-chat--dialog::-webkit-scrollbar-track {
   background: transparent !important;
 }
 
