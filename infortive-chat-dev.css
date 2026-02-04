@@ -1,9 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.50
+   Infortive × Voiceflow — Thème stable v9.51
    
-   v9.50 : Fix scrollbar selon recommandations support Voiceflow
+   v9.51 : Hauteur responsive + scrollbar fix + chevauchement fix
    ========================================================== */
+
+/* ==========================================================
+   STRUCTURE PRINCIPALE - HAUTEUR 100%
+   ========================================================== */
+.vfrc-chat,
+.vfrc-chat__container,
+.vfrc-chat__container-inner {
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.vfrc-chat-dialog__container {
+  flex: 1 !important;
+  min-height: 0 !important; /* Important pour flex */
+  overflow-y: auto !important;
+}
 
 /* ==========================================================
    SUPPRIMER FOND BLANC + OMBRE DU CHAT
@@ -36,6 +54,7 @@
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  flex-shrink: 0 !important; /* Ne pas réduire le header */
 }
 
 .vfrc-header--button,
@@ -145,7 +164,7 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   FOOTER - FOND OPAQUE POUR ÉVITER CHEVAUCHEMENT
+   FOOTER - FOND OPAQUE + FLEX SHRINK 0
    ========================================================== */
 .vfrc-footer {
   background: #ffffff !important;
@@ -158,6 +177,7 @@ button.vfrc-button._1nzwwii0,
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  flex-shrink: 0 !important; /* Ne pas réduire le footer */
 }
 
 .vfrc-footer__content {
@@ -580,15 +600,12 @@ textarea._1gdvh9ta::placeholder {
 /* ==========================================================
    SCROLLBAR - FIX SELON SUPPORT VOICEFLOW
    ========================================================== */
-
-/* Forcer l'affichage du scroll sur le bon conteneur */
 .vfrc-chat-dialog__container {
   overflow-y: scroll !important;
-  scrollbar-width: thin !important; /* Firefox */
-  scrollbar-color: #F18400 transparent !important; /* Firefox */
+  scrollbar-width: thin !important;
+  scrollbar-color: #F18400 transparent !important;
 }
 
-/* Webkit (Chrome, Safari, Edge) - Cibler le bon conteneur */
 .vfrc-chat-dialog__container::-webkit-scrollbar {
   width: 2px !important;
   -webkit-appearance: none !important;
@@ -604,7 +621,6 @@ textarea._1gdvh9ta::placeholder {
   background: transparent !important;
 }
 
-/* Fallback sur autres conteneurs potentiels */
 .vfrc-chat--dialog {
   overflow-y: scroll !important;
   scrollbar-width: thin !important;
@@ -678,5 +694,71 @@ textarea._1gdvh9ta::placeholder {
   div.vfrc-header--title,
   .vfrc-header--title {
     padding-left: 4px !important;
+    font-size: 18px !important;
+    padding-bottom: 8px !important;
+  }
+  
+  /* Textarea mobile plus compact */
+  textarea.vfrc-chat-input,
+  textarea._1gdvh9ta {
+    min-height: 50px !important;
+    padding: 8px 12px !important;
+  }
+  
+  /* Boutons plus compacts */
+  .vfrc-button:not(.vfrc-header--button),
+  button.vfrc-button:not(.vfrc-header--button) {
+    padding: 10px 14px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE TRÈS PETIT ÉCRAN (< 400px)
+   ========================================================== */
+@media (max-width: 400px) {
+  
+  div.vfrc-header--title,
+  .vfrc-header--title {
+    font-size: 16px !important;
+    padding-bottom: 6px !important;
+  }
+  
+  textarea.vfrc-chat-input,
+  textarea._1gdvh9ta {
+    min-height: 45px !important;
+    font-size: 11px !important;
+  }
+  
+  .vfrc-button:not(.vfrc-header--button) {
+    padding: 8px 12px !important;
+    font-size: 10px !important;
+  }
+  
+  #vfrc-send-message::after,
+  .vfrc-chat-input__send::after {
+    font-size: 10px !important;
+  }
+  
+  #vfrc-send-message,
+  .vfrc-chat-input__send {
+    min-width: 70px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* ==========================================================
+   PAYSAGE MOBILE
+   ========================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  
+  textarea.vfrc-chat-input,
+  textarea._1gdvh9ta {
+    min-height: 40px !important;
+    max-height: 100px !important;
+  }
+  
+  .vfrc-footer {
+    padding: 4px 8px 4px 0 !important;
   }
 }
