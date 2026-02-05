@@ -600,34 +600,52 @@ textarea._1gdvh9ta::placeholder {
 /* ==========================================================
    SCROLLBAR - FIX SELON SUPPORT VOICEFLOW
    ========================================================== */
+
+/* Forcer l'affichage du scroll sur le bon conteneur */
 .vfrc-chat-dialog__container {
   overflow-y: scroll !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: #F18400 transparent !important;
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: #F18400 transparent !important; /* Firefox */
 }
 
+/* Webkit (Chrome, Safari, Edge) - Cibler le bon conteneur */
+.vfrc-chat-dialog__container::-webkit-scrollbar {
+  width: 2px !important;
+  -webkit-appearance: none !important;
+  display: block !important;
+}
+
+.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
+  background: #F18400 !important;
+  border-radius: 999px !important;
+}
+
+.vfrc-chat-dialog__container::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+/* Fallback sur autres conteneurs potentiels */
 .vfrc-chat--dialog {
   overflow-y: scroll !important;
   scrollbar-width: thin !important;
   scrollbar-color: #F18400 transparent !important;
 }
 
-/* Wildcard pour capter tout élément scrollable dans le widget */
-*::-webkit-scrollbar {
+.vfrc-chat--dialog::-webkit-scrollbar {
   width: 2px !important;
-  height: 2px !important;
   -webkit-appearance: none !important;
   display: block !important;
 }
 
-*::-webkit-scrollbar-thumb {
+.vfrc-chat--dialog::-webkit-scrollbar-thumb {
   background: #F18400 !important;
   border-radius: 999px !important;
 }
 
-*::-webkit-scrollbar-track {
+.vfrc-chat--dialog::-webkit-scrollbar-track {
   background: transparent !important;
 }
+
 
 /* ==========================================================
    RESPONSIVE MOBILE (< 640px)
