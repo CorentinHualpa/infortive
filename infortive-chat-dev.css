@@ -606,39 +606,26 @@ textarea._1gdvh9ta::placeholder {
   scrollbar-color: #F18400 transparent !important;
 }
 
-.vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 2px !important;
-  -webkit-appearance: none !important;
-  display: block !important;
-}
-
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400 !important;
-  border-radius: 999px !important;
-}
-
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent !important;
-}
-
 .vfrc-chat--dialog {
   overflow-y: scroll !important;
   scrollbar-width: thin !important;
   scrollbar-color: #F18400 transparent !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar {
+/* Wildcard pour capter tout élément scrollable dans le widget */
+*::-webkit-scrollbar {
   width: 2px !important;
+  height: 2px !important;
   -webkit-appearance: none !important;
   display: block !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background: #F18400 !important;
   border-radius: 999px !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: transparent !important;
 }
 
