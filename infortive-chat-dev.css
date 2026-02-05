@@ -353,7 +353,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-message._11kfxpg0 {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-weight: 400 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
@@ -369,7 +369,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
 }
@@ -491,7 +491,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-message .markdown li,
 ._11kfxpg0 li {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 400 !important;
   line-height: 1.5 !important;
   margin-bottom: 4px !important;
@@ -530,7 +530,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 ._15emaa40 {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-weight: 400 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 1.5 !important;
   display: inline-block !important;
   background: #073A59 !important;
@@ -544,7 +544,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-user-response .vfrc-message *,
 ._15emaa40 * {
   color: #ffffff !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 
 .vfrc-message:not([class*="extension"]) { 
