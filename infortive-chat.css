@@ -1,26 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.36
+   Infortive × Voiceflow — Thème stable v9.51
+   
+   v9.51 : Hauteur responsive + scrollbar fix + chevauchement fix
    ========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+/* ==========================================================
+   STRUCTURE PRINCIPALE - HAUTEUR 100%
+   ========================================================== */
+.vfrc-chat,
+.vfrc-chat__container,
+.vfrc-chat__container-inner {
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
 
-:root {
-  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-regular: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
-  --heading-1: 16px;
-  --heading-2: 20px;
-  --heading-3: 14px;
-  --heading-4: 13px;
-  --heading-6: 14px;
-  --body-1: 10px;
-  --body-2: 10px;
-  --button: 12px;
-  --caption: 10px;
-  --overline: 9px;
-  --content-offset: 48px;
+.vfrc-chat-dialog__container {
+  flex: 1 !important;
+  min-height: 0 !important; /* Important pour flex */
+  overflow-y: auto !important;
 }
 
 /* ==========================================================
@@ -54,6 +54,7 @@
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  flex-shrink: 0 !important; /* Ne pas réduire le header */
 }
 
 .vfrc-header--button,
@@ -70,9 +71,9 @@ button.vfrc-header--button,
 
 div.vfrc-header--title,
 .vfrc-header--title {
-  font-family: var(--font-family) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-weight: 700 !important;
-  font-size: var(--heading-2) !important;
+  font-size: 20px !important;
   line-height: 1.3 !important;
   color: #F18400 !important;
   padding: 0 0 12px 0 !important;
@@ -145,16 +146,16 @@ img.vfrc-avatar {
    ========================================================== */
 .vfrc-system-response--actions,
 .vfrc-system-response--actions.g3dqfd6 {
-  margin-left: var(--content-offset) !important;
+  margin-left: 0px !important;
   padding-left: 0 !important;
   padding-right: 8px !important;
-  width: calc(100% - var(--content-offset) - 8px) !important;
-  max-width: calc(100% - var(--content-offset) - 8px) !important;
+  width: calc(100% - 48px - 8px) !important;
+  max-width: calc(100% - 48px - 8px) !important;
   box-sizing: border-box !important;
 }
 
 /* ==========================================================
-   BOUTONS CHOIX - TOUS avec margin-left pour alignement
+   BOUTONS CHOIX - Alignement
    ========================================================== */
 .vfrc-button._1nzwwii0,
 button.vfrc-button._1nzwwii0,
@@ -163,12 +164,12 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   FOOTER - TRANSPARENT
+   FOOTER - FOND OPAQUE + FLEX SHRINK 0
    ========================================================== */
 .vfrc-footer {
-  background: transparent !important;
+  background: #ffffff !important;
   position: relative !important;
-  z-index: 10 !important;
+  z-index: 100 !important;
   box-shadow: none !important;
   border: none !important;
   padding: 8px 8px 8px 0 !important;
@@ -176,6 +177,7 @@ button.vfrc-button._1nzwwii0,
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+  flex-shrink: 0 !important; /* Ne pas réduire le footer */
 }
 
 .vfrc-footer__content {
@@ -191,7 +193,7 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   ZONE INPUT CONTENEUR : TRANSPARENT (pas de fond)
+   ZONE INPUT CONTENEUR : TRANSPARENT
    ========================================================== */
 .vfrc-input-container,
 ._1gdvh9t2,
@@ -217,7 +219,6 @@ div.vfrc-input-container {
   box-shadow: none !important;
 }
 
-/* Conteneur interne aussi transparent */
 .vfrc-chat-input__container-inner,
 ._1gdvh9tc {
   background: transparent !important;
@@ -231,8 +232,8 @@ div.vfrc-input-container {
    ========================================================== */
 .vfrc-button:not(.vfrc-header--button),
 button.vfrc-button:not(.vfrc-header--button) {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-medium) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 500 !important;
   font-size: 12px !important;
   line-height: 1.4 !important;
   letter-spacing: 0.03em !important;
@@ -287,9 +288,9 @@ button.vfrc-button:not(.vfrc-header--button) {
 #vfrc-send-message::after,
 .vfrc-chat-input__send::after {
   content: "Envoyer";
-  font-family: var(--font-family);
-  font-weight: var(--font-semibold);
-  font-size: var(--button);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -350,9 +351,9 @@ button.vfrc-button:not(.vfrc-header--button) {
    ========================================================== */
 .vfrc-system-response .vfrc-message:not([class*="extension"]),
 .vfrc-message._11kfxpg0 {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
   line-height: 1.5 !important;
   letter-spacing: 0.01em !important;
   display: inline-block !important;
@@ -367,10 +368,158 @@ button.vfrc-button:not(.vfrc-header--button) {
 
 .vfrc-system-response .vfrc-message:not([class*="extension"]) p,
 .vfrc-system-response .vfrc-message:not([class*="extension"]) li {
-  font-family: var(--font-family) !important;
-  font-size: var(--body-1) !important;
-  font-weight: var(--font-regular) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   line-height: 1.5 !important;
+}
+
+/* ==========================================================
+   TITRES MARKDOWN DANS LES BULLES
+   ========================================================== */
+.vfrc-message h1,
+.vfrc-message .markdown h1,
+._11kfxpg0 h1 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  margin: 16px 0 8px 0 !important;
+  color: #1E293B !important;
+}
+
+.vfrc-message h2,
+.vfrc-message .markdown h2,
+._11kfxpg0 h2 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  margin: 14px 0 6px 0 !important;
+  color: #1E293B !important;
+}
+
+.vfrc-message h3,
+.vfrc-message .markdown h3,
+._11kfxpg0 h3 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin: 12px 0 4px 0 !important;
+  color: #1E293B !important;
+}
+
+.vfrc-message h4,
+.vfrc-message .markdown h4,
+._11kfxpg0 h4 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin: 10px 0 4px 0 !important;
+  color: #1E293B !important;
+}
+
+.vfrc-message h5,
+.vfrc-message .markdown h5,
+._11kfxpg0 h5 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin: 8px 0 4px 0 !important;
+  color: #1E293B !important;
+}
+
+.vfrc-message h6,
+.vfrc-message .markdown h6,
+._11kfxpg0 h6 {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin: 8px 0 4px 0 !important;
+  color: #1E293B !important;
+}
+
+.vfrc-message h1:first-child,
+.vfrc-message h2:first-child,
+.vfrc-message h3:first-child,
+.vfrc-message h4:first-child,
+.vfrc-message .markdown h1:first-child,
+.vfrc-message .markdown h2:first-child,
+.vfrc-message .markdown h3:first-child,
+.vfrc-message .markdown h4:first-child {
+  margin-top: 0 !important;
+}
+
+.vfrc-message strong,
+.vfrc-message .markdown strong,
+._11kfxpg0 strong {
+  font-weight: 700 !important;
+  color: #1E293B !important;
+}
+
+/* ==========================================================
+   LISTES (ul/ol) - FIX ALIGNEMENT PUCES
+   ========================================================== */
+.vfrc-message ul,
+.vfrc-message ol,
+.vfrc-message .markdown ul,
+.vfrc-message .markdown ol,
+._11kfxpg0 ul,
+._11kfxpg0 ol {
+  margin: 8px 0 !important;
+  padding-left: 20px !important;
+  list-style-position: outside !important;
+}
+
+.vfrc-message ul,
+.vfrc-message .markdown ul,
+._11kfxpg0 ul {
+  list-style-type: none !important;
+}
+
+.vfrc-message ol,
+.vfrc-message .markdown ol,
+._11kfxpg0 ol {
+  list-style-type: decimal !important;
+}
+
+.vfrc-message li,
+.vfrc-message .markdown li,
+._11kfxpg0 li {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  margin-bottom: 4px !important;
+  padding-left: 4px !important;
+  display: list-item !important;
+  position: relative !important;
+  list-style: none !important;
+}
+
+.vfrc-message li:last-child,
+.vfrc-message .markdown li:last-child,
+._11kfxpg0 li:last-child {
+  margin-bottom: 0 !important;
+}
+
+.vfrc-message .markdown ul li::before,
+.vfrc-message ul li::before,
+._11kfxpg0 ul li::before,
+.markdown ul li::before {
+  content: "" !important;
+  height: 4px !important;
+  width: 4px !important;
+  background-color: #1a1e23 !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0.7em !important;
+  transform: translateX(-14px) !important;
 }
 
 /* ==========================================================
@@ -379,9 +528,9 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-user-response > div,
 .vfrc-user-response .vfrc-message,
 ._15emaa40 {
-  font-family: var(--font-family) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-weight: 400 !important;
-  font-size: var(--body-1) !important;
+  font-size: 14px !important;
   line-height: 1.5 !important;
   display: inline-block !important;
   background: #073A59 !important;
@@ -395,7 +544,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 .vfrc-user-response .vfrc-message *,
 ._15emaa40 * {
   color: #ffffff !important;
-  font-size: var(--body-1) !important;
+  font-size: 14px !important;
 }
 
 .vfrc-message:not([class*="extension"]) { 
@@ -403,18 +552,18 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 .vfrc-user-response {
-  padding-left: var(--content-offset) !important;
+  padding-left: 48px !important;
   padding-right: 8px !important;
 }
 
 /* ==========================================================
-   TEXTAREA : Fond gris comme les bulles agent
+   TEXTAREA
    ========================================================== */
 textarea.vfrc-chat-input,
 textarea._1gdvh9ta {
-  font-family: var(--font-family) !important;
-  font-weight: var(--font-regular) !important;
-  font-size: var(--body-1) !important;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 12px !important;
   line-height: 1.5 !important;
   width: 100% !important;
   min-width: 200px !important;
@@ -449,30 +598,172 @@ textarea._1gdvh9ta::placeholder {
 }
 
 /* ==========================================================
-   Scrollbar
+   SCROLLBAR - FIX SELON SUPPORT VOICEFLOW
    ========================================================== */
-.vfrc-chat--dialog,
-.vfrc-chat-dialog,
+
+/* Forcer l'affichage du scroll sur le bon conteneur */
 .vfrc-chat-dialog__container {
-  scrollbar-width: thin;
-  scrollbar-color: #F18400 transparent;
+  overflow-y: scroll !important;
+  scrollbar-width: thin !important; /* Firefox */
+  scrollbar-color: #F18400 transparent !important; /* Firefox */
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar,
-.vfrc-chat-dialog::-webkit-scrollbar,
+/* Webkit (Chrome, Safari, Edge) - Cibler le bon conteneur */
 .vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 10px;
+  width: 2px !important;
+  -webkit-appearance: none !important;
+  display: block !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar-thumb,
-.vfrc-chat-dialog::-webkit-scrollbar-thumb,
 .vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400;
-  border-radius: 999px;
+  background: #F18400 !important;
+  border-radius: 999px !important;
 }
 
-.vfrc-chat--dialog::-webkit-scrollbar-track,
-.vfrc-chat-dialog::-webkit-scrollbar-track,
 .vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent;
+  background: transparent !important;
+}
+
+/* Fallback sur autres conteneurs potentiels */
+.vfrc-chat--dialog {
+  overflow-y: scroll !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #F18400 transparent !important;
+}
+
+.vfrc-chat--dialog::-webkit-scrollbar {
+  width: 2px !important;
+  -webkit-appearance: none !important;
+  display: block !important;
+}
+
+.vfrc-chat--dialog::-webkit-scrollbar-thumb {
+  background: #F18400 !important;
+  border-radius: 999px !important;
+}
+
+.vfrc-chat--dialog::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+
+/* ==========================================================
+   RESPONSIVE MOBILE (< 640px)
+   ========================================================== */
+@media (max-width: 640px) {
+  
+  /* Masquer l'avatar */
+  .vfrc-avatar,
+  img.vfrc-avatar {
+    display: none !important;
+  }
+  
+  /* Réajuster les bulles agent */
+  .vfrc-system-response,
+  div.vfrc-system-response {
+    padding-left: 8px !important;
+  }
+  
+  /* Réajuster les boutons de choix */
+  .vfrc-button._1nzwwii0,
+  button.vfrc-button._1nzwwii0,
+  ._1nzwwii0._1o5z0oa0 {
+    margin-left: 8px !important;
+  }
+  
+  /* Réajuster le conteneur des boutons */
+  .vfrc-system-response--actions,
+  .vfrc-system-response--actions.g3dqfd6 {
+    margin-left: 0 !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+  }
+  
+  /* Footer compact */
+  .vfrc-footer {
+    padding: 6px 8px 6px 0 !important;
+  }
+  
+  .vfrc-footer__content {
+    margin-left: 8px !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+  }
+  
+  /* Réajuster les bulles utilisateur */
+  .vfrc-user-response {
+    padding-left: 8px !important;
+  }
+  
+  /* Header mobile */
+  div.vfrc-header--title,
+  .vfrc-header--title {
+    padding-left: 4px !important;
+    font-size: 18px !important;
+    padding-bottom: 8px !important;
+  }
+  
+  /* Textarea mobile plus compact */
+  textarea.vfrc-chat-input,
+  textarea._1gdvh9ta {
+    min-height: 50px !important;
+    padding: 8px 12px !important;
+  }
+  
+  /* Boutons plus compacts */
+  .vfrc-button:not(.vfrc-header--button),
+  button.vfrc-button:not(.vfrc-header--button) {
+    padding: 10px 14px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE TRÈS PETIT ÉCRAN (< 400px)
+   ========================================================== */
+@media (max-width: 400px) {
+  
+  div.vfrc-header--title,
+  .vfrc-header--title {
+    font-size: 16px !important;
+    padding-bottom: 6px !important;
+  }
+  
+  textarea.vfrc-chat-input,
+  textarea._1gdvh9ta {
+    min-height: 45px !important;
+    font-size: 11px !important;
+  }
+  
+  .vfrc-button:not(.vfrc-header--button) {
+    padding: 8px 12px !important;
+    font-size: 10px !important;
+  }
+  
+  #vfrc-send-message::after,
+  .vfrc-chat-input__send::after {
+    font-size: 10px !important;
+  }
+  
+  #vfrc-send-message,
+  .vfrc-chat-input__send {
+    min-width: 70px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* ==========================================================
+   PAYSAGE MOBILE
+   ========================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  
+  textarea.vfrc-chat-input,
+  textarea._1gdvh9ta {
+    min-height: 40px !important;
+    max-height: 100px !important;
+  }
+  
+  .vfrc-footer {
+    padding: 4px 8px 4px 0 !important;
+  }
 }
