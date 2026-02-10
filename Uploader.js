@@ -1,15 +1,15 @@
-// UploaderDev.js – v9.6
-// © Corentin – Fix multi-session + ERR_UPLOAD_FILE_CHANGED + auto-unlock stable
+// Uploader.js – v10.0
+// © Corentin – Isolation totale par session
 //
-export const UploaderDev = {
-  name: 'UploaderDev',
+export const Uploader = {
+  name: 'Uploader',
   type: 'response',
   match(context) {
     try {
       const t = context?.trace || {};
       const type = t.type || '';
       const pname = t.payload?.name || '';
-      const isMe = s => /(^ext_)?UploaderDev(Dev)?$/i.test(s || '');
+      const isMe = s => /(^ext_)?Uploader(Dev)?$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
       console.error('[UploadExt] match error:', e);
@@ -23,21 +23,35 @@ export const UploaderDev = {
       return;
     }
     
-    // ✅ Générer un ID unique par instance de render
+    // ✅ Générer un ID unique pour cette instance
     const instanceId = 'upl_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-    console.log(`[UploadExt] v9.6 - Init instance ${instanceId}`);
+    console.log(`[UploadExt] v10.0 - Init instance ${instanceId}`);
     
-    // ✅ Tuer toutes les anciennes instances
-    if (window.__uploaderDevInstances) {
-      window.__uploaderDevInstances.forEach(inst => {
-        try {
-          inst.cleanup();
-        } catch(e) {
-          console.log('[UploadExt] Cleanup ancienne instance:', e);
+    // ✅ Tuer toutes les anciennes instances encore présentes dans le DOM
+    document.querySelectorAll('[data-upload-extension="true"]').forEach(old => {
+      console.log('[UploadExt] Nettoyage ancienne instance:', old.dataset.uploadInstanceId);
+      old.style.display = 'none';
+      old.remove();
+    });
+    // Aussi chercher dans les shadow roots
+    const findAndCleanShadow = () => {
+      document.querySelectorAll('*').forEach(el => {
+        if (el.shadowRoot) {
+          el.shadowRoot.querySelectorAll('[data-upload-extension="true"]').forEach(old => {
+            console.log('[UploadExt] Nettoyage shadow instance:', old.dataset.uploadInstanceId);
+            old.style.display = 'none';
+            old.remove();
+          });
         }
       });
+    };
+    findAndCleanShadow();
+    
+    // ✅ Cleanup global si une ancienne instance avait enregistré un cleanup
+    if (window.__uploaderCleanup) {
+      try { window.__uploaderCleanup(); } catch(e) {}
+      window.__uploaderCleanup = null;
     }
-    window.__uploaderDevInstances = [];
     
     const findChatContainer = () => {
       let container = document.querySelector('#voiceflow-chat-container');
@@ -51,15 +65,10 @@ export const UploaderDev = {
       return null;
     };
     
-    // ✅ Tout l'état est local à cette instance
-    const state = {
-      isActive: true,
-      isUploading: false,
-      timedTimer: null,
-      cleanupObserver: null,
-      selectedFiles: [],
-      instanceId: instanceId
-    };
+    let isComponentActive = true;
+    let isUploading = false;
+    let timedTimer = null;
+    let cleanupObserver = null;
     
     const p = trace?.payload || {};
     const title         = p.title || '';
@@ -193,7 +202,7 @@ export const UploaderDev = {
     root.className = 'upl';
     root.style.position = 'relative';
     root.dataset.uploadExtension = 'true';
-    root.dataset.instanceId = instanceId;
+    root.dataset.uploadInstanceId = instanceId;
     
     root.innerHTML = `
       <style>${styles}</style>
@@ -239,6 +248,8 @@ export const UploaderDev = {
     const overlay = root.querySelector('.upl-overlay');
     const bodyDiv = root.querySelector('.upl-body');
     
+    let selectedFiles = [];
+    
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const formatSize = (bytes) => bytes < 1024 ? bytes + ' o' : bytes < 1024*1024 ? (bytes/1024).toFixed(1) + ' Ko' : (bytes/(1024*1024)).toFixed(1) + ' Mo';
     
@@ -261,7 +272,7 @@ export const UploaderDev = {
       filesList.innerHTML = '';
       hideMsg();
       
-      if (!state.selectedFiles.length) {
+      if (!selectedFiles.length) {
         filesList.classList.remove('show');
         metaDiv.style.display = 'none';
         sendBtn.disabled = true;
@@ -271,13 +282,13 @@ export const UploaderDev = {
       filesList.classList.add('show');
       metaDiv.style.display = 'flex';
       
-      const total = state.selectedFiles.reduce((s, f) => s + f.meta.size, 0);
-      const enough = state.selectedFiles.length >= requiredFiles;
+      const total = selectedFiles.reduce((s, f) => s + f.meta.size, 0);
+      const enough = selectedFiles.length >= requiredFiles;
       
       countDiv.className = `upl-count${enough ? ' ok' : ''}`;
-      countDiv.textContent = `${state.selectedFiles.length} fichier${state.selectedFiles.length > 1 ? 's' : ''} · ${formatSize(total)}`;
+      countDiv.textContent = `${selectedFiles.length} fichier${selectedFiles.length > 1 ? 's' : ''} · ${formatSize(total)}`;
       
-      state.selectedFiles.forEach((file, i) => {
+      selectedFiles.forEach((file, i) => {
         const item = document.createElement('div');
         item.className = 'upl-item';
         item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.meta.name}</div><div class="upl-item-size">${formatSize(file.meta.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
@@ -285,26 +296,23 @@ export const UploaderDev = {
       });
       
       root.querySelectorAll('.upl-item-del').forEach(btn => {
-        btn.onclick = () => { state.selectedFiles.splice(parseInt(btn.dataset.i), 1); updateList(); };
+        btn.onclick = () => { selectedFiles.splice(parseInt(btn.dataset.i), 1); updateList(); };
       });
       
       sendBtn.disabled = !enough;
       
-      if (state.selectedFiles.length > 0 && !enough) {
-        showMsg(`${requiredFiles - state.selectedFiles.length} fichier(s) manquant(s)`, 'warn');
+      if (selectedFiles.length > 0 && !enough) {
+        showMsg(`${requiredFiles - selectedFiles.length} fichier(s) manquant(s)`, 'warn');
       }
     };
     
     const addFiles = async (files) => {
-      if (!state.isActive) {
-        console.log(`[UploadExt] Instance ${instanceId} inactive, ignoré`);
-        return;
-      }
+      if (!isComponentActive) return;
       const errs = [];
       for (const f of files) {
-        if (state.selectedFiles.length >= maxFiles) { errs.push('Limite atteinte'); break; }
+        if (selectedFiles.length >= maxFiles) { errs.push('Limite atteinte'); break; }
         if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
-        if (state.selectedFiles.some(x => x.meta.name === f.name && x.meta.size === f.size)) continue;
+        if (selectedFiles.some(x => x.meta.name === f.name && x.meta.size === f.size)) continue;
         try {
           const buffered = await readFileToBuffer(f);
           selectedFiles.push(buffered);
@@ -316,13 +324,12 @@ export const UploaderDev = {
       if (errs.length) showMsg(errs.join(' · '), 'err');
     };
     
-    uploadZone.onclick = () => { if (state.isActive) fileInput.click(); };
-    uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('drag'); };
+    uploadZone.onclick = () => { if (isComponentActive) fileInput.click(); };
+    uploadZone.ondragover = e => { e.preventDefault(); if (isComponentActive) uploadZone.classList.add('drag'); };
     uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
-    uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
-    fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
+    uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); if (isComponentActive) addFiles(Array.from(e.dataTransfer?.files || [])); };
+    fileInput.onchange = () => { if (isComponentActive) { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; } };
     
-    // ✅ Auto-unlock stable
     const setupAutoUnlock = () => {
       const container = findChatContainer();
       if (!container?.shadowRoot) {
@@ -351,13 +358,13 @@ export const UploaderDev = {
         return null;
       }
       
-      console.log(`[UploadExt] Auto-unlock configuré pour ${instanceId}`);
+      console.log('[UploadExt] Auto-unlock configuré');
       
       let ready = false;
       
       const observer = new MutationObserver((mutations) => {
-        if (!state.isActive) return;
-        if (state.isUploading) return;
+        if (!isComponentActive) return;
+        if (isUploading) return;
         if (!ready) return;
         
         for (const mutation of mutations) {
@@ -371,8 +378,8 @@ export const UploaderDev = {
               node.classList?.contains('vfrc-message--user');
             
             if (isUserMessage) {
-              console.log(`[UploadExt] Message user détecté, fermeture ${instanceId}`);
-              cleanupInstance();
+              console.log('[UploadExt] Message user détecté, fermeture UI');
+              autoUnlock();
               return;
             }
           }
@@ -380,48 +387,54 @@ export const UploaderDev = {
       });
       
       observer.observe(dialogEl, { childList: true, subtree: true });
-      
       setTimeout(() => { ready = true; }, 2000);
       
       return () => observer.disconnect();
     };
     
-    // ✅ Cleanup complet d'une instance
-    const cleanupInstance = () => {
-      if (!state.isActive) return;
-      console.log(`[UploadExt] Cleanup instance ${instanceId}`);
-      state.isActive = false;
-      
-      if (state.cleanupObserver) {
-        state.cleanupObserver();
-        state.cleanupObserver = null;
-      }
-      
-      if (state.timedTimer) {
-        clearInterval(state.timedTimer);
-        state.timedTimer = null;
-      }
-      
+    const autoUnlock = () => {
+      if (!isComponentActive) return;
+      console.log(`[UploadExt] Auto-unlock instance ${instanceId}`);
+      cleanup();
       root.style.display = 'none';
     };
     
+    // ✅ Cleanup centralisé
+    const cleanup = () => {
+      isComponentActive = false;
+      if (cleanupObserver) {
+        cleanupObserver();
+        cleanupObserver = null;
+      }
+      if (timedTimer) {
+        clearInterval(timedTimer);
+        timedTimer = null;
+      }
+      if (window.__uploaderCleanup === cleanup) {
+        window.__uploaderCleanup = null;
+      }
+    };
+    
+    // ✅ Enregistrer le cleanup global pour que la prochaine instance puisse tuer celle-ci
+    window.__uploaderCleanup = cleanup;
+    
     setTimeout(() => {
-      if (state.isActive && !state.isUploading) {
-        state.cleanupObserver = setupAutoUnlock();
+      if (isComponentActive && !isUploading) {
+        cleanupObserver = setupAutoUnlock();
       }
     }, 500);
     
     sendBtn.onclick = async () => {
-      if (state.selectedFiles.length < requiredFiles) return;
-      if (!state.isActive) return;
+      if (selectedFiles.length < requiredFiles) return;
+      if (!isComponentActive) return;
       
-      console.log(`[UploadExt] Starting upload (${instanceId})...`);
+      console.log(`[UploadExt] Starting upload (instance ${instanceId})...`);
       
-      state.isUploading = true;
+      isUploading = true;
       
-      if (state.cleanupObserver) {
-        state.cleanupObserver();
-        state.cleanupObserver = null;
+      if (cleanupObserver) {
+        cleanupObserver();
+        cleanupObserver = null;
       }
       
       root.style.pointerEvents = 'none';
@@ -438,7 +451,7 @@ export const UploaderDev = {
         const resp = await post({
           url: webhookUrl, method: webhookMethod, headers: webhookHeaders,
           timeoutMs: webhookTimeoutMs, retries: webhookRetries,
-          files: state.selectedFiles, fileFieldName, extra, vfContext, variables
+          files: selectedFiles, fileFieldName, extra, vfContext, variables
         });
         
         console.log('[UploadExt] Response:', resp);
@@ -469,8 +482,7 @@ export const UploaderDev = {
         
       } catch (err) {
         console.error('[UploadExt] Error:', err);
-        state.isUploading = false;
-        state.isActive = false;
+        isUploading = false;
         loader.classList.remove('show');
         bodyDiv.style.display = '';
         showMsg(String(err?.message || err), 'err');
@@ -495,7 +507,7 @@ export const UploaderDev = {
       let cur = 0, locked = false;
       
       const paint = () => { loaderFill.style.width = `${cur}%`; loaderPct.textContent = `${Math.round(cur)}%`; };
-      const clear = () => { if (state.timedTimer) { clearInterval(state.timedTimer); state.timedTimer = null; } };
+      const clear = () => { if (timedTimer) { clearInterval(timedTimer); timedTimer = null; } };
       
       return {
         auto(steps) {
@@ -509,7 +521,7 @@ export const UploaderDev = {
             if (idx >= plan.length || locked) return;
             const p = plan[idx++], t0 = Date.now(), t1 = t0 + p.durationMs;
             clear();
-            state.timedTimer = setInterval(() => {
+            timedTimer = setInterval(() => {
               if (locked) { clear(); return; }
               const r = clamp((Date.now() - t0) / p.durationMs, 0, 1);
               const nv = p.progressStart + (p.progressEnd - p.progressStart) * r;
@@ -534,13 +546,13 @@ export const UploaderDev = {
           requestAnimationFrame(step);
         },
         done(data) {
-          console.log(`[UploadExt] Upload terminé (${instanceId})`);
+          console.log(`[UploadExt] Upload terminé (instance ${instanceId})`);
           locked = true; clear();
           this.to(100, 400, () => {
             loader.classList.add('complete');
             setTimeout(() => {
-              state.isUploading = false;
-              state.isActive = false;
+              isUploading = false;
+              cleanup();
               root.style.display = 'none';
               
               window?.voiceflow?.chat?.interact?.({
@@ -548,7 +560,7 @@ export const UploaderDev = {
                 payload: {
                   webhookSuccess: true,
                   webhookResponse: data,
-                  files: state.selectedFiles.map(f => ({ name: f.meta.name, size: f.meta.size, type: f.meta.type })),
+                  files: selectedFiles.map(f => ({ name: f.meta.name, size: f.meta.size, type: f.meta.type })),
                   buttonPath: 'success'
                 }
               });
@@ -614,17 +626,7 @@ export const UploaderDev = {
       throw new Error('Timeout');
     }
     
-    // ✅ Enregistrer cette instance pour cleanup futur
-    const instanceCleanup = () => {
-      cleanupInstance();
-    };
-    
-    window.__uploaderDevInstances.push({ cleanup: instanceCleanup, id: instanceId });
-    
-    // ✅ Retourner la fonction de cleanup pour Voiceflow
-    return () => {
-      cleanupInstance();
-    };
+    return () => { cleanup(); };
   }
 };
-try { window.UploaderDev = UploaderDev; } catch {}
+try { window.Uploader = Uploader; } catch {}
