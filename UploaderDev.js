@@ -1,5 +1,5 @@
-// UploaderDev.js – v9.3
-// © Corentin – Sans hint chat
+// UploaderDev.js – v9.4
+// © Corentin – Fix ERR_UPLOAD_FILE_CHANGED
 //
 export const UploaderDev = {
   name: 'UploaderDev',
@@ -23,7 +23,7 @@ export const UploaderDev = {
       return;
     }
     
-    console.log('[UploadExt] v9.3 - Init');
+    console.log('[UploadExt] v9.4 - Init');
     
     const findChatContainer = () => {
       let container = document.querySelector('#voiceflow-chat-container');
@@ -306,6 +306,7 @@ export const UploaderDev = {
     const overlay = root.querySelector('.upl-overlay');
     const bodyDiv = root.querySelector('.upl-body');
     
+    // ✅ Stocke { meta, buffer } au lieu de File brut
     let selectedFiles = [];
     
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -313,6 +314,19 @@ export const UploaderDev = {
     
     const showMsg = (text, type = 'warn') => { msgDiv.textContent = text; msgDiv.className = `upl-msg show ${type}`; };
     const hideMsg = () => { msgDiv.className = 'upl-msg'; };
+    
+    // ✅ Lecture immédiate du fichier en mémoire
+    const readFileToBuffer = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          meta: { name: file.name, size: file.size, type: file.type },
+          buffer: reader.result
+        });
+        reader.onerror = () => reject(new Error(`Impossible de lire ${file.name}`));
+        reader.readAsArrayBuffer(file);
+      });
+    };
     
     const updateList = () => {
       filesList.innerHTML = '';
@@ -328,7 +342,7 @@ export const UploaderDev = {
       filesList.classList.add('show');
       metaDiv.style.display = 'flex';
       
-      const total = selectedFiles.reduce((s, f) => s + f.size, 0);
+      const total = selectedFiles.reduce((s, f) => s + f.meta.size, 0);
       const enough = selectedFiles.length >= requiredFiles;
       
       countDiv.className = `upl-count${enough ? ' ok' : ''}`;
@@ -337,7 +351,7 @@ export const UploaderDev = {
       selectedFiles.forEach((file, i) => {
         const item = document.createElement('div');
         item.className = 'upl-item';
-        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.name}</div><div class="upl-item-size">${formatSize(file.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
+        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.meta.name}</div><div class="upl-item-size">${formatSize(file.meta.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
         filesList.appendChild(item);
       });
       
@@ -352,15 +366,21 @@ export const UploaderDev = {
       }
     };
     
-    const addFiles = (files) => {
-      const ok = [], errs = [];
+    // ✅ addFiles est maintenant async — lit immédiatement en mémoire
+    const addFiles = async (files) => {
+      const errs = [];
       for (const f of files) {
-        if (selectedFiles.length + ok.length >= maxFiles) { errs.push('Limite atteinte'); break; }
+        if (selectedFiles.length >= maxFiles) { errs.push('Limite atteinte'); break; }
         if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
-        if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
-        ok.push(f);
+        if (selectedFiles.some(x => x.meta.name === f.name && x.meta.size === f.size)) continue;
+        try {
+          const buffered = await readFileToBuffer(f);
+          selectedFiles.push(buffered);
+        } catch (e) {
+          errs.push(e.message);
+        }
       }
-      if (ok.length) { selectedFiles.push(...ok); updateList(); }
+      updateList();
       if (errs.length) showMsg(errs.join(' · '), 'err');
     };
     
@@ -507,7 +527,7 @@ export const UploaderDev = {
                 payload: {
                   webhookSuccess: true,
                   webhookResponse: data,
-                  files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+                  files: selectedFiles.map(f => ({ name: f.meta.name, size: f.meta.size, type: f.meta.type })),
                   buttonPath: 'success'
                 }
               });
@@ -533,6 +553,7 @@ export const UploaderDev = {
       });
     }
     
+    // ✅ post() reconstruit des File à partir des ArrayBuffer
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
       let err;
       for (let i = 0; i <= retries; i++) {
@@ -540,7 +561,13 @@ export const UploaderDev = {
           const ctrl = new AbortController();
           const to = setTimeout(() => ctrl.abort(), timeoutMs);
           const fd = new FormData();
-          files.forEach(f => fd.append(fileFieldName, f, f.name));
+          
+          // Reconstruire des File depuis les buffers en mémoire
+          files.forEach(f => {
+            const blob = new File([f.buffer], f.meta.name, { type: f.meta.type });
+            fd.append(fileFieldName, blob, f.meta.name);
+          });
+          
           Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
           Object.entries(variables).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
           if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
@@ -575,5 +602,4 @@ export const UploaderDev = {
     };
   }
 };
-
 try { window.UploaderDev = UploaderDev; } catch {}
