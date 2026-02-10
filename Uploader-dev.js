@@ -1,15 +1,15 @@
-// Uploader.js – v9.5
-// © Corentin – Fix ERR_UPLOAD_FILE_CHANGED + auto-unlock stable
+// UploaderDev.js – v9.3
+// © Corentin – Sans hint chat
 //
-export const Uploader = {
-  name: 'Uploader',
+export const UploaderDev = {
+  name: 'UploaderDev',
   type: 'response',
   match(context) {
     try {
       const t = context?.trace || {};
       const type = t.type || '';
       const pname = t.payload?.name || '';
-      const isMe = s => /(^ext_)?Uploader(Dev)?$/i.test(s || '');
+      const isMe = s => /(^ext_)?UploaderDev(Dev)?$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
       console.error('[UploadExt] match error:', e);
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
     
-    console.log('[UploadExt] v9.5 - Init');
+    console.log('[UploadExt] v9.3 - Init');
     
     const findChatContainer = () => {
       let container = document.querySelector('#voiceflow-chat-container');
@@ -41,6 +41,93 @@ export const Uploader = {
     let isUploading = false;
     let timedTimer = null;
     let cleanupObserver = null;
+    
+    const setupAutoUnlock = () => {
+      const container = findChatContainer();
+      if (!container?.shadowRoot) {
+        console.log('[UploadExt] Pas de shadowRoot, auto-unlock désactivé');
+        return null;
+      }
+      
+      const shadowRoot = container.shadowRoot;
+      const selectors = [
+        '.vfrc-chat--dialog',
+        '[class*="Dialog"]',
+        '[class*="dialog"]',
+        '.vfrc-chat',
+        '[class*="Messages"]',
+        '[class*="messages"]'
+      ];
+      
+      let dialogEl = null;
+      for (const sel of selectors) {
+        dialogEl = shadowRoot.querySelector(sel);
+        if (dialogEl) break;
+      }
+      
+      if (!dialogEl) {
+        console.log('[UploadExt] Pas de dialog trouvé');
+        return null;
+      }
+      
+      console.log('[UploadExt] Auto-unlock configuré');
+      
+      const observer = new MutationObserver((mutations) => {
+        if (!isComponentActive) return;
+        if (isUploading) return;
+        
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType !== Node.ELEMENT_NODE) continue;
+            if (node.dataset?.uploadExtension === 'true') continue;
+            
+            const isUserMessage = 
+              node.classList?.contains('vfrc-user-response') ||
+              node.classList?.contains('vfrc-message--user') ||
+              node.querySelector?.('[class*="user"]');
+            
+            const isSystemResponse = 
+              node.classList?.contains('vfrc-system-response') ||
+              node.classList?.contains('vfrc-assistant') ||
+              node.querySelector?.('[class*="assistant"]') ||
+              node.querySelector?.('[class*="system"]');
+            
+            if (isUserMessage || isSystemResponse) {
+              console.log('[UploadExt] Activité détectée, fermeture UI');
+              autoUnlock();
+              return;
+            }
+          }
+        }
+      });
+      
+      observer.observe(dialogEl, { childList: true, subtree: true });
+      return () => observer.disconnect();
+    };
+    
+    const autoUnlock = () => {
+      if (!isComponentActive) return;
+      console.log('[UploadExt] Auto-unlock triggered');
+      isComponentActive = false;
+      
+      if (cleanupObserver) {
+        cleanupObserver();
+        cleanupObserver = null;
+      }
+      
+      if (timedTimer) {
+        clearInterval(timedTimer);
+        timedTimer = null;
+      }
+      
+      root.style.display = 'none';
+    };
+    
+    setTimeout(() => {
+      if (isComponentActive && !isUploading) {
+        cleanupObserver = setupAutoUnlock();
+      }
+    }, 500);
     
     const p = trace?.payload || {};
     const title         = p.title || '';
@@ -227,18 +314,6 @@ export const Uploader = {
     const showMsg = (text, type = 'warn') => { msgDiv.textContent = text; msgDiv.className = `upl-msg show ${type}`; };
     const hideMsg = () => { msgDiv.className = 'upl-msg'; };
     
-    const readFileToBuffer = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({
-          meta: { name: file.name, size: file.size, type: file.type },
-          buffer: reader.result
-        });
-        reader.onerror = () => reject(new Error(`Impossible de lire ${file.name}`));
-        reader.readAsArrayBuffer(file);
-      });
-    };
-    
     const updateList = () => {
       filesList.innerHTML = '';
       hideMsg();
@@ -253,7 +328,7 @@ export const Uploader = {
       filesList.classList.add('show');
       metaDiv.style.display = 'flex';
       
-      const total = selectedFiles.reduce((s, f) => s + f.meta.size, 0);
+      const total = selectedFiles.reduce((s, f) => s + f.size, 0);
       const enough = selectedFiles.length >= requiredFiles;
       
       countDiv.className = `upl-count${enough ? ' ok' : ''}`;
@@ -262,7 +337,7 @@ export const Uploader = {
       selectedFiles.forEach((file, i) => {
         const item = document.createElement('div');
         item.className = 'upl-item';
-        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.meta.name}</div><div class="upl-item-size">${formatSize(file.meta.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
+        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.name}</div><div class="upl-item-size">${formatSize(file.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
         filesList.appendChild(item);
       });
       
@@ -277,20 +352,15 @@ export const Uploader = {
       }
     };
     
-    const addFiles = async (files) => {
-      const errs = [];
+    const addFiles = (files) => {
+      const ok = [], errs = [];
       for (const f of files) {
-        if (selectedFiles.length >= maxFiles) { errs.push('Limite atteinte'); break; }
+        if (selectedFiles.length + ok.length >= maxFiles) { errs.push('Limite atteinte'); break; }
         if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
-        if (selectedFiles.some(x => x.meta.name === f.name && x.meta.size === f.size)) continue;
-        try {
-          const buffered = await readFileToBuffer(f);
-          selectedFiles.push(buffered);
-        } catch (e) {
-          errs.push(e.message);
-        }
+        if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
+        ok.push(f);
       }
-      updateList();
+      if (ok.length) { selectedFiles.push(...ok); updateList(); }
       if (errs.length) showMsg(errs.join(' · '), 'err');
     };
     
@@ -299,94 +369,6 @@ export const Uploader = {
     uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
     uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
     fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
-    
-    const setupAutoUnlock = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) {
-        console.log('[UploadExt] Pas de shadowRoot, auto-unlock désactivé');
-        return null;
-      }
-      
-      const shadowRoot = container.shadowRoot;
-      const selectors = [
-        '.vfrc-chat--dialog',
-        '[class*="Dialog"]',
-        '[class*="dialog"]',
-        '.vfrc-chat',
-        '[class*="Messages"]',
-        '[class*="messages"]'
-      ];
-      
-      let dialogEl = null;
-      for (const sel of selectors) {
-        dialogEl = shadowRoot.querySelector(sel);
-        if (dialogEl) break;
-      }
-      
-      if (!dialogEl) {
-        console.log('[UploadExt] Pas de dialog trouvé');
-        return null;
-      }
-      
-      console.log('[UploadExt] Auto-unlock configuré');
-      
-      let ready = false;
-      
-      const observer = new MutationObserver((mutations) => {
-        if (!isComponentActive) return;
-        if (isUploading) return;
-        if (!ready) return;
-        
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType !== Node.ELEMENT_NODE) continue;
-            if (node.dataset?.uploadExtension === 'true') continue;
-            
-            if (root.contains(node)) continue;
-            
-            const isUserMessage = 
-              node.classList?.contains('vfrc-user-response') ||
-              node.classList?.contains('vfrc-message--user');
-            
-            if (isUserMessage) {
-              console.log('[UploadExt] Message user détecté, fermeture UI');
-              autoUnlock();
-              return;
-            }
-          }
-        }
-      });
-      
-      observer.observe(dialogEl, { childList: true, subtree: true });
-      
-      setTimeout(() => { ready = true; }, 2000);
-      
-      return () => observer.disconnect();
-    };
-    
-    const autoUnlock = () => {
-      if (!isComponentActive) return;
-      console.log('[UploadExt] Auto-unlock triggered');
-      isComponentActive = false;
-      
-      if (cleanupObserver) {
-        cleanupObserver();
-        cleanupObserver = null;
-      }
-      
-      if (timedTimer) {
-        clearInterval(timedTimer);
-        timedTimer = null;
-      }
-      
-      root.style.display = 'none';
-    };
-    
-    setTimeout(() => {
-      if (isComponentActive && !isUploading) {
-        cleanupObserver = setupAutoUnlock();
-      }
-    }, 500);
     
     sendBtn.onclick = async () => {
       if (selectedFiles.length < requiredFiles) return;
@@ -525,7 +507,7 @@ export const Uploader = {
                 payload: {
                   webhookSuccess: true,
                   webhookResponse: data,
-                  files: selectedFiles.map(f => ({ name: f.meta.name, size: f.meta.size, type: f.meta.type })),
+                  files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
                   buttonPath: 'success'
                 }
               });
@@ -558,12 +540,7 @@ export const Uploader = {
           const ctrl = new AbortController();
           const to = setTimeout(() => ctrl.abort(), timeoutMs);
           const fd = new FormData();
-          
-          files.forEach(f => {
-            const blob = new File([f.buffer], f.meta.name, { type: f.meta.type });
-            fd.append(fileFieldName, blob, f.meta.name);
-          });
-          
+          files.forEach(f => fd.append(fileFieldName, f, f.name));
           Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
           Object.entries(variables).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
           if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
@@ -598,4 +575,5 @@ export const Uploader = {
     };
   }
 };
-try { window.Uploader = Uploader; } catch {}
+
+try { window.UploaderDev = UploaderDev; } catch {}
