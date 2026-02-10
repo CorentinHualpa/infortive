@@ -1,15 +1,15 @@
-// UploaderDev.js – v9.5
+// Uploader.js – v9.5
 // © Corentin – Fix ERR_UPLOAD_FILE_CHANGED + auto-unlock stable
 //
-export const UploaderDev = {
-  name: 'UploaderDev',
+export const Uploader = {
+  name: 'Uploader',
   type: 'response',
   match(context) {
     try {
       const t = context?.trace || {};
       const type = t.type || '';
       const pname = t.payload?.name || '';
-      const isMe = s => /(^ext_)?UploaderDev(Dev)?$/i.test(s || '');
+      const isMe = s => /(^ext_)?Uploader(Dev)?$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
       console.error('[UploadExt] match error:', e);
@@ -219,7 +219,6 @@ export const UploaderDev = {
     const overlay = root.querySelector('.upl-overlay');
     const bodyDiv = root.querySelector('.upl-body');
     
-    // ✅ Stocke { meta, buffer } au lieu de File brut
     let selectedFiles = [];
     
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -228,7 +227,6 @@ export const UploaderDev = {
     const showMsg = (text, type = 'warn') => { msgDiv.textContent = text; msgDiv.className = `upl-msg show ${type}`; };
     const hideMsg = () => { msgDiv.className = 'upl-msg'; };
     
-    // ✅ Lecture immédiate du fichier en mémoire
     const readFileToBuffer = (file) => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -279,7 +277,6 @@ export const UploaderDev = {
       }
     };
     
-    // ✅ addFiles est async — lit immédiatement en mémoire
     const addFiles = async (files) => {
       const errs = [];
       for (const f of files) {
@@ -303,7 +300,6 @@ export const UploaderDev = {
     uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
     fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
     
-    // ✅ Auto-unlock stable — ne réagit qu'aux vrais messages user, avec délai d'init
     const setupAutoUnlock = () => {
       const container = findChatContainer();
       if (!container?.shadowRoot) {
@@ -334,7 +330,6 @@ export const UploaderDev = {
       
       console.log('[UploadExt] Auto-unlock configuré');
       
-      // ✅ Ignorer les mutations pendant la phase d'init
       let ready = false;
       
       const observer = new MutationObserver((mutations) => {
@@ -347,10 +342,8 @@ export const UploaderDev = {
             if (node.nodeType !== Node.ELEMENT_NODE) continue;
             if (node.dataset?.uploadExtension === 'true') continue;
             
-            // ✅ Ignorer les nœuds internes à l'extension
             if (root.contains(node)) continue;
             
-            // ✅ Ne réagir QU'aux vrais messages USER
             const isUserMessage = 
               node.classList?.contains('vfrc-user-response') ||
               node.classList?.contains('vfrc-message--user');
@@ -366,7 +359,6 @@ export const UploaderDev = {
       
       observer.observe(dialogEl, { childList: true, subtree: true });
       
-      // ✅ Délai 2s avant activation
       setTimeout(() => { ready = true; }, 2000);
       
       return () => observer.disconnect();
@@ -559,7 +551,6 @@ export const UploaderDev = {
       });
     }
     
-    // ✅ post() reconstruit des File à partir des ArrayBuffer
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
       let err;
       for (let i = 0; i <= retries; i++) {
@@ -568,7 +559,6 @@ export const UploaderDev = {
           const to = setTimeout(() => ctrl.abort(), timeoutMs);
           const fd = new FormData();
           
-          // Reconstruire des File depuis les buffers en mémoire
           files.forEach(f => {
             const blob = new File([f.buffer], f.meta.name, { type: f.meta.type });
             fd.append(fileFieldName, blob, f.meta.name);
@@ -608,4 +598,4 @@ export const UploaderDev = {
     };
   }
 };
-try { window.UploaderDev = UploaderDev; } catch {}
+try { window.Uploader = Uploader; } catch {}
