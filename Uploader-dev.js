@@ -1,15 +1,15 @@
-// UploaderDev.js – v9.3
+// Uploader.js – v9.3
 // © Corentin – Sans hint chat
 //
-export const UploaderDev = {
-  name: 'UploaderDev',
+export const Uploader = {
+  name: 'Uploader',
   type: 'response',
   match(context) {
     try {
       const t = context?.trace || {};
       const type = t.type || '';
       const pname = t.payload?.name || '';
-      const isMe = s => /(^ext_)?UploaderDev(Dev)?$/i.test(s || '');
+      const isMe = s => /(^ext_)?Uploader(Dev)?$/i.test(s || '');
       return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
     } catch (e) {
       console.error('[UploadExt] match error:', e);
@@ -576,4 +576,4 @@ export const UploaderDev = {
   }
 };
 
-try { window.UploaderDev = UploaderDev; } catch {}
+try { window.Uploader = Uploader; } catch {}
