@@ -1,5 +1,5 @@
-// UploaderDev.js – v9.4
-// © Corentin – Fix ERR_UPLOAD_FILE_CHANGED
+// UploaderDev.js – v9.5
+// © Corentin – Fix ERR_UPLOAD_FILE_CHANGED + auto-unlock stable
 //
 export const UploaderDev = {
   name: 'UploaderDev',
@@ -23,7 +23,7 @@ export const UploaderDev = {
       return;
     }
     
-    console.log('[UploadExt] v9.4 - Init');
+    console.log('[UploadExt] v9.5 - Init');
     
     const findChatContainer = () => {
       let container = document.querySelector('#voiceflow-chat-container');
@@ -41,93 +41,6 @@ export const UploaderDev = {
     let isUploading = false;
     let timedTimer = null;
     let cleanupObserver = null;
-    
-    const setupAutoUnlock = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) {
-        console.log('[UploadExt] Pas de shadowRoot, auto-unlock désactivé');
-        return null;
-      }
-      
-      const shadowRoot = container.shadowRoot;
-      const selectors = [
-        '.vfrc-chat--dialog',
-        '[class*="Dialog"]',
-        '[class*="dialog"]',
-        '.vfrc-chat',
-        '[class*="Messages"]',
-        '[class*="messages"]'
-      ];
-      
-      let dialogEl = null;
-      for (const sel of selectors) {
-        dialogEl = shadowRoot.querySelector(sel);
-        if (dialogEl) break;
-      }
-      
-      if (!dialogEl) {
-        console.log('[UploadExt] Pas de dialog trouvé');
-        return null;
-      }
-      
-      console.log('[UploadExt] Auto-unlock configuré');
-      
-      const observer = new MutationObserver((mutations) => {
-        if (!isComponentActive) return;
-        if (isUploading) return;
-        
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType !== Node.ELEMENT_NODE) continue;
-            if (node.dataset?.uploadExtension === 'true') continue;
-            
-            const isUserMessage = 
-              node.classList?.contains('vfrc-user-response') ||
-              node.classList?.contains('vfrc-message--user') ||
-              node.querySelector?.('[class*="user"]');
-            
-            const isSystemResponse = 
-              node.classList?.contains('vfrc-system-response') ||
-              node.classList?.contains('vfrc-assistant') ||
-              node.querySelector?.('[class*="assistant"]') ||
-              node.querySelector?.('[class*="system"]');
-            
-            if (isUserMessage || isSystemResponse) {
-              console.log('[UploadExt] Activité détectée, fermeture UI');
-              autoUnlock();
-              return;
-            }
-          }
-        }
-      });
-      
-      observer.observe(dialogEl, { childList: true, subtree: true });
-      return () => observer.disconnect();
-    };
-    
-    const autoUnlock = () => {
-      if (!isComponentActive) return;
-      console.log('[UploadExt] Auto-unlock triggered');
-      isComponentActive = false;
-      
-      if (cleanupObserver) {
-        cleanupObserver();
-        cleanupObserver = null;
-      }
-      
-      if (timedTimer) {
-        clearInterval(timedTimer);
-        timedTimer = null;
-      }
-      
-      root.style.display = 'none';
-    };
-    
-    setTimeout(() => {
-      if (isComponentActive && !isUploading) {
-        cleanupObserver = setupAutoUnlock();
-      }
-    }, 500);
     
     const p = trace?.payload || {};
     const title         = p.title || '';
@@ -366,7 +279,7 @@ export const UploaderDev = {
       }
     };
     
-    // ✅ addFiles est maintenant async — lit immédiatement en mémoire
+    // ✅ addFiles est async — lit immédiatement en mémoire
     const addFiles = async (files) => {
       const errs = [];
       for (const f of files) {
@@ -389,6 +302,99 @@ export const UploaderDev = {
     uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
     uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
     fileInput.onchange = () => { addFiles(Array.from(fileInput.files || [])); fileInput.value = ''; };
+    
+    // ✅ Auto-unlock stable — ne réagit qu'aux vrais messages user, avec délai d'init
+    const setupAutoUnlock = () => {
+      const container = findChatContainer();
+      if (!container?.shadowRoot) {
+        console.log('[UploadExt] Pas de shadowRoot, auto-unlock désactivé');
+        return null;
+      }
+      
+      const shadowRoot = container.shadowRoot;
+      const selectors = [
+        '.vfrc-chat--dialog',
+        '[class*="Dialog"]',
+        '[class*="dialog"]',
+        '.vfrc-chat',
+        '[class*="Messages"]',
+        '[class*="messages"]'
+      ];
+      
+      let dialogEl = null;
+      for (const sel of selectors) {
+        dialogEl = shadowRoot.querySelector(sel);
+        if (dialogEl) break;
+      }
+      
+      if (!dialogEl) {
+        console.log('[UploadExt] Pas de dialog trouvé');
+        return null;
+      }
+      
+      console.log('[UploadExt] Auto-unlock configuré');
+      
+      // ✅ Ignorer les mutations pendant la phase d'init
+      let ready = false;
+      
+      const observer = new MutationObserver((mutations) => {
+        if (!isComponentActive) return;
+        if (isUploading) return;
+        if (!ready) return;
+        
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType !== Node.ELEMENT_NODE) continue;
+            if (node.dataset?.uploadExtension === 'true') continue;
+            
+            // ✅ Ignorer les nœuds internes à l'extension
+            if (root.contains(node)) continue;
+            
+            // ✅ Ne réagir QU'aux vrais messages USER
+            const isUserMessage = 
+              node.classList?.contains('vfrc-user-response') ||
+              node.classList?.contains('vfrc-message--user');
+            
+            if (isUserMessage) {
+              console.log('[UploadExt] Message user détecté, fermeture UI');
+              autoUnlock();
+              return;
+            }
+          }
+        }
+      });
+      
+      observer.observe(dialogEl, { childList: true, subtree: true });
+      
+      // ✅ Délai 2s avant activation
+      setTimeout(() => { ready = true; }, 2000);
+      
+      return () => observer.disconnect();
+    };
+    
+    const autoUnlock = () => {
+      if (!isComponentActive) return;
+      console.log('[UploadExt] Auto-unlock triggered');
+      isComponentActive = false;
+      
+      if (cleanupObserver) {
+        cleanupObserver();
+        cleanupObserver = null;
+      }
+      
+      if (timedTimer) {
+        clearInterval(timedTimer);
+        timedTimer = null;
+      }
+      
+      root.style.display = 'none';
+    };
+    
+    setTimeout(() => {
+      if (isComponentActive && !isUploading) {
+        cleanupObserver = setupAutoUnlock();
+      }
+    }, 500);
     
     sendBtn.onclick = async () => {
       if (selectedFiles.length < requiredFiles) return;
