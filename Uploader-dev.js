@@ -1,5 +1,5 @@
-// Uploader.js – v10.0
-// © Corentin – 2 colonnes post-upload + blocage chat + auto-scroll
+// Uploader.js – v10.1
+// © Corentin – 2 colonnes post-upload + blocage chat (overlay SR) + largeur fixée
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.0 - Init');
+    console.log('[UploadExt] v10.1 - Init');
 
     // ── Helpers shadow root ──────────────────────────────────────────────────
     const findChatContainer = () => {
@@ -38,51 +38,64 @@ export const Uploader = {
       return null;
     };
 
-    // ── Blocage / déblocage de l'input Voiceflow ─────────────────────────────
-    let _chatInputEl = null;
-    let _chatSendEl = null;
-    let _chatOverlay = null;
-
-    const findChatInputEls = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) return;
-      const sr = container.shadowRoot;
-      _chatInputEl = sr.querySelector('textarea') || sr.querySelector('[contenteditable="true"]');
-      // Cherche le bouton d'envoi du chat (pas notre bouton à nous)
-      _chatSendEl = sr.querySelector('[class*="FooterButton"]') ||
-                    sr.querySelector('[class*="footer"] button') ||
-                    sr.querySelector('[class*="send"]');
-    };
+    // ── Blocage chat : overlay injecté dans le shadow root ───────────────────
+    // On cherche le footer Voiceflow et on pose un div par-dessus qui bloque tout
+    let _srBlockOverlay = null;
+    let _srBlockStyle   = null;
 
     const blockChatInput = () => {
-      findChatInputEls();
-      if (_chatInputEl) {
-        _chatInputEl.setAttribute('disabled', 'true');
-        _chatInputEl.style.opacity = '0.35';
-        _chatInputEl.style.cursor = 'not-allowed';
-        _chatInputEl.style.pointerEvents = 'none';
-        _chatInputEl.setAttribute('placeholder', 'Uploadez votre document pour continuer…');
+      const container = findChatContainer();
+      if (!container?.shadowRoot) {
+        // Retry si le SR n'est pas encore prêt
+        setTimeout(blockChatInput, 200);
+        return;
       }
-      if (_chatSendEl) {
-        _chatSendEl.setAttribute('disabled', 'true');
-        _chatSendEl.style.opacity = '0.35';
-        _chatSendEl.style.pointerEvents = 'none';
+      const sr = container.shadowRoot;
+
+      // 1) Injecter un <style> qui bloque pointer-events sur footer + textarea
+      if (!_srBlockStyle) {
+        _srBlockStyle = document.createElement('style');
+        _srBlockStyle.id = 'upl-chat-block-style';
+        _srBlockStyle.textContent = `
+          [class*="Footer"], [class*="footer"],
+          [class*="Input"], textarea, [contenteditable="true"],
+          [class*="FooterButton"], [class*="ChatInput"] {
+            pointer-events: none !important;
+            opacity: 0.4 !important;
+            user-select: none !important;
+          }
+        `;
+        sr.appendChild(_srBlockStyle);
       }
+
+      // 2) Overlay transparent par-dessus toute la zone de saisie
+      if (!_srBlockOverlay) {
+        const footer = sr.querySelector('[class*="Footer"]') ||
+                       sr.querySelector('[class*="footer"]') ||
+                       sr.querySelector('[class*="Input"]');
+        if (footer) {
+          _srBlockOverlay = document.createElement('div');
+          _srBlockOverlay.id = 'upl-chat-block-overlay';
+          _srBlockOverlay.style.cssText = `
+            position:fixed;
+            bottom:0; left:0; right:0;
+            height:80px;
+            z-index:99999;
+            background:transparent;
+            cursor:not-allowed;
+          `;
+          // Ajouter dans le document principal (pas le SR) pour couvrir le footer
+          document.body.appendChild(_srBlockOverlay);
+        }
+      }
+
+      console.log('[UploadExt] Chat bloqué');
     };
 
     const unblockChatInput = () => {
-      if (_chatInputEl) {
-        _chatInputEl.removeAttribute('disabled');
-        _chatInputEl.style.opacity = '';
-        _chatInputEl.style.cursor = '';
-        _chatInputEl.style.pointerEvents = '';
-        _chatInputEl.setAttribute('placeholder', 'Votre message…');
-      }
-      if (_chatSendEl) {
-        _chatSendEl.removeAttribute('disabled');
-        _chatSendEl.style.opacity = '';
-        _chatSendEl.style.pointerEvents = '';
-      }
+      if (_srBlockStyle)   { _srBlockStyle.remove();   _srBlockStyle = null;   }
+      if (_srBlockOverlay) { _srBlockOverlay.remove(); _srBlockOverlay = null; }
+      console.log('[UploadExt] Chat débloqué');
     };
 
     // ── Auto-scroll ──────────────────────────────────────────────────────────
@@ -210,15 +223,15 @@ export const Uploader = {
       @keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
       @keyframes shimmer { 0% { background-position:-200% 0 } 100% { background-position:200% 0 } }
 
-      .upl { width:100%; font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif; font-size:14px; color:${colors.text}; animation:fadeIn 0.2s ease; }
+      .upl { width:100%; max-width:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif; font-size:14px; color:${colors.text}; animation:fadeIn 0.2s ease; box-sizing:border-box; }
       .upl * { box-sizing:border-box; }
 
       /* Card */
-      .upl-card { background:${colors.white}; border:1px solid ${colors.border}; border-radius:8px; overflow:hidden; }
+      .upl-card { background:${colors.white}; border:1px solid ${colors.border}; border-radius:8px; overflow:hidden; width:100%; }
       .upl-header { padding:20px 20px 0; }
       .upl-title  { font-size:15px; font-weight:600; margin:0 0 2px; }
       .upl-subtitle { font-size:13px; color:${colors.textLight}; }
-      .upl-body { padding:16px 20px 20px; }
+      .upl-body { padding:14px 16px 16px; overflow:hidden; }
 
       /* Zone drop – état initial (grande) */
       .upl-zone {
@@ -247,8 +260,8 @@ export const Uploader = {
       .upl-zone.compact::before { inset:5px; }
 
       /* Layout 2 colonnes */
-      .upl-two-col { display:flex; gap:12px; align-items:flex-start; }
-      .upl-col-left  { flex:0 0 130px; }
+      .upl-two-col { display:flex; gap:10px; align-items:flex-start; width:100%; min-width:0; }
+      .upl-col-left  { flex:0 0 110px; min-width:0; }
       .upl-col-right {
         flex:1; display:flex; flex-direction:column; gap:8px; min-width:0;
       }
@@ -308,7 +321,7 @@ export const Uploader = {
     // ── DOM root ─────────────────────────────────────────────────────────────
     const root = document.createElement('div');
     root.className = 'upl';
-    root.style.position = 'relative';
+    root.style.cssText = 'position:relative; overflow:hidden; max-width:100%;';
     root.dataset.uploadExtension = 'true';
 
     root.innerHTML = `
@@ -453,7 +466,7 @@ export const Uploader = {
     bindZone(zoneCompact, inputCompact);
 
     // ── Blocage chat au démarrage ─────────────────────────────────────────────
-    setTimeout(() => blockChatInput(), 300);
+    blockChatInput();
 
     // ── Envoi ─────────────────────────────────────────────────────────────────
     sendBtn.onclick = async () => {
