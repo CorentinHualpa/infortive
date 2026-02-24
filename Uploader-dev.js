@@ -1,5 +1,5 @@
-// Uploader.js – v10.1
-// © Corentin – 2 colonnes post-upload + blocage chat (overlay SR) + largeur fixée
+// Uploader.js – v10.3
+// © Corentin – blocage chat via API officielle VF + hauteur zone compacte fixée
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.1 - Init');
+    console.log('[UploadExt] v10.3 - Init');
 
     // ── Helpers shadow root ──────────────────────────────────────────────────
     const findChatContainer = () => {
@@ -38,64 +38,15 @@ export const Uploader = {
       return null;
     };
 
-    // ── Blocage chat : overlay injecté dans le shadow root ───────────────────
-    // On cherche le footer Voiceflow et on pose un div par-dessus qui bloque tout
-    let _srBlockOverlay = null;
-    let _srBlockStyle   = null;
-
+    // ── Blocage chat via l'API officielle Voiceflow ──────────────────────────
     const blockChatInput = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) {
-        // Retry si le SR n'est pas encore prêt
-        setTimeout(blockChatInput, 200);
-        return;
-      }
-      const sr = container.shadowRoot;
-
-      // 1) Injecter un <style> qui bloque pointer-events sur footer + textarea
-      if (!_srBlockStyle) {
-        _srBlockStyle = document.createElement('style');
-        _srBlockStyle.id = 'upl-chat-block-style';
-        _srBlockStyle.textContent = `
-          [class*="Footer"], [class*="footer"],
-          [class*="Input"], textarea, [contenteditable="true"],
-          [class*="FooterButton"], [class*="ChatInput"] {
-            pointer-events: none !important;
-            opacity: 0.4 !important;
-            user-select: none !important;
-          }
-        `;
-        sr.appendChild(_srBlockStyle);
-      }
-
-      // 2) Overlay transparent par-dessus toute la zone de saisie
-      if (!_srBlockOverlay) {
-        const footer = sr.querySelector('[class*="Footer"]') ||
-                       sr.querySelector('[class*="footer"]') ||
-                       sr.querySelector('[class*="Input"]');
-        if (footer) {
-          _srBlockOverlay = document.createElement('div');
-          _srBlockOverlay.id = 'upl-chat-block-overlay';
-          _srBlockOverlay.style.cssText = `
-            position:fixed;
-            bottom:0; left:0; right:0;
-            height:80px;
-            z-index:99999;
-            background:transparent;
-            cursor:not-allowed;
-          `;
-          // Ajouter dans le document principal (pas le SR) pour couvrir le footer
-          document.body.appendChild(_srBlockOverlay);
-        }
-      }
-
-      console.log('[UploadExt] Chat bloqué');
+      try { window?.voiceflow?.chat?.hide?.(); } catch(e) {}
+      console.log('[UploadExt] Chat masqué (voiceflow.chat.hide)');
     };
 
     const unblockChatInput = () => {
-      if (_srBlockStyle)   { _srBlockStyle.remove();   _srBlockStyle = null;   }
-      if (_srBlockOverlay) { _srBlockOverlay.remove(); _srBlockOverlay = null; }
-      console.log('[UploadExt] Chat débloqué');
+      try { window?.voiceflow?.chat?.show?.(); } catch(e) {}
+      console.log('[UploadExt] Chat réaffiché (voiceflow.chat.show)');
     };
 
     // ── Auto-scroll ──────────────────────────────────────────────────────────
@@ -150,6 +101,7 @@ export const Uploader = {
       if (cleanupObserver) { cleanupObserver(); cleanupObserver = null; }
       if (timedTimer) { clearInterval(timedTimer); timedTimer = null; }
       root.style.display = 'none';
+      unblockChatInput();
     };
 
     setTimeout(() => {
@@ -250,9 +202,9 @@ export const Uploader = {
 
       /* Zone drop – état compact (2 colonnes) */
       .upl-zone.compact {
-        padding:12px 10px;
+        padding:14px 10px;
         display:flex; flex-direction:column; align-items:center; justify-content:center;
-        min-height:80px;
+        min-height:120px;
       }
       .upl-zone.compact .upl-zone-icon { width:20px; height:20px; margin:0 0 6px; }
       .upl-zone.compact .upl-zone-text { font-size:11px; }
