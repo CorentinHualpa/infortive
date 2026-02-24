@@ -1,5 +1,5 @@
-// Uploader.js – v10.6
-// © Corentin – blocage chat via overlay dans SR (bypass React inline styles)
+// Uploader.js – v10.7
+// © Corentin – blocage chat via event capture (bypass React synthetic events)
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.6 - Init');
+    console.log('[UploadExt] v10.7 - Init');
 
     // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
     const findChatContainer = () => {
@@ -36,50 +36,55 @@ export const Uploader = {
       return null;
     };
 
-    // ── Blocage chat : overlay positionné sur le footer dans le SR ──────────
-    // Voiceflow (React) réécrit les styles inline en continu → impossible de
-    // les overrider. Solution : poser un div transparent par-dessus le footer
-    // DANS le shadow root (scoped, n'affecte pas les widgets tiers).
-    let _footerOverlay = null;
+    // ── Blocage chat : interception événements en phase capture ──────────────
+    // React gère ses events APRÈS la phase capture → en bloquant en capture,
+    // on intercepte avant que React ne reçoive quoi que ce soit.
+    let _eventBlockers = [];
 
     const blockChatInput = () => {
       const chatDiv = document.getElementById('voiceflow-chat');
       if (!chatDiv?.shadowRoot) { setTimeout(blockChatInput, 200); return; }
-      if (_footerOverlay) return;
+      if (_eventBlockers.length) return; // déjà bloqué
 
       const sr = chatDiv.shadowRoot;
-      const footer = sr.querySelector('.vfrc-footer') ||
-                     sr.querySelector('[class*="footer"]');
-      if (!footer) { setTimeout(blockChatInput, 200); return; }
+      const footer   = sr.querySelector('.vfrc-footer');
+      const textarea = sr.querySelector('textarea');
+      const sendBtn  = sr.querySelector('#vfrc-send-message') ||
+                       sr.querySelector('button[type="submit"]') ||
+                       sr.querySelector('.vfrc-chat-input__send');
 
-      // S'assurer que le footer est positionné
-      footer.style.position = 'relative';
+      const blockEvent = (e) => {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      };
 
-      _footerOverlay = document.createElement('div');
-      _footerOverlay.id = 'upl-footer-block';
-      _footerOverlay.style.cssText = `
-        position: absolute;
-        inset: 0;
-        z-index: 9999;
-        background: rgba(255,255,255,0.55);
-        backdrop-filter: blur(1px);
-        cursor: not-allowed;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      `;
-      _footerOverlay.innerHTML = `
-        <span style="font-size:11px;color:#9CA3AF;font-family:'Plus Jakarta Sans',sans-serif;pointer-events:none;">
-          Uploadez votre document pour continuer
-        </span>
-      `;
-      footer.appendChild(_footerOverlay);
-      console.log('[UploadExt] Chat bloqué (overlay SR footer)');
+      const eventsToBlock = [
+        'click','mousedown','mouseup','mousemove',
+        'touchstart','touchend','touchmove',
+        'keydown','keyup','keypress','input',
+        'focus','blur','submit'
+      ];
+
+      [footer, textarea, sendBtn].filter(Boolean).forEach(el => {
+        eventsToBlock.forEach(type => {
+          el.addEventListener(type, blockEvent, true); // capture = true
+          _eventBlockers.push({ el, type, fn: blockEvent });
+        });
+      });
+
+      // Forcer le blur + style visuel
+      if (textarea) {
+        textarea.blur();
+        textarea.style.cssText += '; opacity: 0.35 !important; cursor: not-allowed !important;';
+      }
+
+      console.log('[UploadExt] Chat bloqué (event capture)');
     };
 
     const unblockChatInput = () => {
-      if (_footerOverlay) { _footerOverlay.remove(); _footerOverlay = null; }
+      _eventBlockers.forEach(({ el, type, fn }) => el.removeEventListener(type, fn, true));
+      _eventBlockers = [];
       console.log('[UploadExt] Chat débloqué');
     };
 
