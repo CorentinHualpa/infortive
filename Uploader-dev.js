@@ -1,5 +1,5 @@
-// Uploader.js – v10.4
-// © Corentin – blocage chat SR sélecteurs précis (mode embedded)
+// Uploader.js – v10.5
+// © Corentin – blocage chat via SR direct (méthode support officiel VF)
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,65 +23,49 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.4 - Init');
+    console.log('[UploadExt] v10.5 - Init');
 
-    // ── Helpers shadow root ──────────────────────────────────────────────────
+    // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
     const findChatContainer = () => {
-      let container = document.querySelector('#voiceflow-chat-container');
-      if (container?.shadowRoot) return container;
-      container = document.querySelector('#voiceflow-chat');
-      if (container?.shadowRoot) return container;
+      const el = document.getElementById('voiceflow-chat');
+      if (el?.shadowRoot) return el;
       const allWithShadow = document.querySelectorAll('*');
-      for (const el of allWithShadow) {
-        if (el.shadowRoot?.querySelector('[class*="vfrc"]')) return el;
+      for (const e of allWithShadow) {
+        if (e.shadowRoot?.querySelector('[class*="vfrc"]')) return e;
       }
       return null;
     };
 
-    // ── Blocage chat : injection style dans le shadow root ───────────────────
-    // voiceflow.chat.hide() ne fonctionne pas en mode embedded → on cible
-    // les vrais sélecteurs du thème CSS Infortive
-    let _srBlockStyle = null;
-
-    const blockChatInput = () => {
-      const container = findChatContainer();
-      if (!container?.shadowRoot) {
-        setTimeout(blockChatInput, 200);
+    // ── Blocage chat : Shadow DOM via getElementById (solution support VF) ───
+    const toggleChatFooter = (isDisabled) => {
+      const chatDiv = document.getElementById('voiceflow-chat');
+      if (!chatDiv?.shadowRoot) {
+        if (isDisabled) setTimeout(() => toggleChatFooter(true), 200);
         return;
       }
-      const sr = container.shadowRoot;
-      if (_srBlockStyle) return; // déjà injecté
+      const sr = chatDiv.shadowRoot;
 
-      _srBlockStyle = document.createElement('style');
-      _srBlockStyle.id = 'upl-chat-block-style';
-      _srBlockStyle.textContent = `
-        textarea.vfrc-chat-input,
-        textarea._1gdvh9ta,
-        #vfrc-send-message,
-        .vfrc-chat-input__send {
-          pointer-events: none !important;
-          opacity: 0.25 !important;
-          cursor: not-allowed !important;
-          user-select: none !important;
-        }
-        .vfrc-footer::after {
-          content: "Uploadez votre document pour continuer";
-          display: block;
-          text-align: center;
-          font-size: 11px;
-          color: #9CA3AF;
-          padding: 2px 0 4px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-      `;
-      sr.appendChild(_srBlockStyle);
-      console.log('[UploadExt] Chat bloqué (SR — sélecteurs précis)');
+      // Textarea
+      sr.querySelectorAll('textarea').forEach(el => {
+        el.disabled = isDisabled;
+        el.style.opacity = isDisabled ? '0.3' : '';
+        el.style.pointerEvents = isDisabled ? 'none' : '';
+        el.style.cursor = isDisabled ? 'not-allowed' : '';
+      });
+
+      // Bouton envoyer
+      const sendBtn = sr.querySelector('#vfrc-send-message') || sr.querySelector('.vfrc-chat-input__send');
+      if (sendBtn) {
+        sendBtn.disabled = isDisabled;
+        sendBtn.style.opacity = isDisabled ? '0.3' : '';
+        sendBtn.style.pointerEvents = isDisabled ? 'none' : '';
+      }
+
+      console.log(`[UploadExt] Chat ${isDisabled ? 'bloqué' : 'débloqué'} (shadowRoot direct)`);
     };
 
-    const unblockChatInput = () => {
-      if (_srBlockStyle) { _srBlockStyle.remove(); _srBlockStyle = null; }
-      console.log('[UploadExt] Chat débloqué');
-    };
+    const blockChatInput   = () => toggleChatFooter(true);
+    const unblockChatInput = () => toggleChatFooter(false);
 
     // ── Auto-scroll ──────────────────────────────────────────────────────────
     const scrollToSelf = () => {
