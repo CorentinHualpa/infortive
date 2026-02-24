@@ -1,5 +1,5 @@
-// Uploader.js – v10.5
-// © Corentin – blocage chat via SR direct (méthode support officiel VF)
+// Uploader.js – v10.6
+// © Corentin – blocage chat via overlay dans SR (bypass React inline styles)
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.5 - Init');
+    console.log('[UploadExt] v10.6 - Init');
 
     // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
     const findChatContainer = () => {
@@ -36,36 +36,52 @@ export const Uploader = {
       return null;
     };
 
-    // ── Blocage chat : Shadow DOM via getElementById (solution support VF) ───
-    const toggleChatFooter = (isDisabled) => {
+    // ── Blocage chat : overlay positionné sur le footer dans le SR ──────────
+    // Voiceflow (React) réécrit les styles inline en continu → impossible de
+    // les overrider. Solution : poser un div transparent par-dessus le footer
+    // DANS le shadow root (scoped, n'affecte pas les widgets tiers).
+    let _footerOverlay = null;
+
+    const blockChatInput = () => {
       const chatDiv = document.getElementById('voiceflow-chat');
-      if (!chatDiv?.shadowRoot) {
-        if (isDisabled) setTimeout(() => toggleChatFooter(true), 200);
-        return;
-      }
+      if (!chatDiv?.shadowRoot) { setTimeout(blockChatInput, 200); return; }
+      if (_footerOverlay) return;
+
       const sr = chatDiv.shadowRoot;
+      const footer = sr.querySelector('.vfrc-footer') ||
+                     sr.querySelector('[class*="footer"]');
+      if (!footer) { setTimeout(blockChatInput, 200); return; }
 
-      // Textarea
-      sr.querySelectorAll('textarea').forEach(el => {
-        el.disabled = isDisabled;
-        el.style.opacity = isDisabled ? '0.3' : '';
-        el.style.pointerEvents = isDisabled ? 'none' : '';
-        el.style.cursor = isDisabled ? 'not-allowed' : '';
-      });
+      // S'assurer que le footer est positionné
+      footer.style.position = 'relative';
 
-      // Bouton envoyer
-      const sendBtn = sr.querySelector('#vfrc-send-message') || sr.querySelector('.vfrc-chat-input__send');
-      if (sendBtn) {
-        sendBtn.disabled = isDisabled;
-        sendBtn.style.opacity = isDisabled ? '0.3' : '';
-        sendBtn.style.pointerEvents = isDisabled ? 'none' : '';
-      }
-
-      console.log(`[UploadExt] Chat ${isDisabled ? 'bloqué' : 'débloqué'} (shadowRoot direct)`);
+      _footerOverlay = document.createElement('div');
+      _footerOverlay.id = 'upl-footer-block';
+      _footerOverlay.style.cssText = `
+        position: absolute;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(255,255,255,0.55);
+        backdrop-filter: blur(1px);
+        cursor: not-allowed;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      `;
+      _footerOverlay.innerHTML = `
+        <span style="font-size:11px;color:#9CA3AF;font-family:'Plus Jakarta Sans',sans-serif;pointer-events:none;">
+          Uploadez votre document pour continuer
+        </span>
+      `;
+      footer.appendChild(_footerOverlay);
+      console.log('[UploadExt] Chat bloqué (overlay SR footer)');
     };
 
-    const blockChatInput   = () => toggleChatFooter(true);
-    const unblockChatInput = () => toggleChatFooter(false);
+    const unblockChatInput = () => {
+      if (_footerOverlay) { _footerOverlay.remove(); _footerOverlay = null; }
+      console.log('[UploadExt] Chat débloqué');
+    };
 
     // ── Auto-scroll ──────────────────────────────────────────────────────────
     const scrollToSelf = () => {
