@@ -1,5 +1,5 @@
-// Uploader.js – v10.3
-// © Corentin – blocage chat via API officielle VF + hauteur zone compacte fixée
+// Uploader.js – v10.4
+// © Corentin – blocage chat SR sélecteurs précis (mode embedded)
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.3 - Init');
+    console.log('[UploadExt] v10.4 - Init');
 
     // ── Helpers shadow root ──────────────────────────────────────────────────
     const findChatContainer = () => {
@@ -38,15 +38,49 @@ export const Uploader = {
       return null;
     };
 
-    // ── Blocage chat via l'API officielle Voiceflow ──────────────────────────
+    // ── Blocage chat : injection style dans le shadow root ───────────────────
+    // voiceflow.chat.hide() ne fonctionne pas en mode embedded → on cible
+    // les vrais sélecteurs du thème CSS Infortive
+    let _srBlockStyle = null;
+
     const blockChatInput = () => {
-      try { window?.voiceflow?.chat?.hide?.(); } catch(e) {}
-      console.log('[UploadExt] Chat masqué (voiceflow.chat.hide)');
+      const container = findChatContainer();
+      if (!container?.shadowRoot) {
+        setTimeout(blockChatInput, 200);
+        return;
+      }
+      const sr = container.shadowRoot;
+      if (_srBlockStyle) return; // déjà injecté
+
+      _srBlockStyle = document.createElement('style');
+      _srBlockStyle.id = 'upl-chat-block-style';
+      _srBlockStyle.textContent = `
+        textarea.vfrc-chat-input,
+        textarea._1gdvh9ta,
+        #vfrc-send-message,
+        .vfrc-chat-input__send {
+          pointer-events: none !important;
+          opacity: 0.25 !important;
+          cursor: not-allowed !important;
+          user-select: none !important;
+        }
+        .vfrc-footer::after {
+          content: "Uploadez votre document pour continuer";
+          display: block;
+          text-align: center;
+          font-size: 11px;
+          color: #9CA3AF;
+          padding: 2px 0 4px;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+      `;
+      sr.appendChild(_srBlockStyle);
+      console.log('[UploadExt] Chat bloqué (SR — sélecteurs précis)');
     };
 
     const unblockChatInput = () => {
-      try { window?.voiceflow?.chat?.show?.(); } catch(e) {}
-      console.log('[UploadExt] Chat réaffiché (voiceflow.chat.show)');
+      if (_srBlockStyle) { _srBlockStyle.remove(); _srBlockStyle = null; }
+      console.log('[UploadExt] Chat débloqué');
     };
 
     // ── Auto-scroll ──────────────────────────────────────────────────────────
