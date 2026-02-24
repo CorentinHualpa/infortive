@@ -1,5 +1,5 @@
-// Uploader.js – v10.7
-// © Corentin – blocage chat via event capture (bypass React synthetic events)
+// Uploader.js – v10.8
+// © Corentin – fix ID conteneur vf-chat + event capture blocage chat
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,11 +23,13 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.7 - Init');
+    console.log('[UploadExt] v10.8 - Init');
 
     // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
     const findChatContainer = () => {
-      const el = document.getElementById('voiceflow-chat');
+      // ID réel = 'vf-chat' dans ce projet
+      const el = document.getElementById('vf-chat') ||
+                 document.getElementById('voiceflow-chat');
       if (el?.shadowRoot) return el;
       const allWithShadow = document.querySelectorAll('*');
       for (const e of allWithShadow) {
@@ -37,16 +39,22 @@ export const Uploader = {
     };
 
     // ── Blocage chat : interception événements en phase capture ──────────────
-    // React gère ses events APRÈS la phase capture → en bloquant en capture,
-    // on intercepte avant que React ne reçoive quoi que ce soit.
+    // ID réel du conteneur = 'vf-chat' (pas 'voiceflow-chat')
     let _eventBlockers = [];
 
-    const blockChatInput = () => {
-      const chatDiv = document.getElementById('voiceflow-chat');
-      if (!chatDiv?.shadowRoot) { setTimeout(blockChatInput, 200); return; }
-      if (_eventBlockers.length) return; // déjà bloqué
+    const getChatSR = () => {
+      // Cherche par ID exact en priorité, fallback sur querySelector
+      const el = document.getElementById('vf-chat') ||
+                 document.getElementById('voiceflow-chat') ||
+                 document.querySelector('[id*="vf-chat"]');
+      return el?.shadowRoot || null;
+    };
 
-      const sr = chatDiv.shadowRoot;
+    const blockChatInput = () => {
+      const sr = getChatSR();
+      if (!sr) { setTimeout(blockChatInput, 200); return; }
+      if (_eventBlockers.length) return;
+
       const footer   = sr.querySelector('.vfrc-footer');
       const textarea = sr.querySelector('textarea');
       const sendBtn  = sr.querySelector('#vfrc-send-message') ||
@@ -68,18 +76,14 @@ export const Uploader = {
 
       [footer, textarea, sendBtn].filter(Boolean).forEach(el => {
         eventsToBlock.forEach(type => {
-          el.addEventListener(type, blockEvent, true); // capture = true
+          el.addEventListener(type, blockEvent, true);
           _eventBlockers.push({ el, type, fn: blockEvent });
         });
       });
 
-      // Forcer le blur + style visuel
-      if (textarea) {
-        textarea.blur();
-        textarea.style.cssText += '; opacity: 0.35 !important; cursor: not-allowed !important;';
-      }
+      if (textarea) textarea.blur();
 
-      console.log('[UploadExt] Chat bloqué (event capture)');
+      console.log('[UploadExt] Chat bloqué sur #vf-chat (event capture)');
     };
 
     const unblockChatInput = () => {
