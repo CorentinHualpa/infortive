@@ -1,5 +1,5 @@
-// Uploader.js – v10.8
-// © Corentin – fix ID conteneur vf-chat + event capture blocage chat
+// Uploader.js – v10.9
+// © Corentin – blocage chat fonctionnel + visuel grisé
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,7 +23,7 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.8 - Init');
+    console.log('[UploadExt] v10.9 - Init');
 
     // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
     const findChatContainer = () => {
@@ -41,9 +41,9 @@ export const Uploader = {
     // ── Blocage chat : interception événements en phase capture ──────────────
     // ID réel du conteneur = 'vf-chat' (pas 'voiceflow-chat')
     let _eventBlockers = [];
+    let _blockStyle = null;
 
     const getChatSR = () => {
-      // Cherche par ID exact en priorité, fallback sur querySelector
       const el = document.getElementById('vf-chat') ||
                  document.getElementById('voiceflow-chat') ||
                  document.querySelector('[id*="vf-chat"]');
@@ -61,34 +61,63 @@ export const Uploader = {
                        sr.querySelector('button[type="submit"]') ||
                        sr.querySelector('.vfrc-chat-input__send');
 
+      // 1) Bloquer les événements en phase capture
       const blockEvent = (e) => {
         e.stopPropagation();
         e.stopImmediatePropagation();
         e.preventDefault();
       };
-
       const eventsToBlock = [
         'click','mousedown','mouseup','mousemove',
         'touchstart','touchend','touchmove',
         'keydown','keyup','keypress','input',
         'focus','blur','submit'
       ];
-
       [footer, textarea, sendBtn].filter(Boolean).forEach(el => {
         eventsToBlock.forEach(type => {
           el.addEventListener(type, blockEvent, true);
           _eventBlockers.push({ el, type, fn: blockEvent });
         });
       });
-
       if (textarea) textarea.blur();
 
-      console.log('[UploadExt] Chat bloqué sur #vf-chat (event capture)');
+      // 2) Visuel : style injecté dans le SR (pas de combat avec React, juste cosmétique)
+      if (!_blockStyle) {
+        _blockStyle = document.createElement('style');
+        _blockStyle.id = 'upl-block-visual';
+        _blockStyle.textContent = `
+          .vfrc-footer {
+            opacity: 0.45 !important;
+            filter: grayscale(0.4) !important;
+            cursor: not-allowed !important;
+          }
+          textarea.vfrc-chat-input::placeholder {
+            color: #9CA3AF !important;
+          }
+          #vfrc-send-message,
+          .vfrc-chat-input__send {
+            background: #D1D5DB !important;
+            background: linear-gradient(135deg, #D1D5DB, #9CA3AF) !important;
+            border-color: #D1D5DB !important;
+            color: #6B7280 !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+          }
+          #vfrc-send-message::after,
+          .vfrc-chat-input__send::after {
+            content: "Uploadez d'abord le document" !important;
+          }
+        `;
+        sr.appendChild(_blockStyle);
+      }
+
+      console.log('[UploadExt] Chat bloqué sur #vf-chat');
     };
 
     const unblockChatInput = () => {
       _eventBlockers.forEach(({ el, type, fn }) => el.removeEventListener(type, fn, true));
       _eventBlockers = [];
+      if (_blockStyle) { _blockStyle.remove(); _blockStyle = null; }
       console.log('[UploadExt] Chat débloqué');
     };
 
