@@ -511,6 +511,11 @@ export const Uploader = {
       if (loaderMode === 'timed') ui.timed(buildPlan());
       else ui.auto(defaultAutoSteps);
 
+      const corruptFiles = selectedFiles.filter(f => f.size === 0);
+      if (corruptFiles.length > 0) {
+        throw new Error('Failed to fetch'); 
+      }
+      
       try {
         const resp = await post({
           url: webhookUrl, method: webhookMethod, headers: webhookHeaders,
