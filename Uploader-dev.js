@@ -1,5 +1,5 @@
-// Uploader.js – v10.9
-// © Corentin – blocage chat fonctionnel + visuel grisé
+// Uploader.js – v11.0
+// © Corentin – singleton cleanup + fetch résilient + user_id support
 //
 export const Uploader = {
   name: 'Uploader',
@@ -23,11 +23,17 @@ export const Uploader = {
       return;
     }
 
-    console.log('[UploadExt] v10.9 - Init');
+    // ── Force cleanup de toute instance précédente ──────────────────────
+    if (window.__uploaderInstance) {
+      console.log('[UploadExt] Cleanup instance précédente');
+      try { window.__uploaderInstance(); } catch(e) {}
+      window.__uploaderInstance = null;
+    }
+
+    console.log('[UploadExt] v11.0 - Init');
 
     // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
     const findChatContainer = () => {
-      // ID réel = 'vf-chat' dans ce projet
       const el = document.getElementById('vf-chat') ||
                  document.getElementById('voiceflow-chat');
       if (el?.shadowRoot) return el;
@@ -39,7 +45,6 @@ export const Uploader = {
     };
 
     // ── Blocage chat : interception événements en phase capture ──────────────
-    // ID réel du conteneur = 'vf-chat' (pas 'voiceflow-chat')
     let _eventBlockers = [];
     let _blockStyle = null;
 
@@ -61,7 +66,6 @@ export const Uploader = {
                        sr.querySelector('button[type="submit"]') ||
                        sr.querySelector('.vfrc-chat-input__send');
 
-      // 1) Bloquer les événements en phase capture
       const blockEvent = (e) => {
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -81,7 +85,6 @@ export const Uploader = {
       });
       if (textarea) textarea.blur();
 
-      // 2) Visuel : style injecté dans le SR (pas de combat avec React, juste cosmétique)
       if (!_blockStyle) {
         _blockStyle = document.createElement('style');
         _blockStyle.id = 'upl-block-visual';
@@ -428,7 +431,6 @@ export const Uploader = {
       hideMsg();
 
       if (!selectedFiles.length) {
-        // Retour vue initiale
         initialView.style.display = '';
         twoColView.style.display = 'none';
         sendBtn.disabled = true;
@@ -437,7 +439,6 @@ export const Uploader = {
         return;
       }
 
-      // Passer en vue 2 colonnes
       initialView.style.display = 'none';
       twoColView.style.display = 'flex';
 
@@ -641,24 +642,60 @@ export const Uploader = {
       });
     }
 
+    // ── POST résilient ───────────────────────────────────────────────────────
+    // v11 : si "Failed to fetch", retry sans AbortController (contexte réseau
+    //        potentiellement corrompu après changement de conversation sans reload)
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
+      const buildFormData = () => {
+        const fd = new FormData();
+        files.forEach(f => fd.append(fileFieldName, f, f.name));
+        Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
+        Object.entries(variables).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
+        if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
+        if (vfContext.user_id) fd.append('user_id', vfContext.user_id);
+        return fd;
+      };
+
+      const cleanHeaders = () => {
+        const h = { ...headers };
+        delete h['Content-Type'];
+        return h;
+      };
+
       let err;
       for (let i = 0; i <= retries; i++) {
+        // Tentative normale avec AbortController
         try {
           const ctrl = new AbortController();
           const to   = setTimeout(() => ctrl.abort(), timeoutMs);
-          const fd   = new FormData();
-          files.forEach(f => fd.append(fileFieldName, f, f.name));
-          Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
-          Object.entries(variables).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
-          if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
-          if (vfContext.user_id) fd.append('user_id', vfContext.user_id);
-          const h = { ...headers }; delete h['Content-Type'];
-          const r = await fetch(url, { method, headers: h, body: fd, signal: ctrl.signal });
+          const r = await fetch(url, {
+            method, headers: cleanHeaders(), body: buildFormData(), signal: ctrl.signal
+          });
           clearTimeout(to);
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return { ok: true, data: await r.json().catch(() => null) };
-        } catch (e) { err = e; if (i < retries) await new Promise(r => setTimeout(r, 900)); }
+        } catch (e) {
+          err = e;
+          console.warn(`[UploadExt] Attempt ${i+1} failed:`, e.message);
+
+          // Si "Failed to fetch", tenter sans AbortController (contexte potentiellement corrompu)
+          if (e.message?.includes('Failed to fetch') || e.name === 'AbortError') {
+            console.warn('[UploadExt] Fallback: retry sans AbortController...');
+            await new Promise(r => setTimeout(r, 500));
+            try {
+              const r2 = await fetch(url, {
+                method, headers: cleanHeaders(), body: buildFormData()
+              });
+              if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
+              return { ok: true, data: await r2.json().catch(() => null) };
+            } catch (e2) {
+              err = e2;
+              console.warn('[UploadExt] Fallback also failed:', e2.message);
+            }
+          }
+
+          if (i < retries) await new Promise(r => setTimeout(r, 900));
+        }
       }
       throw err || new Error('Failed');
     }
@@ -679,12 +716,16 @@ export const Uploader = {
     // Auto-scroll initial
     scrollToSelf();
 
-    return () => {
+    // ── Enregistrer le cleanup global (singleton) ────────────────────────────
+    const cleanup = () => {
       if (timedTimer) clearInterval(timedTimer);
       if (cleanupObserver) cleanupObserver();
       isComponentActive = false;
       unblockChatInput();
     };
+    window.__uploaderInstance = cleanup;
+
+    return cleanup;
   }
 };
 
