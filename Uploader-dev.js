@@ -1,5 +1,5 @@
-// Uploader.js – v11.0
-// © Corentin – singleton cleanup + fetch résilient + user_id support
+// Uploader.js – v11.1
+// © Corentin – singleton cleanup + fetch résilient + corrupt file detection
 //
 export const Uploader = {
   name: 'Uploader',
@@ -30,9 +30,9 @@ export const Uploader = {
       window.__uploaderInstance = null;
     }
 
-    console.log('[UploadExt] v11.0 - Init');
+    console.log('[UploadExt] v11.1 - Init');
 
-    // ── Helper shadow root (utilisé pour l'auto-unlock observer) ────────────
+    // ── Helper shadow root ──────────────────────────────────────────────
     const findChatContainer = () => {
       const el = document.getElementById('vf-chat') ||
                  document.getElementById('voiceflow-chat');
@@ -44,7 +44,7 @@ export const Uploader = {
       return null;
     };
 
-    // ── Blocage chat : interception événements en phase capture ──────────────
+    // ── Blocage chat ────────────────────────────────────────────────────
     let _eventBlockers = [];
     let _blockStyle = null;
 
@@ -114,7 +114,7 @@ export const Uploader = {
         sr.appendChild(_blockStyle);
       }
 
-      console.log('[UploadExt] Chat bloqué sur #vf-chat');
+      console.log('[UploadExt] Chat bloqué');
     };
 
     const unblockChatInput = () => {
@@ -124,14 +124,14 @@ export const Uploader = {
       console.log('[UploadExt] Chat débloqué');
     };
 
-    // ── Auto-scroll ──────────────────────────────────────────────────────────
+    // ── Auto-scroll ─────────────────────────────────────────────────────
     const scrollToSelf = () => {
       setTimeout(() => {
         element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 80);
     };
 
-    // ── State ────────────────────────────────────────────────────────────────
+    // ── State ───────────────────────────────────────────────────────────
     let isComponentActive = true;
     let isUploading = false;
     let timedTimer = null;
@@ -183,7 +183,7 @@ export const Uploader = {
       if (isComponentActive && !isUploading) cleanupObserver = setupAutoUnlock();
     }, 500);
 
-    // ── Payload ──────────────────────────────────────────────────────────────
+    // ── Payload ─────────────────────────────────────────────────────────
     const p = trace?.payload || {};
     const title         = p.title || '';
     const subtitle      = p.subtitle || '';
@@ -245,7 +245,7 @@ export const Uploader = {
     const hasSubtitle = subtitle?.trim();
     const showHeader  = hasTitle || hasSubtitle;
 
-    // ── Styles ───────────────────────────────────────────────────────────────
+    // ── Styles ──────────────────────────────────────────────────────────
     const styles = `
       @keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
       @keyframes shimmer { 0% { background-position:-200% 0 } 100% { background-position:200% 0 } }
@@ -253,14 +253,12 @@ export const Uploader = {
       .upl { width:100%; max-width:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif; font-size:14px; color:${colors.text}; animation:fadeIn 0.2s ease; box-sizing:border-box; }
       .upl * { box-sizing:border-box; }
 
-      /* Card */
       .upl-card { background:${colors.white}; border:1px solid ${colors.border}; border-radius:8px; overflow:hidden; width:100%; }
       .upl-header { padding:20px 20px 0; }
       .upl-title  { font-size:15px; font-weight:600; margin:0 0 2px; }
       .upl-subtitle { font-size:13px; color:${colors.textLight}; }
       .upl-body { padding:14px 16px 16px; overflow:hidden; }
 
-      /* Zone drop – état initial (grande) */
       .upl-zone {
         background:${colors.bg}; border-radius:6px; padding:32px 20px;
         text-align:center; cursor:pointer; position:relative;
@@ -275,7 +273,6 @@ export const Uploader = {
       .upl-zone-text { font-size:13px; color:${colors.textLight}; line-height:1.5; }
       .upl-zone-sub  { font-size:12px; color:${colors.textLight}; opacity:.7; }
 
-      /* Zone drop – état compact (2 colonnes) */
       .upl-zone.compact {
         padding:14px 10px;
         display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -286,14 +283,12 @@ export const Uploader = {
       .upl-zone.compact .upl-zone-sub  { font-size:10px; }
       .upl-zone.compact::before { inset:5px; }
 
-      /* Layout 2 colonnes */
       .upl-two-col { display:flex; gap:10px; align-items:flex-start; width:100%; min-width:0; }
       .upl-col-left  { flex:0 0 110px; min-width:0; }
       .upl-col-right {
         flex:1; display:flex; flex-direction:column; gap:8px; min-width:0;
       }
 
-      /* Bouton send + label */
       .upl-send-wrapper { display:flex; flex-direction:column; gap:4px; }
       .upl-btn { padding:9px 16px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid transparent; width:100%; text-align:center; }
       .upl-btn-primary { background:${colors.accent}; color:${colors.white}; }
@@ -301,7 +296,6 @@ export const Uploader = {
       .upl-btn-primary:disabled { opacity:.35; cursor:not-allowed; }
       .upl-send-hint { font-size:11px; color:${colors.textLight}; text-align:center; }
 
-      /* Liste fichiers (colonne droite) */
       .upl-file-list { display:flex; flex-direction:column; gap:5px; }
       .upl-item {
         display:flex; align-items:center; padding:7px 10px;
@@ -314,17 +308,14 @@ export const Uploader = {
       .upl-item-del  { width:20px; height:20px; border:none; background:none; color:${colors.textLight}; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:4px; margin-left:6px; flex-shrink:0; }
       .upl-item-del:hover { background:rgba(239,68,68,.1); color:${colors.error}; }
 
-      /* Count */
       .upl-count { font-size:11px; color:${colors.textLight}; }
       .upl-count.ok { color:${colors.success}; }
 
-      /* Message erreur */
       .upl-msg { margin-top:10px; padding:8px 12px; border-radius:6px; font-size:12px; display:none; }
       .upl-msg.show { display:block; }
       .upl-msg.err  { background:rgba(239,68,68,.08); color:${colors.error}; }
       .upl-msg.warn { background:rgba(245,158,11,.08); color:${colors.warning}; }
 
-      /* Loader */
       .upl-loader { display:none; padding:32px 24px; }
       .upl-loader.show { display:block; }
       .upl-loader-container { display:flex; align-items:center; gap:16px; }
@@ -345,7 +336,7 @@ export const Uploader = {
       x:      `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`
     };
 
-    // ── DOM root ─────────────────────────────────────────────────────────────
+    // ── DOM root ────────────────────────────────────────────────────────
     const root = document.createElement('div');
     root.className = 'upl';
     root.style.cssText = 'position:relative; overflow:hidden; max-width:100%;';
@@ -357,7 +348,6 @@ export const Uploader = {
       <div class="upl-card">
         ${showHeader ? `<div class="upl-header">${hasTitle ? `<div class="upl-title">${title}</div>` : ''}${hasSubtitle ? `<div class="upl-subtitle">${subtitle}</div>` : ''}</div>` : ''}
         <div class="upl-body">
-          <!-- Vue initiale : grande zone drop seule -->
           <div class="upl-initial-view">
             <div class="upl-zone" id="drop-zone-main">
               ${icons.upload}
@@ -366,7 +356,6 @@ export const Uploader = {
               <input type="file" accept="${accept}" multiple style="display:none" />
             </div>
           </div>
-          <!-- Vue 2 colonnes (après sélection) -->
           <div class="upl-two-col" id="two-col-view" style="display:none">
             <div class="upl-col-left">
               <div class="upl-zone compact" id="drop-zone-compact">
@@ -397,7 +386,7 @@ export const Uploader = {
     `;
     element.appendChild(root);
 
-    // ── Refs ──────────────────────────────────────────────────────────────────
+    // ── Refs ─────────────────────────────────────────────────────────────
     const initialView  = root.querySelector('#two-col-view').parentElement.querySelector('.upl-initial-view');
     const twoColView   = root.querySelector('#two-col-view');
     const zoneMain     = root.querySelector('#drop-zone-main');
@@ -416,7 +405,7 @@ export const Uploader = {
 
     let selectedFiles = [];
 
-    // ── Utils ─────────────────────────────────────────────────────────────────
+    // ── Utils ────────────────────────────────────────────────────────────
     const clamp       = (v, a, b) => Math.max(a, Math.min(b, v));
     const formatSize  = bytes =>
       bytes < 1024         ? bytes + ' o'
@@ -426,7 +415,7 @@ export const Uploader = {
     const showMsg = (text, type = 'warn') => { msgDiv.textContent = text; msgDiv.className = `upl-msg show ${type}`; };
     const hideMsg = () => { msgDiv.className = 'upl-msg'; };
 
-    // ── updateList ────────────────────────────────────────────────────────────
+    // ── updateList ──────────────────────────────────────────────────────
     const updateList = () => {
       hideMsg();
 
@@ -479,7 +468,7 @@ export const Uploader = {
       if (errs.length) showMsg(errs.join(' · '), 'err');
     };
 
-    // ── Events zones drop ─────────────────────────────────────────────────────
+    // ── Events zones drop ───────────────────────────────────────────────
     const bindZone = (zone, input) => {
       zone.onclick = () => input.click();
       zone.ondragover  = e => { e.preventDefault(); zone.classList.add('drag'); };
@@ -490,16 +479,30 @@ export const Uploader = {
     bindZone(zoneMain,    inputMain);
     bindZone(zoneCompact, inputCompact);
 
-    // ── Blocage chat au démarrage ─────────────────────────────────────────────
+    // ── Blocage chat au démarrage ───────────────────────────────────────
     blockChatInput();
 
-    // ── Envoi ─────────────────────────────────────────────────────────────────
+    // ── Envoi ───────────────────────────────────────────────────────────
     sendBtn.onclick = async () => {
       if (selectedFiles.length < requiredFiles || !isComponentActive) return;
 
       console.log('[UploadExt] Starting upload...');
       isUploading = true;
       if (cleanupObserver) { cleanupObserver(); cleanupObserver = null; }
+
+      // ── Vérification fichiers corrompus (0 bytes = page non rechargée) ──
+      const corruptFiles = selectedFiles.filter(f => f.size === 0);
+      if (corruptFiles.length > 0) {
+        console.error('[UploadExt] Fichiers corrompus détectés (0 bytes)');
+        isUploading = false;
+        showMsg('Veuillez réactualiser la page', 'err');
+        // Notifier VF du fail
+        window?.voiceflow?.chat?.interact?.({
+          type: 'complete',
+          payload: { webhookSuccess: false, error: 'corrupt_files', buttonPath: 'error' }
+        });
+        return;
+      }
 
       root.style.pointerEvents = 'none';
       overlay.classList.add('show');
@@ -511,11 +514,6 @@ export const Uploader = {
       if (loaderMode === 'timed') ui.timed(buildPlan());
       else ui.auto(defaultAutoSteps);
 
-      const corruptFiles = selectedFiles.filter(f => f.size === 0);
-      if (corruptFiles.length > 0) {
-        throw new Error('Failed to fetch'); 
-      }
-      
       try {
         const resp = await post({
           url: webhookUrl, method: webhookMethod, headers: webhookHeaders,
@@ -551,20 +549,23 @@ export const Uploader = {
         isUploading = false; isComponentActive = false;
         loader.classList.remove('show');
         bodyDiv.style.display = '';
-        sconst isFetchError = (err?.message || '').includes('Failed to fetch');
-        showMsg(isFetchError ? 'Veuillez réactualiser la page' : String(err?.message || err), 'err');
-        sendBtn.disabled = false;
         root.style.pointerEvents = '';
         overlay.classList.remove('show');
+        sendBtn.disabled = false;
+
+        // Message user-friendly si Failed to fetch
+        const errMsg = String(err?.message || err);
+        const isFetchError = errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.includes('AbortError');
+        showMsg(isFetchError ? 'Veuillez réactualiser la page' : errMsg, 'err');
 
         window?.voiceflow?.chat?.interact?.({
           type: 'complete',
-          payload: { webhookSuccess: false, error: String(err?.message || err), buttonPath: 'error' }
+          payload: { webhookSuccess: false, error: errMsg, buttonPath: 'error' }
         });
       }
     };
 
-    // ── Loader UI ─────────────────────────────────────────────────────────────
+    // ── Loader UI ───────────────────────────────────────────────────────
     function showLoaderUI() {
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
@@ -648,9 +649,7 @@ export const Uploader = {
       });
     }
 
-    // ── POST résilient ───────────────────────────────────────────────────────
-    // v11 : si "Failed to fetch", retry sans AbortController (contexte réseau
-    //        potentiellement corrompu après changement de conversation sans reload)
+    // ── POST résilient ──────────────────────────────────────────────────
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
       const buildFormData = () => {
         const fd = new FormData();
@@ -670,7 +669,6 @@ export const Uploader = {
 
       let err;
       for (let i = 0; i <= retries; i++) {
-        // Tentative normale avec AbortController
         try {
           const ctrl = new AbortController();
           const to   = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -684,7 +682,6 @@ export const Uploader = {
           err = e;
           console.warn(`[UploadExt] Attempt ${i+1} failed:`, e.message);
 
-          // Si "Failed to fetch", tenter sans AbortController (contexte potentiellement corrompu)
           if (e.message?.includes('Failed to fetch') || e.name === 'AbortError') {
             console.warn('[UploadExt] Fallback: retry sans AbortController...');
             await new Promise(r => setTimeout(r, 500));
@@ -722,7 +719,7 @@ export const Uploader = {
     // Auto-scroll initial
     scrollToSelf();
 
-    // ── Enregistrer le cleanup global (singleton) ────────────────────────────
+    // ── Enregistrer le cleanup global (singleton) ───────────────────────
     const cleanup = () => {
       if (timedTimer) clearInterval(timedTimer);
       if (cleanupObserver) cleanupObserver();
