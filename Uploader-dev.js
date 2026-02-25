@@ -546,7 +546,8 @@ export const Uploader = {
         isUploading = false; isComponentActive = false;
         loader.classList.remove('show');
         bodyDiv.style.display = '';
-        showMsg(String(err?.message || err), 'err');
+        sconst isFetchError = (err?.message || '').includes('Failed to fetch');
+        showMsg(isFetchError ? 'Veuillez réactualiser la page' : String(err?.message || err), 'err');
         sendBtn.disabled = false;
         root.style.pointerEvents = '';
         overlay.classList.remove('show');
