@@ -1,5 +1,5 @@
-// Uploader.js – v11.1
-// © Corentin – singleton cleanup + fetch résilient + corrupt file detection
+// Uploader.js – v11.2
+// © Corentin – SPA fix: immediate ArrayBuffer copy on file select
 //
 export const Uploader = {
   name: 'Uploader',
@@ -30,7 +30,7 @@ export const Uploader = {
       window.__uploaderInstance = null;
     }
 
-    console.log('[UploadExt] v11.1 - Init');
+    console.log('[UploadExt] v11.2 - Init');
 
     // ── Helper shadow root ──────────────────────────────────────────────
     const findChatContainer = () => {
@@ -403,6 +403,8 @@ export const Uploader = {
     const overlay      = root.querySelector('.upl-overlay');
     const bodyDiv      = root.querySelector('.upl-body');
 
+    // ── selectedFiles : stocke des objets { file: File, name, size, type } ──
+    // Le File est copié en mémoire immédiatement pour survivre à la SPA Bubble
     let selectedFiles = [];
 
     // ── Utils ────────────────────────────────────────────────────────────
@@ -438,10 +440,10 @@ export const Uploader = {
       countEl.textContent = `${selectedFiles.length} fichier${selectedFiles.length > 1 ? 's' : ''} · ${formatSize(total)}`;
 
       fileListEl.innerHTML = '';
-      selectedFiles.forEach((file, i) => {
+      selectedFiles.forEach((f, i) => {
         const item = document.createElement('div');
         item.className = 'upl-item';
-        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${file.name}</div><div class="upl-item-size">${formatSize(file.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
+        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${f.name}</div><div class="upl-item-size">${formatSize(f.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
         fileListEl.appendChild(item);
       });
 
@@ -456,15 +458,50 @@ export const Uploader = {
       scrollToSelf();
     };
 
-    const addFiles = (files) => {
-      const ok = [], errs = [];
+    // ── ✅ FIX SPA : lecture ArrayBuffer immédiate ──────────────────────
+    // Sur Bubble SPA, la référence au File object devient invalide (0 bytes)
+    // après une navigation. On lit le contenu en mémoire au moment de la
+    // sélection pour être indépendant du cycle de vie du file input.
+    const readFileToMemory = (file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          // Crée un nouveau File depuis le buffer lu – indépendant du DOM
+          const blob = new Blob([e.target.result], { type: file.type });
+          const freshFile = new File([blob], file.name, {
+            type: file.type,
+            lastModified: file.lastModified || Date.now()
+          });
+          console.log(`[UploadExt] Fichier lu en mémoire: ${file.name} (${freshFile.size} bytes)`);
+          resolve(freshFile);
+        };
+        reader.onerror = () => {
+          console.warn(`[UploadExt] Lecture échouée pour ${file.name}, fallback original`);
+          resolve(file); // fallback : on garde l'original
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    };
+
+    const addFiles = async (files) => {
+      const errs = [];
+      const toRead = [];
+
+      // Validation synchrone
       for (const f of files) {
-        if (selectedFiles.length + ok.length >= maxFiles) { errs.push('Limite atteinte'); break; }
+        if (selectedFiles.length + toRead.length >= maxFiles) { errs.push('Limite atteinte'); break; }
         if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
         if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
-        ok.push(f);
+        toRead.push(f);
       }
-      if (ok.length) { selectedFiles.push(...ok); updateList(); }
+
+      if (toRead.length) {
+        // Lecture en mémoire de tous les fichiers en parallèle
+        const freshFiles = await Promise.all(toRead.map(readFileToMemory));
+        selectedFiles.push(...freshFiles);
+        updateList();
+      }
+
       if (errs.length) showMsg(errs.join(' · '), 'err');
     };
 
@@ -490,13 +527,13 @@ export const Uploader = {
       isUploading = true;
       if (cleanupObserver) { cleanupObserver(); cleanupObserver = null; }
 
-      // ── Vérification fichiers corrompus (0 bytes = page non rechargée) ──
+      // Vérification fichiers corrompus (ne devrait plus arriver avec le fix SPA,
+      // mais on garde la garde pour les vrais fichiers corrompus)
       const corruptFiles = selectedFiles.filter(f => f.size === 0);
       if (corruptFiles.length > 0) {
         console.error('[UploadExt] Fichiers corrompus détectés (0 bytes)');
         isUploading = false;
-        showMsg('Veuillez réactualiser la page', 'err');
-        // Notifier VF du fail
+        showMsg('Fichier invalide. Retirez-le et re-sélectionnez-le depuis votre dossier.', 'err');
         window?.voiceflow?.chat?.interact?.({
           type: 'complete',
           payload: { webhookSuccess: false, error: 'corrupt_files', buttonPath: 'error' }
@@ -553,7 +590,6 @@ export const Uploader = {
         overlay.classList.remove('show');
         sendBtn.disabled = false;
 
-        // Message user-friendly si Failed to fetch
         const errMsg = String(err?.message || err);
         const isFetchError = errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.includes('AbortError');
         showMsg(isFetchError ? 'Veuillez réactualiser la page' : errMsg, 'err');
