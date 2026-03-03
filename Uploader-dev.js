@@ -1,5 +1,5 @@
-// Uploader.js – v11.2
-// © Corentin – SPA fix: immediate ArrayBuffer copy on file select
+// Uploader.js – v11.2-debug
+// © Corentin – SPA fix + extensive debug logging
 //
 export const Uploader = {
   name: 'Uploader',
@@ -10,7 +10,9 @@ export const Uploader = {
       const type = t.type || '';
       const pname = t.payload?.name || '';
       const isMe = s => /(^ext_)?Uploader(Dev)?$/i.test(s || '');
-      return isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
+      const result = isMe(type) || (type === 'extension' && isMe(pname)) || (/^ext_/i.test(type) && isMe(pname));
+      console.log(`[UploadExt] match() appelé — type="${type}" pname="${pname}" → ${result}`);
+      return result;
     } catch (e) {
       console.error('[UploadExt] match error:', e);
       return false;
@@ -18,19 +20,26 @@ export const Uploader = {
   },
 
   render({ trace, element }) {
+    console.group('[UploadExt] ══════════ RENDER START ══════════');
+    console.log('[UploadExt] Version: 11.2-debug');
+    console.log('[UploadExt] element:', element);
+    console.log('[UploadExt] trace:', trace);
+    console.log('[UploadExt] payload:', trace?.payload);
+
     if (!element) {
-      console.error('[UploadExt] Élément parent introuvable');
+      console.error('[UploadExt] ❌ Élément parent introuvable — ABORT');
+      console.groupEnd();
       return;
     }
 
     // ── Force cleanup de toute instance précédente ──────────────────────
     if (window.__uploaderInstance) {
-      console.log('[UploadExt] Cleanup instance précédente');
-      try { window.__uploaderInstance(); } catch(e) {}
+      console.warn('[UploadExt] ⚠️ Instance précédente détectée → cleanup');
+      try { window.__uploaderInstance(); } catch(e) { console.error('[UploadExt] cleanup error:', e); }
       window.__uploaderInstance = null;
+    } else {
+      console.log('[UploadExt] Pas d\'instance précédente');
     }
-
-    console.log('[UploadExt] v11.2 - Init');
 
     // ── Helper shadow root ──────────────────────────────────────────────
     const findChatContainer = () => {
@@ -52,19 +61,31 @@ export const Uploader = {
       const el = document.getElementById('vf-chat') ||
                  document.getElementById('voiceflow-chat') ||
                  document.querySelector('[id*="vf-chat"]');
-      return el?.shadowRoot || null;
+      const sr = el?.shadowRoot || null;
+      console.log('[UploadExt] getChatSR() → el:', el, '| shadowRoot:', sr ? '✅ trouvé' : '❌ null');
+      return sr;
     };
 
     const blockChatInput = () => {
+      console.log('[UploadExt] blockChatInput() appelé');
       const sr = getChatSR();
-      if (!sr) { setTimeout(blockChatInput, 200); return; }
-      if (_eventBlockers.length) return;
+      if (!sr) {
+        console.warn('[UploadExt] ⚠️ blockChatInput: shadowRoot null → retry 200ms');
+        setTimeout(blockChatInput, 200);
+        return;
+      }
+      if (_eventBlockers.length) {
+        console.log('[UploadExt] blockChatInput: déjà bloqué, skip');
+        return;
+      }
 
       const footer   = sr.querySelector('.vfrc-footer');
       const textarea = sr.querySelector('textarea');
       const sendBtn  = sr.querySelector('#vfrc-send-message') ||
                        sr.querySelector('button[type="submit"]') ||
                        sr.querySelector('.vfrc-chat-input__send');
+
+      console.log('[UploadExt] Elements trouvés pour blocage — footer:', !!footer, '| textarea:', !!textarea, '| sendBtn:', !!sendBtn);
 
       const blockEvent = (e) => {
         e.stopPropagation();
@@ -114,14 +135,15 @@ export const Uploader = {
         sr.appendChild(_blockStyle);
       }
 
-      console.log('[UploadExt] Chat bloqué');
+      console.log(`[UploadExt] ✅ Chat bloqué — ${_eventBlockers.length} listeners posés`);
     };
 
     const unblockChatInput = () => {
+      console.log(`[UploadExt] unblockChatInput() — ${_eventBlockers.length} listeners à retirer`);
       _eventBlockers.forEach(({ el, type, fn }) => el.removeEventListener(type, fn, true));
       _eventBlockers = [];
       if (_blockStyle) { _blockStyle.remove(); _blockStyle = null; }
-      console.log('[UploadExt] Chat débloqué');
+      console.log('[UploadExt] ✅ Chat débloqué');
     };
 
     // ── Auto-scroll ─────────────────────────────────────────────────────
@@ -137,9 +159,15 @@ export const Uploader = {
     let timedTimer = null;
     let cleanupObserver = null;
 
+    console.log('[UploadExt] State initial — isComponentActive:', isComponentActive, '| isUploading:', isUploading);
+
     const setupAutoUnlock = () => {
+      console.log('[UploadExt] setupAutoUnlock() appelé');
       const container = findChatContainer();
-      if (!container?.shadowRoot) return null;
+      if (!container?.shadowRoot) {
+        console.warn('[UploadExt] setupAutoUnlock: pas de container shadowRoot');
+        return null;
+      }
       const shadowRoot = container.shadowRoot;
       const selectors = [
         '.vfrc-chat--dialog', '[class*="Dialog"]', '[class*="dialog"]',
@@ -147,7 +175,11 @@ export const Uploader = {
       ];
       let dialogEl = null;
       for (const sel of selectors) { dialogEl = shadowRoot.querySelector(sel); if (dialogEl) break; }
-      if (!dialogEl) return null;
+      if (!dialogEl) {
+        console.warn('[UploadExt] setupAutoUnlock: dialogEl introuvable');
+        return null;
+      }
+      console.log('[UploadExt] setupAutoUnlock: observer posé sur', dialogEl.className);
 
       const observer = new MutationObserver((mutations) => {
         if (!isComponentActive || isUploading) return;
@@ -162,7 +194,11 @@ export const Uploader = {
                            node.classList?.contains('vfrc-assistant') ||
                            node.querySelector?.('[class*="assistant"]') ||
                            node.querySelector?.('[class*="system"]');
-            if (isUser || isSys) { autoUnlock(); return; }
+            if (isUser || isSys) {
+              console.log('[UploadExt] autoUnlock déclenché par mutation — node:', node.className);
+              autoUnlock();
+              return;
+            }
           }
         }
       });
@@ -171,6 +207,7 @@ export const Uploader = {
     };
 
     const autoUnlock = () => {
+      console.log('[UploadExt] autoUnlock() — isComponentActive:', isComponentActive);
       if (!isComponentActive) return;
       isComponentActive = false;
       if (cleanupObserver) { cleanupObserver(); cleanupObserver = null; }
@@ -180,7 +217,10 @@ export const Uploader = {
     };
 
     setTimeout(() => {
-      if (isComponentActive && !isUploading) cleanupObserver = setupAutoUnlock();
+      if (isComponentActive && !isUploading) {
+        console.log('[UploadExt] setupAutoUnlock lancé (500ms)');
+        cleanupObserver = setupAutoUnlock();
+      }
     }, 500);
 
     // ── Payload ─────────────────────────────────────────────────────────
@@ -193,6 +233,8 @@ export const Uploader = {
     const maxFileSizeMB = p.maxFileSizeMB || 25;
     const maxFiles      = p.maxFiles || 10;
     const variables     = p.variables || {};
+
+    console.log('[UploadExt] Config — accept:', accept, '| maxFileSizeMB:', maxFileSizeMB, '| maxFiles:', maxFiles);
 
     const colors = {
       text: '#111827', textLight: '#9CA3AF', border: '#E5E7EB',
@@ -209,7 +251,10 @@ export const Uploader = {
     const fileFieldName    = webhook.fileFieldName || 'files';
     const extra            = webhook.extra || {};
 
+    console.log('[UploadExt] Webhook — url:', webhookUrl, '| method:', webhookMethod, '| timeoutMs:', webhookTimeoutMs);
+
     const requiredFiles = Math.max(1, Math.min(Number(p.minFiles) || 1, maxFiles));
+    console.log('[UploadExt] requiredFiles:', requiredFiles);
 
     const awaitResponse      = p.awaitResponse !== false;
     const polling            = p.polling || {};
@@ -217,6 +262,8 @@ export const Uploader = {
     const pollingIntervalMs  = Number.isFinite(polling.intervalMs) ? polling.intervalMs : 2000;
     const pollingMaxAttempts = Number.isFinite(polling.maxAttempts) ? polling.maxAttempts : 120;
     const pollingHeaders     = polling.headers || {};
+
+    console.log('[UploadExt] Polling — enabled:', pollingEnabled, '| intervalMs:', pollingIntervalMs, '| maxAttempts:', pollingMaxAttempts);
 
     const sendButtonText = p.sendButtonText || 'Envoyer';
 
@@ -236,8 +283,12 @@ export const Uploader = {
     const timedPhases  = Array.isArray(loaderCfg.phases) ? loaderCfg.phases : [];
     const totalSeconds = Number(loaderCfg.totalSeconds) > 0 ? Number(loaderCfg.totalSeconds) : 120;
 
+    console.log('[UploadExt] Loader — mode:', loaderMode, '| minLoadingTimeMs:', minLoadingTimeMs, '| phases:', timedPhases.length);
+
     if (!webhookUrl) {
+      console.error('[UploadExt] ❌ webhook.url manquant — ABORT');
       element.innerHTML = `<div style="padding:16px;color:${colors.error}">Config manquante: webhook.url</div>`;
+      console.groupEnd();
       return;
     }
 
@@ -385,6 +436,8 @@ export const Uploader = {
       </div>
     `;
     element.appendChild(root);
+    console.log('[UploadExt] ✅ DOM injecté dans element');
+    console.groupEnd();
 
     // ── Refs ─────────────────────────────────────────────────────────────
     const initialView  = root.querySelector('#two-col-view').parentElement.querySelector('.upl-initial-view');
@@ -403,8 +456,8 @@ export const Uploader = {
     const overlay      = root.querySelector('.upl-overlay');
     const bodyDiv      = root.querySelector('.upl-body');
 
-    // ── selectedFiles : stocke des objets { file: File, name, size, type } ──
-    // Le File est copié en mémoire immédiatement pour survivre à la SPA Bubble
+    console.log('[UploadExt] Refs — sendBtn:', !!sendBtn, '| inputMain:', !!inputMain, '| inputCompact:', !!inputCompact);
+
     let selectedFiles = [];
 
     // ── Utils ────────────────────────────────────────────────────────────
@@ -419,6 +472,7 @@ export const Uploader = {
 
     // ── updateList ──────────────────────────────────────────────────────
     const updateList = () => {
+      console.log(`[UploadExt] updateList() — ${selectedFiles.length} fichiers | required: ${requiredFiles}`);
       hideMsg();
 
       if (!selectedFiles.length) {
@@ -448,10 +502,16 @@ export const Uploader = {
       });
 
       root.querySelectorAll('.upl-item-del').forEach(btn => {
-        btn.onclick = () => { selectedFiles.splice(parseInt(btn.dataset.i), 1); updateList(); scrollToSelf(); };
+        btn.onclick = () => {
+          console.log('[UploadExt] Suppression fichier index', btn.dataset.i);
+          selectedFiles.splice(parseInt(btn.dataset.i), 1);
+          updateList();
+          scrollToSelf();
+        };
       });
 
       sendBtn.disabled = !enough;
+      console.log(`[UploadExt] sendBtn.disabled = ${sendBtn.disabled} | enough: ${enough}`);
       if (selectedFiles.length > 0 && !enough)
         showMsg(`${requiredFiles - selectedFiles.length} fichier(s) manquant(s)`, 'warn');
 
@@ -459,87 +519,133 @@ export const Uploader = {
     };
 
     // ── ✅ FIX SPA : lecture ArrayBuffer immédiate ──────────────────────
-    // Sur Bubble SPA, la référence au File object devient invalide (0 bytes)
-    // après une navigation. On lit le contenu en mémoire au moment de la
-    // sélection pour être indépendant du cycle de vie du file input.
     const readFileToMemory = (file) => {
       return new Promise((resolve) => {
+        console.log(`[UploadExt] readFileToMemory START — "${file.name}" size=${file.size} type="${file.type}"`);
         const reader = new FileReader();
         reader.onload = (e) => {
-          // Crée un nouveau File depuis le buffer lu – indépendant du DOM
-          const blob = new Blob([e.target.result], { type: file.type });
+          const buffer = e.target.result;
+          console.log(`[UploadExt] readFileToMemory READ OK — buffer byteLength: ${buffer.byteLength}`);
+          const blob = new Blob([buffer], { type: file.type });
           const freshFile = new File([blob], file.name, {
             type: file.type,
             lastModified: file.lastModified || Date.now()
           });
-          console.log(`[UploadExt] Fichier lu en mémoire: ${file.name} (${freshFile.size} bytes)`);
+          console.log(`[UploadExt] ✅ Fichier en mémoire — "${freshFile.name}" size=${freshFile.size} bytes`);
           resolve(freshFile);
         };
-        reader.onerror = () => {
-          console.warn(`[UploadExt] Lecture échouée pour ${file.name}, fallback original`);
-          resolve(file); // fallback : on garde l'original
+        reader.onerror = (e) => {
+          console.error(`[UploadExt] ❌ readFileToMemory ERROR pour "${file.name}":`, e);
+          console.warn('[UploadExt] Fallback: on garde le File original');
+          resolve(file);
         };
         reader.readAsArrayBuffer(file);
       });
     };
 
     const addFiles = async (files) => {
+      console.group(`[UploadExt] addFiles() — ${files.length} fichier(s) reçus`);
+      console.log('[UploadExt] isComponentActive:', isComponentActive, '| isUploading:', isUploading);
       const errs = [];
       const toRead = [];
 
-      // Validation synchrone
       for (const f of files) {
-        if (selectedFiles.length + toRead.length >= maxFiles) { errs.push('Limite atteinte'); break; }
-        if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
-        if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
+        console.log(`[UploadExt] Validation — "${f.name}" size=${f.size} type="${f.type}"`);
+        if (selectedFiles.length + toRead.length >= maxFiles) {
+          console.warn('[UploadExt] Limite maxFiles atteinte');
+          errs.push('Limite atteinte');
+          break;
+        }
+        if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) {
+          console.warn(`[UploadExt] "${f.name}" trop gros: ${(f.size/1024/1024).toFixed(1)}Mo > ${maxFileSizeMB}Mo`);
+          errs.push(`${f.name} trop gros`);
+          continue;
+        }
+        if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) {
+          console.log(`[UploadExt] "${f.name}" déjà dans la liste, skip`);
+          continue;
+        }
         toRead.push(f);
       }
 
+      console.log(`[UploadExt] ${toRead.length} fichier(s) à lire en mémoire`);
+
       if (toRead.length) {
-        // Lecture en mémoire de tous les fichiers en parallèle
         const freshFiles = await Promise.all(toRead.map(readFileToMemory));
+        console.log('[UploadExt] Fichiers en mémoire:', freshFiles.map(f => `${f.name}(${f.size})`));
         selectedFiles.push(...freshFiles);
         updateList();
       }
 
-      if (errs.length) showMsg(errs.join(' · '), 'err');
+      if (errs.length) {
+        console.warn('[UploadExt] Erreurs validation:', errs);
+        showMsg(errs.join(' · '), 'err');
+      }
+
+      console.groupEnd();
     };
 
     // ── Events zones drop ───────────────────────────────────────────────
     const bindZone = (zone, input) => {
-      zone.onclick = () => input.click();
+      zone.onclick = () => {
+        console.log('[UploadExt] Zone cliquée → ouverture file picker');
+        input.click();
+      };
       zone.ondragover  = e => { e.preventDefault(); zone.classList.add('drag'); };
       zone.ondragleave = () => zone.classList.remove('drag');
-      zone.ondrop = e => { e.preventDefault(); zone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
-      input.onchange = () => { addFiles(Array.from(input.files || [])); input.value = ''; };
+      zone.ondrop = e => {
+        e.preventDefault();
+        zone.classList.remove('drag');
+        const dropped = Array.from(e.dataTransfer?.files || []);
+        console.log(`[UploadExt] Drop — ${dropped.length} fichier(s)`);
+        addFiles(dropped);
+      };
+      input.onchange = () => {
+        const picked = Array.from(input.files || []);
+        console.log(`[UploadExt] input.onchange — ${picked.length} fichier(s) sélectionnés`);
+        addFiles(picked);
+        input.value = '';
+      };
     };
     bindZone(zoneMain,    inputMain);
     bindZone(zoneCompact, inputCompact);
+
+    console.log('[UploadExt] ✅ Zones drag-drop bindées');
 
     // ── Blocage chat au démarrage ───────────────────────────────────────
     blockChatInput();
 
     // ── Envoi ───────────────────────────────────────────────────────────
     sendBtn.onclick = async () => {
-      if (selectedFiles.length < requiredFiles || !isComponentActive) return;
+      console.group('[UploadExt] ══════════ SEND CLICK ══════════');
+      console.log('[UploadExt] selectedFiles.length:', selectedFiles.length, '| requiredFiles:', requiredFiles);
+      console.log('[UploadExt] isComponentActive:', isComponentActive, '| isUploading:', isUploading);
 
-      console.log('[UploadExt] Starting upload...');
+      if (selectedFiles.length < requiredFiles || !isComponentActive) {
+        console.warn('[UploadExt] ⚠️ Condition non remplie — abort send');
+        console.groupEnd();
+        return;
+      }
+
+      console.log('[UploadExt] ✅ Lancement de l\'upload');
       isUploading = true;
       if (cleanupObserver) { cleanupObserver(); cleanupObserver = null; }
 
-      // Vérification fichiers corrompus (ne devrait plus arriver avec le fix SPA,
-      // mais on garde la garde pour les vrais fichiers corrompus)
+      // Vérification fichiers corrompus
       const corruptFiles = selectedFiles.filter(f => f.size === 0);
       if (corruptFiles.length > 0) {
-        console.error('[UploadExt] Fichiers corrompus détectés (0 bytes)');
+        console.error('[UploadExt] ❌ Fichiers corrompus (0 bytes):', corruptFiles.map(f => f.name));
         isUploading = false;
         showMsg('Fichier invalide. Retirez-le et re-sélectionnez-le depuis votre dossier.', 'err');
         window?.voiceflow?.chat?.interact?.({
           type: 'complete',
           payload: { webhookSuccess: false, error: 'corrupt_files', buttonPath: 'error' }
         });
+        console.groupEnd();
         return;
       }
+
+      console.log('[UploadExt] Fichiers à envoyer:', selectedFiles.map(f => `${f.name}(${f.size} bytes)`));
 
       root.style.pointerEvents = 'none';
       overlay.classList.add('show');
@@ -548,41 +654,58 @@ export const Uploader = {
       const startTime = Date.now();
       const ui = showLoaderUI();
 
+      console.log('[UploadExt] loaderMode:', loaderMode);
       if (loaderMode === 'timed') ui.timed(buildPlan());
       else ui.auto(defaultAutoSteps);
 
       try {
+        console.log('[UploadExt] POST vers:', webhookUrl);
         const resp = await post({
           url: webhookUrl, method: webhookMethod, headers: webhookHeaders,
           timeoutMs: webhookTimeoutMs, retries: webhookRetries,
           files: selectedFiles, fileFieldName, extra, vfContext, variables
         });
 
-        console.log('[UploadExt] Response:', resp);
+        console.log('[UploadExt] ✅ Response reçue:', resp);
         let data = resp?.data ?? null;
+        console.log('[UploadExt] data:', data);
 
         if (awaitResponse && pollingEnabled) {
+          console.log('[UploadExt] Polling activé — jobId:', data?.jobId, '| statusUrl:', data?.statusUrl);
           const jobId     = data?.jobId;
           const statusUrl = data?.statusUrl || polling?.statusUrl;
           if (statusUrl || jobId) {
+            console.log('[UploadExt] Démarrage polling sur:', statusUrl || `jobs/${jobId}`);
             data = await poll({
               statusUrl: statusUrl || `${webhookUrl.split('/webhook')[0]}/rest/jobs/${jobId}`,
               headers: pollingHeaders, intervalMs: pollingIntervalMs, maxAttempts: pollingMaxAttempts,
-              onTick: st => { if (loaderMode === 'external' && Number.isFinite(st?.percent)) ui.set(st.percent); }
+              onTick: st => {
+                console.log('[UploadExt] Poll tick — status:', st);
+                if (loaderMode === 'external' && Number.isFinite(st?.percent)) ui.set(st.percent);
+              }
             });
+            console.log('[UploadExt] ✅ Polling terminé — data:', data);
+          } else {
+            console.warn('[UploadExt] Polling activé mais pas de statusUrl/jobId dans la response');
           }
         }
 
         const elapsed = Date.now() - startTime;
+        console.log('[UploadExt] Elapsed:', elapsed, 'ms | minLoadingTimeMs:', minLoadingTimeMs);
         if (minLoadingTimeMs - elapsed > 0) {
-          ui.to(98, Math.min(minLoadingTimeMs - elapsed, 1500));
+          const waitMs = Math.min(minLoadingTimeMs - elapsed, 1500);
+          console.log('[UploadExt] Attente minLoadingTime:', waitMs, 'ms');
+          ui.to(98, waitMs);
           await new Promise(r => setTimeout(r, minLoadingTimeMs - elapsed));
         }
 
         ui.done(data);
+        console.groupEnd();
 
       } catch (err) {
-        console.error('[UploadExt] Error:', err);
+        console.error('[UploadExt] ❌ ERREUR upload:', err);
+        console.error('[UploadExt] message:', err?.message);
+        console.error('[UploadExt] stack:', err?.stack);
         isUploading = false; isComponentActive = false;
         loader.classList.remove('show');
         bodyDiv.style.display = '';
@@ -594,15 +717,18 @@ export const Uploader = {
         const isFetchError = errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.includes('AbortError');
         showMsg(isFetchError ? 'Veuillez réactualiser la page' : errMsg, 'err');
 
+        console.log('[UploadExt] interact error → buttonPath: error');
         window?.voiceflow?.chat?.interact?.({
           type: 'complete',
           payload: { webhookSuccess: false, error: errMsg, buttonPath: 'error' }
         });
+        console.groupEnd();
       }
     };
 
     // ── Loader UI ───────────────────────────────────────────────────────
     function showLoaderUI() {
+      console.log('[UploadExt] showLoaderUI()');
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
       let cur = 0, locked = false;
@@ -617,6 +743,7 @@ export const Uploader = {
           go();
         },
         timed(plan) {
+          console.log('[UploadExt] Loader timed — plan:', plan);
           let idx = 0;
           const next = () => {
             if (idx >= plan.length || locked) return;
@@ -646,11 +773,12 @@ export const Uploader = {
           requestAnimationFrame(step);
         },
         done(data) {
-          console.log('[UploadExt] Upload terminé');
+          console.log('[UploadExt] ✅ done() — data:', data);
           locked = true; clear();
           this.to(100, 400, () => {
             loader.classList.add('complete');
             setTimeout(() => {
+              console.log('[UploadExt] interact success → buttonPath: success');
               isUploading = false; isComponentActive = false;
               root.style.display = 'none';
               unblockChatInput();
@@ -689,7 +817,10 @@ export const Uploader = {
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
       const buildFormData = () => {
         const fd = new FormData();
-        files.forEach(f => fd.append(fileFieldName, f, f.name));
+        files.forEach(f => {
+          console.log(`[UploadExt] FormData.append — "${f.name}" size=${f.size}`);
+          fd.append(fileFieldName, f, f.name);
+        });
         Object.entries(extra).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
         Object.entries(variables).forEach(([k, v]) => fd.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v ?? '')));
         if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
@@ -706,14 +837,18 @@ export const Uploader = {
       let err;
       for (let i = 0; i <= retries; i++) {
         try {
+          console.log(`[UploadExt] fetch attempt ${i+1}/${retries+1} — timeout: ${timeoutMs}ms`);
           const ctrl = new AbortController();
-          const to   = setTimeout(() => ctrl.abort(), timeoutMs);
+          const to   = setTimeout(() => { console.warn('[UploadExt] ⏱️ AbortController timeout déclenché'); ctrl.abort(); }, timeoutMs);
           const r = await fetch(url, {
             method, headers: cleanHeaders(), body: buildFormData(), signal: ctrl.signal
           });
           clearTimeout(to);
+          console.log(`[UploadExt] fetch response — status: ${r.status} ok: ${r.ok}`);
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          return { ok: true, data: await r.json().catch(() => null) };
+          const json = await r.json().catch((e) => { console.warn('[UploadExt] JSON parse failed:', e); return null; });
+          console.log('[UploadExt] fetch JSON:', json);
+          return { ok: true, data: json };
         } catch (e) {
           err = e;
           console.warn(`[UploadExt] Attempt ${i+1} failed:`, e.message);
@@ -722,9 +857,8 @@ export const Uploader = {
             console.warn('[UploadExt] Fallback: retry sans AbortController...');
             await new Promise(r => setTimeout(r, 500));
             try {
-              const r2 = await fetch(url, {
-                method, headers: cleanHeaders(), body: buildFormData()
-              });
+              const r2 = await fetch(url, { method, headers: cleanHeaders(), body: buildFormData() });
+              console.log(`[UploadExt] Fallback response — status: ${r2.status}`);
               if (!r2.ok) throw new Error(`HTTP ${r2.status}`);
               return { ok: true, data: await r2.json().catch(() => null) };
             } catch (e2) {
@@ -733,20 +867,28 @@ export const Uploader = {
             }
           }
 
-          if (i < retries) await new Promise(r => setTimeout(r, 900));
+          if (i < retries) {
+            console.log('[UploadExt] Retry dans 900ms...');
+            await new Promise(r => setTimeout(r, 900));
+          }
         }
       }
       throw err || new Error('Failed');
     }
 
     async function poll({ statusUrl, headers, intervalMs, maxAttempts, onTick }) {
+      console.log(`[UploadExt] poll() — url: ${statusUrl} | interval: ${intervalMs}ms | max: ${maxAttempts}`);
       for (let i = 1; i <= maxAttempts; i++) {
         const r = await fetch(statusUrl, { headers });
         if (!r.ok) throw new Error(`Poll ${r.status}`);
         const j = await r.json().catch(() => ({}));
+        console.log(`[UploadExt] poll #${i} — status: ${j?.status} percent: ${j?.percent}`);
         if (j?.status === 'error') throw new Error(j?.error || 'Error');
         onTick?.({ percent: j?.percent, phase: j?.phase });
-        if (j?.status === 'done') return j?.data ?? j;
+        if (j?.status === 'done') {
+          console.log('[UploadExt] ✅ poll done');
+          return j?.data ?? j;
+        }
         await new Promise(r => setTimeout(r, intervalMs));
       }
       throw new Error('Timeout');
@@ -757,12 +899,14 @@ export const Uploader = {
 
     // ── Enregistrer le cleanup global (singleton) ───────────────────────
     const cleanup = () => {
+      console.log('[UploadExt] cleanup() appelé');
       if (timedTimer) clearInterval(timedTimer);
       if (cleanupObserver) cleanupObserver();
       isComponentActive = false;
       unblockChatInput();
     };
     window.__uploaderInstance = cleanup;
+    console.log('[UploadExt] ✅ Instance enregistrée sur window.__uploaderInstance');
 
     return cleanup;
   }
