@@ -1,5 +1,5 @@
-// Uploader.js – v11.3
-// © Corentin – fix double click zone + fix 0-byte dead File (SPA Bubble) + FileReader timeout
+// Uploader.js – v11.4
+// © Corentin – fix overflow long filenames (min-width:0 sur flex containers)
 //
 export const Uploader = {
   name: 'Uploader',
@@ -18,31 +18,25 @@ export const Uploader = {
   },
 
   render({ trace, element }) {
-    if (!element) {
-      console.error('[UploadExt] Élément parent introuvable');
-      return;
-    }
+    if (!element) { console.error('[UploadExt] Élément parent introuvable'); return; }
 
     if (window.__uploaderInstance) {
-      console.log('[UploadExt] Cleanup instance précédente');
       try { window.__uploaderInstance(); } catch(e) {}
       window.__uploaderInstance = null;
     }
 
-    console.log('[UploadExt] v11.3 - Init');
+    console.log('[UploadExt] v11.4 - Init');
 
     const findChatContainer = () => {
       const el = document.getElementById('vf-chat') || document.getElementById('voiceflow-chat');
       if (el?.shadowRoot) return el;
-      const allWithShadow = document.querySelectorAll('*');
-      for (const e of allWithShadow) {
+      for (const e of document.querySelectorAll('*')) {
         if (e.shadowRoot?.querySelector('[class*="vfrc"]')) return e;
       }
       return null;
     };
 
-    let _eventBlockers = [];
-    let _blockStyle = null;
+    let _eventBlockers = [], _blockStyle = null;
 
     const getChatSR = () => {
       const el = document.getElementById('vf-chat') || document.getElementById('voiceflow-chat') || document.querySelector('[id*="vf-chat"]');
@@ -66,10 +60,10 @@ export const Uploader = {
         _blockStyle = document.createElement('style');
         _blockStyle.id = 'upl-block-visual';
         _blockStyle.textContent = `
-          .vfrc-footer { opacity:0.45!important; filter:grayscale(0.4)!important; cursor:not-allowed!important; }
-          textarea.vfrc-chat-input::placeholder { color:#9CA3AF!important; }
-          #vfrc-send-message, .vfrc-chat-input__send { background:#D1D5DB!important; background:linear-gradient(135deg,#D1D5DB,#9CA3AF)!important; border-color:#D1D5DB!important; color:#6B7280!important; box-shadow:none!important; cursor:not-allowed!important; }
-          #vfrc-send-message::after, .vfrc-chat-input__send::after { content:"Uploadez d'abord le document"!important; }
+          .vfrc-footer{opacity:0.45!important;filter:grayscale(0.4)!important;cursor:not-allowed!important}
+          textarea.vfrc-chat-input::placeholder{color:#9CA3AF!important}
+          #vfrc-send-message,.vfrc-chat-input__send{background:#D1D5DB!important;background:linear-gradient(135deg,#D1D5DB,#9CA3AF)!important;border-color:#D1D5DB!important;color:#6B7280!important;box-shadow:none!important;cursor:not-allowed!important}
+          #vfrc-send-message::after,.vfrc-chat-input__send::after{content:"Uploadez d'abord le document"!important}
         `;
         sr.appendChild(_blockStyle);
       }
@@ -83,12 +77,9 @@ export const Uploader = {
       console.log('[UploadExt] Chat débloqué');
     };
 
-    const scrollToSelf = () => { setTimeout(() => element.scrollIntoView({ behavior:'smooth', block:'nearest' }), 80); };
+    const scrollToSelf = () => setTimeout(() => element.scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
 
-    let isComponentActive = true;
-    let isUploading = false;
-    let timedTimer = null;
-    let cleanupObserver = null;
+    let isComponentActive = true, isUploading = false, timedTimer = null, cleanupObserver = null;
 
     const setupAutoUnlock = () => {
       const container = findChatContainer();
@@ -125,6 +116,7 @@ export const Uploader = {
 
     setTimeout(() => { if (isComponentActive && !isUploading) cleanupObserver = setupAutoUnlock(); }, 500);
 
+    // ── Payload ─────────────────────────────────────────────────────────
     const p = trace?.payload || {};
     const title         = p.title || '';
     const subtitle      = p.subtitle || '';
@@ -160,68 +152,229 @@ export const Uploader = {
     const timedPhases      = Array.isArray(loaderCfg.phases) ? loaderCfg.phases : [];
     const totalSeconds     = Number(loaderCfg.totalSeconds) > 0 ? Number(loaderCfg.totalSeconds) : 120;
 
-    if (!webhookUrl) {
-      element.innerHTML = `<div style="padding:16px;color:${colors.error}">Config manquante: webhook.url</div>`;
-      return;
-    }
+    if (!webhookUrl) { element.innerHTML = `<div style="padding:16px;color:${colors.error}">Config manquante: webhook.url</div>`; return; }
 
     const hasTitle = title?.trim(), hasSubtitle = subtitle?.trim(), showHeader = hasTitle || hasSubtitle;
 
+    // ── Styles ───────────────────────────────────────────────────────────
+    // ✅ FIX overflow : min-width:0 sur tous les flex containers
+    // Sans ça, les enfants flex ignorent overflow:hidden et élargissent le parent
     const styles = `
       @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
       @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-      .upl{width:100%;max-width:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;font-size:14px;color:${colors.text};animation:fadeIn 0.2s ease;box-sizing:border-box}
-      .upl *{box-sizing:border-box}
-      .upl-card{background:${colors.white};border:1px solid ${colors.border};border-radius:8px;overflow:hidden;width:100%}
-      .upl-header{padding:20px 20px 0}
-      .upl-title{font-size:15px;font-weight:600;margin:0 0 2px}
-      .upl-subtitle{font-size:13px;color:${colors.textLight}}
-      .upl-body{padding:14px 16px 16px;overflow:hidden}
-      .upl-zone{background:${colors.bg};border-radius:6px;padding:32px 20px;text-align:center;cursor:pointer;position:relative;transition:background 0.15s;width:100%}
-      .upl-zone::before{content:'';position:absolute;inset:8px;border:1px dashed ${colors.border};border-radius:4px;pointer-events:none}
-      .upl-zone:hover,.upl-zone.drag{background:#F3F4F6}
-      .upl-zone-icon{width:32px;height:32px;margin:0 auto 10px;color:${colors.textLight}}
-      .upl-zone-text{font-size:13px;color:${colors.textLight};line-height:1.5}
-      .upl-zone-sub{font-size:12px;color:${colors.textLight};opacity:.7}
-      .upl-zone.compact{padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px}
-      .upl-zone.compact .upl-zone-icon{width:20px;height:20px;margin:0 0 6px}
-      .upl-zone.compact .upl-zone-text{font-size:11px}
-      .upl-zone.compact .upl-zone-sub{font-size:10px}
-      .upl-zone.compact::before{inset:5px}
-      .upl-two-col{display:flex;gap:10px;align-items:flex-start;width:100%;min-width:0}
-      .upl-col-left{flex:0 0 110px;min-width:0}
-      .upl-col-right{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
-      .upl-send-wrapper{display:flex;flex-direction:column;gap:4px}
-      .upl-btn{padding:9px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;width:100%;text-align:center}
-      .upl-btn-primary{background:${colors.accent};color:${colors.white}}
-      .upl-btn-primary:hover:not(:disabled){background:#2d3f52}
-      .upl-btn-primary:disabled{opacity:.35;cursor:not-allowed}
-      .upl-send-hint{font-size:11px;color:${colors.textLight};text-align:center}
-      .upl-file-list{display:flex;flex-direction:column;gap:5px}
-      .upl-item{display:flex;align-items:center;padding:7px 10px;background:${colors.bg};border-radius:6px}
-      .upl-item-icon{width:14px;height:14px;color:${colors.textLight};margin-right:8px;flex-shrink:0}
-      .upl-item-info{flex:1;min-width:0}
-      .upl-item-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .upl-item-size{font-size:10px;color:${colors.textLight};margin-top:1px}
-      .upl-item-del{width:20px;height:20px;border:none;background:none;color:${colors.textLight};cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px;margin-left:6px;flex-shrink:0}
-      .upl-item-del:hover{background:rgba(239,68,68,.1);color:${colors.error}}
-      .upl-count{font-size:11px;color:${colors.textLight}}
-      .upl-count.ok{color:${colors.success}}
-      .upl-msg{margin-top:10px;padding:8px 12px;border-radius:6px;font-size:12px;display:none}
-      .upl-msg.show{display:block}
-      .upl-msg.err{background:rgba(239,68,68,.08);color:${colors.error}}
-      .upl-msg.warn{background:rgba(245,158,11,.08);color:${colors.warning}}
-      .upl-loader{display:none;padding:32px 24px}
-      .upl-loader.show{display:block}
-      .upl-loader-container{display:flex;align-items:center;gap:16px}
-      .upl-loader-bar{flex:1;height:8px;background:${colors.border};border-radius:4px;overflow:hidden}
-      .upl-loader-fill{height:100%;width:0%;background:${colors.text};border-radius:4px;transition:width .4s;position:relative}
-      .upl-loader-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.3) 50%,transparent 100%);background-size:200% 100%;animation:shimmer 2s infinite}
-      .upl-loader-pct{font-size:15px;font-weight:600;min-width:48px;text-align:right}
-      .upl-loader.complete .upl-loader-fill{background:${colors.success}}
-      .upl-loader.complete .upl-loader-pct{color:${colors.success}}
-      .upl-overlay{display:none;position:absolute;inset:0;z-index:10}
-      .upl-overlay.show{display:block}
+
+      .upl {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+        font-size: 14px;
+        color: ${colors.text};
+        animation: fadeIn 0.2s ease;
+        box-sizing: border-box;
+      }
+      .upl * { box-sizing: border-box; }
+
+      /* ✅ overflow:hidden + max-width sur la card */
+      .upl-card {
+        background: ${colors.white};
+        border: 1px solid ${colors.border};
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .upl-header { padding: 20px 20px 0; }
+      .upl-title  { font-size: 15px; font-weight: 600; margin: 0 0 2px; }
+      .upl-subtitle { font-size: 13px; color: ${colors.textLight}; }
+
+      .upl-body {
+        padding: 14px 16px 16px;
+        overflow: hidden;
+        /* ✅ empêche le body de s'élargir */
+        max-width: 100%;
+      }
+
+      .upl-zone {
+        background: ${colors.bg};
+        border-radius: 6px;
+        padding: 32px 20px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        transition: background 0.15s;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+      .upl-zone::before {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border: 1px dashed ${colors.border};
+        border-radius: 4px;
+        pointer-events: none;
+      }
+      .upl-zone:hover, .upl-zone.drag { background: #F3F4F6; }
+      .upl-zone-icon { width: 32px; height: 32px; margin: 0 auto 10px; color: ${colors.textLight}; }
+      .upl-zone-text { font-size: 13px; color: ${colors.textLight}; line-height: 1.5; }
+      .upl-zone-sub  { font-size: 12px; color: ${colors.textLight}; opacity: .7; }
+
+      .upl-zone.compact {
+        padding: 14px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+      }
+      .upl-zone.compact .upl-zone-icon { width: 20px; height: 20px; margin: 0 0 6px; }
+      .upl-zone.compact .upl-zone-text { font-size: 11px; }
+      .upl-zone.compact .upl-zone-sub  { font-size: 10px; }
+      .upl-zone.compact::before { inset: 5px; }
+
+      /* ✅ FIX : min-width:0 sur tous les flex containers pour que
+         overflow:hidden fonctionne sur les enfants */
+      .upl-two-col {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .upl-col-left {
+        flex: 0 0 110px;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .upl-col-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;   /* ✅ clé : sans ça flex ignore overflow */
+        overflow: hidden;
+      }
+
+      .upl-send-wrapper { display: flex; flex-direction: column; gap: 4px; }
+      .upl-btn {
+        padding: 9px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid transparent;
+        width: 100%;
+        text-align: center;
+      }
+      .upl-btn-primary { background: ${colors.accent}; color: ${colors.white}; }
+      .upl-btn-primary:hover:not(:disabled) { background: #2d3f52; }
+      .upl-btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+      .upl-send-hint { font-size: 11px; color: ${colors.textLight}; text-align: center; }
+
+      .upl-file-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      /* ✅ FIX principal : l'item ne doit jamais dépasser son parent */
+      .upl-item {
+        display: flex;
+        align-items: center;
+        padding: 7px 10px;
+        background: ${colors.bg};
+        border-radius: 6px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;     /* ✅ obligatoire pour flex */
+        overflow: hidden;
+      }
+      .upl-item-icon {
+        width: 14px;
+        height: 14px;
+        min-width: 14px;  /* ✅ ne pas laisser l'icône se réduire */
+        color: ${colors.textLight};
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+      .upl-item-info {
+        flex: 1;
+        min-width: 0;     /* ✅ permet à l'ellipsis de fonctionner */
+        overflow: hidden;
+      }
+      /* ✅ Le nom tronqué avec ellipsis */
+      .upl-item-name {
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        display: block;
+      }
+      .upl-item-size {
+        font-size: 10px;
+        color: ${colors.textLight};
+        margin-top: 1px;
+        white-space: nowrap;
+      }
+      .upl-item-del {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;  /* ✅ ne pas laisser le bouton se réduire */
+        border: none;
+        background: none;
+        color: ${colors.textLight};
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        margin-left: 6px;
+        flex-shrink: 0;
+      }
+      .upl-item-del:hover { background: rgba(239,68,68,.1); color: ${colors.error}; }
+
+      .upl-count { font-size: 11px; color: ${colors.textLight}; }
+      .upl-count.ok { color: ${colors.success}; }
+
+      .upl-msg { margin-top: 10px; padding: 8px 12px; border-radius: 6px; font-size: 12px; display: none; }
+      .upl-msg.show { display: block; }
+      .upl-msg.err  { background: rgba(239,68,68,.08); color: ${colors.error}; }
+      .upl-msg.warn { background: rgba(245,158,11,.08); color: ${colors.warning}; }
+
+      .upl-loader { display: none; padding: 32px 24px; }
+      .upl-loader.show { display: block; }
+      .upl-loader-container { display: flex; align-items: center; gap: 16px; }
+      .upl-loader-bar { flex: 1; height: 8px; background: ${colors.border}; border-radius: 4px; overflow: hidden; }
+      .upl-loader-fill {
+        height: 100%; width: 0%;
+        background: ${colors.text};
+        border-radius: 4px;
+        transition: width .4s;
+        position: relative;
+      }
+      .upl-loader-fill::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.3) 50%, transparent 100%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+      }
+      .upl-loader-pct { font-size: 15px; font-weight: 600; min-width: 48px; text-align: right; }
+      .upl-loader.complete .upl-loader-fill { background: ${colors.success}; }
+      .upl-loader.complete .upl-loader-pct  { color: ${colors.success}; }
+
+      .upl-overlay { display: none; position: absolute; inset: 0; z-index: 10; }
+      .upl-overlay.show { display: block; }
     `;
 
     const icons = {
@@ -230,9 +383,10 @@ export const Uploader = {
       x:      `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`
     };
 
+    // ── DOM ──────────────────────────────────────────────────────────────
     const root = document.createElement('div');
     root.className = 'upl';
-    root.style.cssText = 'position:relative;overflow:hidden;max-width:100%';
+    root.style.cssText = 'position:relative;overflow:hidden;max-width:100%;width:100%';
     root.dataset.uploadExtension = 'true';
     root.innerHTML = `
       <style>${styles}</style>
@@ -278,6 +432,7 @@ export const Uploader = {
     `;
     element.appendChild(root);
 
+    // ── Refs ─────────────────────────────────────────────────────────────
     const initialView  = root.querySelector('.upl-initial-view');
     const twoColView   = root.querySelector('#two-col-view');
     const zoneMain     = root.querySelector('#drop-zone-main');
@@ -321,7 +476,14 @@ export const Uploader = {
       selectedFiles.forEach((f, i) => {
         const item = document.createElement('div');
         item.className = 'upl-item';
-        item.innerHTML = `${icons.file}<div class="upl-item-info"><div class="upl-item-name">${f.name}</div><div class="upl-item-size">${formatSize(f.size)}</div></div><button class="upl-item-del" data-i="${i}">${icons.x}</button>`;
+        item.innerHTML = `
+          ${icons.file}
+          <div class="upl-item-info">
+            <div class="upl-item-name" title="${f.name}">${f.name}</div>
+            <div class="upl-item-size">${formatSize(f.size)}</div>
+          </div>
+          <button class="upl-item-del" data-i="${i}">${icons.x}</button>
+        `;
         fileListEl.appendChild(item);
       });
       root.querySelectorAll('.upl-item-del').forEach(btn => {
@@ -332,16 +494,10 @@ export const Uploader = {
       scrollToSelf();
     };
 
-    // ── ✅ FIX 1 : rejet immédiat size=0 + timeout FileReader ──────────
-    // Sur Bubble SPA, le contexte File API est tué entre navigations.
-    // Le fichier sélectionné dans un contexte mort a size=0 dès la sélection.
-    // Le FileReader.onload ne fire jamais sur ces fichiers → hang infini.
-    // Solution : rejeter avant lecture SI size===0, et timeout 5s sinon.
+    // ── FIX SPA : rejet 0-byte + timeout FileReader ──────────────────────
     const readFileToMemory = (file) => {
       return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject(new Error(`Lecture timeout pour "${file.name}" — actualisez la page`));
-        }, 5000);
+        const timeoutId = setTimeout(() => reject(new Error(`Lecture timeout pour "${file.name}" — actualisez la page`)), 5000);
         const reader = new FileReader();
         reader.onload = (e) => {
           clearTimeout(timeoutId);
@@ -350,27 +506,16 @@ export const Uploader = {
           console.log(`[UploadExt] ✅ En mémoire — "${freshFile.name}" ${freshFile.size} bytes`);
           resolve(freshFile);
         };
-        reader.onerror = (e) => {
-          clearTimeout(timeoutId);
-          reject(new Error(`Erreur lecture "${file.name}"`));
-        };
+        reader.onerror = (e) => { clearTimeout(timeoutId); reject(new Error(`Erreur lecture "${file.name}"`)); };
         reader.readAsArrayBuffer(file);
       });
     };
 
     const addFiles = async (files) => {
-      const errs  = [];
-      const toRead = [];
+      const errs = [], toRead = [];
       for (const f of files) {
         if (selectedFiles.length + toRead.length >= maxFiles) { errs.push('Limite atteinte'); break; }
-
-        // ── ✅ Rejet immédiat si 0 bytes (SPA Bubble contexte mort) ────
-        if (f.size === 0) {
-          console.warn(`[UploadExt] ⚠️ "${f.name}" = 0 bytes — contexte navigateur invalide`);
-          errs.push('Fichier invalide (0 octet). Actualisez la page et réessayez.');
-          continue;
-        }
-
+        if (f.size === 0) { errs.push('Fichier invalide (0 octet). Actualisez la page et réessayez.'); continue; }
         if (maxFileSizeMB && f.size > maxFileSizeMB * 1024 * 1024) { errs.push(`${f.name} trop gros`); continue; }
         if (selectedFiles.some(x => x.name === f.name && x.size === f.size)) continue;
         toRead.push(f);
@@ -385,18 +530,13 @@ export const Uploader = {
           errs.push(err.message);
         }
       }
-      if (errs.length) showMsg(errs[0], 'err'); // afficher la première erreur
+      if (errs.length) showMsg(errs[0], 'err');
     };
 
-    // ── ✅ FIX 2 : stopPropagation sur input pour éviter double click ───
-    // Sans ça : click zone → input.click() → le click de l'input remonte
-    // en bubbling vers la zone → 2ème input.click() → onchange x2.
+    // ── FIX double click ──────────────────────────────────────────────────
     const bindZone = (zone, input) => {
       input.addEventListener('click', (e) => e.stopPropagation());
-      zone.addEventListener('click', (e) => {
-        if (e.target.closest('.upl-item-del')) return;
-        input.click();
-      });
+      zone.addEventListener('click', (e) => { if (e.target.closest('.upl-item-del')) return; input.click(); });
       zone.ondragover  = e => { e.preventDefault(); zone.classList.add('drag'); };
       zone.ondragleave = () => zone.classList.remove('drag');
       zone.ondrop      = e => { e.preventDefault(); zone.classList.remove('drag'); addFiles(Array.from(e.dataTransfer?.files || [])); };
@@ -407,12 +547,12 @@ export const Uploader = {
 
     blockChatInput();
 
+    // ── Envoi ─────────────────────────────────────────────────────────────
     sendBtn.onclick = async () => {
       if (selectedFiles.length < requiredFiles || !isComponentActive) return;
       console.log('[UploadExt] Envoi — fichiers:', selectedFiles.map(f => `${f.name}(${f.size})`));
       isUploading = true;
       if (cleanupObserver) { cleanupObserver(); cleanupObserver = null; }
-
       const corruptFiles = selectedFiles.filter(f => f.size === 0);
       if (corruptFiles.length > 0) {
         isUploading = false;
@@ -420,7 +560,6 @@ export const Uploader = {
         window?.voiceflow?.chat?.interact?.({ type:'complete', payload:{ webhookSuccess:false, error:'corrupt_files', buttonPath:'error' } });
         return;
       }
-
       root.style.pointerEvents = 'none';
       overlay.classList.add('show');
       sendBtn.disabled = true;
@@ -428,7 +567,6 @@ export const Uploader = {
       const ui = showLoaderUI();
       if (loaderMode === 'timed') ui.timed(buildPlan());
       else ui.auto(defaultAutoSteps);
-
       try {
         const resp = await post({ url:webhookUrl, method:webhookMethod, headers:webhookHeaders, timeoutMs:webhookTimeoutMs, retries:webhookRetries, files:selectedFiles, fileFieldName, extra, vfContext, variables });
         console.log('[UploadExt] Response:', resp);
@@ -457,6 +595,7 @@ export const Uploader = {
       }
     };
 
+    // ── Loader ────────────────────────────────────────────────────────────
     function showLoaderUI() {
       loader.classList.add('show');
       bodyDiv.style.display = 'none';
@@ -469,10 +608,10 @@ export const Uploader = {
           let idx=0;
           const next=()=>{
             if(idx>=plan.length||locked)return;
-            const ph=plan[idx++], t0=Date.now(); clear();
+            const ph=plan[idx++],t0=Date.now(); clear();
             timedTimer=setInterval(()=>{
               if(locked){clear();return;}
-              const r=clamp((Date.now()-t0)/ph.durationMs,0,1), nv=ph.progressStart+(ph.progressEnd-ph.progressStart)*r;
+              const r=clamp((Date.now()-t0)/ph.durationMs,0,1),nv=ph.progressStart+(ph.progressEnd-ph.progressStart)*r;
               if(nv>cur){cur=nv;paint();}
               if(Date.now()>=t0+ph.durationMs){clear();cur=Math.max(cur,ph.progressEnd);paint();next();}
             },80);
@@ -487,7 +626,6 @@ export const Uploader = {
           requestAnimationFrame(step);
         },
         done(data) {
-          console.log('[UploadExt] Upload terminé');
           locked=true; clear();
           this.to(100,400,()=>{
             loader.classList.add('complete');
@@ -504,61 +642,61 @@ export const Uploader = {
 
     function buildPlan() {
       const haveSeconds = timedPhases.every(ph=>Number(ph.seconds)>0);
-      const total = haveSeconds ? timedPhases.reduce((s,ph)=>s+Number(ph.seconds),0) : totalSeconds;
-      const alloc = timedPhases.map(ph=>({seconds: haveSeconds?Number(ph.seconds):total/timedPhases.length}));
-      const startP=5, endP=98, totalMs=alloc.reduce((s,a)=>s+a.seconds*1000,0);
-      let acc=0, last=startP;
+      const total=haveSeconds?timedPhases.reduce((s,ph)=>s+Number(ph.seconds),0):totalSeconds;
+      const alloc=timedPhases.map(ph=>({seconds:haveSeconds?Number(ph.seconds):total/timedPhases.length}));
+      const startP=5,endP=98,totalMs=alloc.reduce((s,a)=>s+a.seconds*1000,0);
+      let acc=0,last=startP;
       return alloc.map((a,i)=>{
         const pStart=i===0?startP:last;
         const pEnd=i===alloc.length-1?endP:startP+(endP-startP)*((acc+a.seconds*1000)/totalMs);
         acc+=a.seconds*1000; last=pEnd;
-        return {durationMs:Math.max(500,a.seconds*1000), progressStart:pStart, progressEnd:pEnd};
+        return {durationMs:Math.max(500,a.seconds*1000),progressStart:pStart,progressEnd:pEnd};
       });
     }
 
     async function post({ url, method, headers, timeoutMs, retries, files, fileFieldName, extra, vfContext, variables }) {
       const buildFormData = () => {
-        const fd = new FormData();
-        files.forEach(f => fd.append(fileFieldName, f, f.name));
-        Object.entries(extra).forEach(([k,v]) => fd.append(k, typeof v==='object'?JSON.stringify(v):String(v??'')));
-        Object.entries(variables).forEach(([k,v]) => fd.append(k, typeof v==='object'?JSON.stringify(v):String(v??'')));
-        if (vfContext.conversation_id) fd.append('conversation_id', vfContext.conversation_id);
-        if (vfContext.user_id) fd.append('user_id', vfContext.user_id);
+        const fd=new FormData();
+        files.forEach(f=>fd.append(fileFieldName,f,f.name));
+        Object.entries(extra).forEach(([k,v])=>fd.append(k,typeof v==='object'?JSON.stringify(v):String(v??'')));
+        Object.entries(variables).forEach(([k,v])=>fd.append(k,typeof v==='object'?JSON.stringify(v):String(v??'')));
+        if(vfContext.conversation_id)fd.append('conversation_id',vfContext.conversation_id);
+        if(vfContext.user_id)fd.append('user_id',vfContext.user_id);
         return fd;
       };
-      const cleanHeaders = () => { const h={...headers}; delete h['Content-Type']; return h; };
+      const cleanHeaders=()=>{ const h={...headers}; delete h['Content-Type']; return h; };
       let err;
-      for (let i=0; i<=retries; i++) {
-        try {
-          const ctrl=new AbortController(), to=setTimeout(()=>ctrl.abort(), timeoutMs);
+      for(let i=0;i<=retries;i++){
+        try{
+          const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),timeoutMs);
           const r=await fetch(url,{method,headers:cleanHeaders(),body:buildFormData(),signal:ctrl.signal});
           clearTimeout(to);
-          if(!r.ok) throw new Error(`HTTP ${r.status}`);
-          return {ok:true, data:await r.json().catch(()=>null)};
-        } catch(e) {
-          err=e; console.warn(`[UploadExt] Attempt ${i+1} failed:`, e.message);
-          if (e.message?.includes('Failed to fetch')||e.name==='AbortError') {
+          if(!r.ok)throw new Error(`HTTP ${r.status}`);
+          return {ok:true,data:await r.json().catch(()=>null)};
+        }catch(e){
+          err=e; console.warn(`[UploadExt] Attempt ${i+1} failed:`,e.message);
+          if(e.message?.includes('Failed to fetch')||e.name==='AbortError'){
             await new Promise(r=>setTimeout(r,500));
-            try {
+            try{
               const r2=await fetch(url,{method,headers:cleanHeaders(),body:buildFormData()});
-              if(!r2.ok) throw new Error(`HTTP ${r2.status}`);
-              return {ok:true, data:await r2.json().catch(()=>null)};
-            } catch(e2) { err=e2; }
+              if(!r2.ok)throw new Error(`HTTP ${r2.status}`);
+              return {ok:true,data:await r2.json().catch(()=>null)};
+            }catch(e2){err=e2;}
           }
-          if (i<retries) await new Promise(r=>setTimeout(r,900));
+          if(i<retries)await new Promise(r=>setTimeout(r,900));
         }
       }
       throw err||new Error('Failed');
     }
 
     async function poll({ statusUrl, headers, intervalMs, maxAttempts, onTick }) {
-      for (let i=1; i<=maxAttempts; i++) {
+      for(let i=1;i<=maxAttempts;i++){
         const r=await fetch(statusUrl,{headers});
-        if(!r.ok) throw new Error(`Poll ${r.status}`);
+        if(!r.ok)throw new Error(`Poll ${r.status}`);
         const j=await r.json().catch(()=>({}));
-        if(j?.status==='error') throw new Error(j?.error||'Error');
-        onTick?.({percent:j?.percent, phase:j?.phase});
-        if(j?.status==='done') return j?.data??j;
+        if(j?.status==='error')throw new Error(j?.error||'Error');
+        onTick?.({percent:j?.percent,phase:j?.phase});
+        if(j?.status==='done')return j?.data??j;
         await new Promise(r=>setTimeout(r,intervalMs));
       }
       throw new Error('Timeout');
@@ -567,9 +705,9 @@ export const Uploader = {
     scrollToSelf();
 
     const cleanup = () => {
-      if (timedTimer) clearInterval(timedTimer);
-      if (cleanupObserver) cleanupObserver();
-      isComponentActive = false;
+      if(timedTimer)clearInterval(timedTimer);
+      if(cleanupObserver)cleanupObserver();
+      isComponentActive=false;
       unblockChatInput();
     };
     window.__uploaderInstance = cleanup;
