@@ -1,4 +1,4 @@
-// Uploader.js – v11.5
+// Uploader.js – v11.6
 // © Corentin – fix overflow long filenames (min-width:0 sur flex containers)
 //
 export const Uploader = {
@@ -25,7 +25,7 @@ export const Uploader = {
       window.__uploaderInstance = null;
     }
 
-    console.log('[UploadExt] v11.5 - Init');
+    console.log('[UploadExt] v11.6 - Init');
 
     const findChatContainer = () => {
       const el = document.getElementById('vf-chat') || document.getElementById('voiceflow-chat');
@@ -284,32 +284,35 @@ export const Uploader = {
         overflow: hidden;
       }
 
-      /* ✅ FIX principal : l'item ne doit jamais dépasser son parent */
+      /* ✅ FIX overflow : contrainte dure sur chaque item */
       .upl-item {
         display: flex;
         align-items: center;
         padding: 7px 10px;
         background: ${colors.bg};
         border-radius: 6px;
+        /* ✅ width:100% + max-width:100% + overflow:hidden sur l'item lui-même */
         width: 100%;
         max-width: 100%;
-        min-width: 0;     /* ✅ obligatoire pour flex */
+        min-width: 0;
         overflow: hidden;
+        box-sizing: border-box;
       }
       .upl-item-icon {
         width: 14px;
         height: 14px;
-        min-width: 14px;  /* ✅ ne pas laisser l'icône se réduire */
+        min-width: 14px;
         color: ${colors.textLight};
         margin-right: 8px;
         flex-shrink: 0;
       }
       .upl-item-info {
-        flex: 1;
-        min-width: 0;     /* ✅ permet à l'ellipsis de fonctionner */
+        flex: 1 1 0%;   /* ✅ base 0% force le calcul correct */
+        min-width: 0;
         overflow: hidden;
+        width: 0;       /* ✅ trick : force flex à respecter overflow */
       }
-      /* ✅ Le nom tronqué avec ellipsis */
+      /* ✅ Ellipsis + word-break en fallback pour noms sans espaces */
       .upl-item-name {
         font-size: 12px;
         font-weight: 500;
@@ -318,17 +321,20 @@ export const Uploader = {
         text-overflow: ellipsis;
         max-width: 100%;
         display: block;
+        word-break: break-all; /* fallback si ellipsis échoue */
       }
       .upl-item-size {
         font-size: 10px;
         color: ${colors.textLight};
         margin-top: 1px;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .upl-item-del {
         width: 20px;
         height: 20px;
-        min-width: 20px;  /* ✅ ne pas laisser le bouton se réduire */
+        min-width: 20px;
         border: none;
         background: none;
         color: ${colors.textLight};
@@ -432,6 +438,27 @@ export const Uploader = {
     `;
     element.appendChild(root);
 
+    // ── ✅ FIX OVERFLOW : forcer la largeur en pixels réels ──────────────
+    // Dans Bubble SPA + Shadow DOM, width:100% hérite d'un parent sans
+    // contrainte → le contenu déborde. On mesure offsetWidth réel et on fixe.
+    const forceWidth = () => {
+      const available = element.offsetWidth || element.parentElement?.offsetWidth || 0;
+      if (available > 0) {
+        root.style.width    = available + 'px';
+        root.style.maxWidth = available + 'px';
+      }
+    };
+    forceWidth();
+    // Recalcul si le conteneur change de taille (resize Bubble)
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(forceWidth);
+      ro.observe(element);
+      // Cleanup intégré dans la fonction de destruction
+      const _origCleanup = () => ro.disconnect();
+      const _prevCleanup = window.__uploaderInstance;
+      window.__uploaderInstance = () => { _origCleanup(); if(_prevCleanup) _prevCleanup(); };
+    }
+
     // ── Refs ─────────────────────────────────────────────────────────────
     const initialView  = root.querySelector('.upl-initial-view');
     const twoColView   = root.querySelector('#two-col-view');
@@ -491,6 +518,14 @@ export const Uploader = {
       });
       sendBtn.disabled = !enough;
       if (selectedFiles.length > 0 && !enough) showMsg(`${requiredFiles - selectedFiles.length} fichier(s) manquant(s)`, 'warn');
+
+      // ✅ Masquer la zone compact si maxFiles atteint
+      if (selectedFiles.length >= maxFiles) {
+        zoneCompact.style.display = 'none';
+      } else {
+        zoneCompact.style.display = '';
+      }
+
       scrollToSelf();
     };
 
