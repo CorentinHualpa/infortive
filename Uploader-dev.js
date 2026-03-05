@@ -1,4 +1,4 @@
-// Uploader.js – v11.4
+// Uploader.js – v11.5
 // © Corentin – fix overflow long filenames (min-width:0 sur flex containers)
 //
 export const Uploader = {
@@ -25,7 +25,7 @@ export const Uploader = {
       window.__uploaderInstance = null;
     }
 
-    console.log('[UploadExt] v11.4 - Init');
+    console.log('[UploadExt] v11.5 - Init');
 
     const findChatContainer = () => {
       const el = document.getElementById('vf-chat') || document.getElementById('voiceflow-chat');
@@ -121,7 +121,7 @@ export const Uploader = {
     const title         = p.title || '';
     const subtitle      = p.subtitle || '';
     const description   = p.description || 'Glissez-déposez :';
-    const descSub       = p.descSub || '(Brief de mission, cahier des charges, etc.)';
+    const descSub       = (p.descSub !== undefined && p.descSub !== null) ? p.descSub : '(Brief de mission, cahier des charges, etc.)';
     const accept        = p.accept || '.pdf,.docx';
     const maxFileSizeMB = p.maxFileSizeMB || 25;
     const maxFiles      = p.maxFiles || 10;
