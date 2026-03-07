@@ -244,8 +244,8 @@ button.vfrc-chat-input__voice-mode,
   cursor: pointer !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-bottom: 20px !important;
-  margin-right: -10px !important;
+  margin-bottom: 26px !important;
+  margin-right: -20px !important;
   transition: all 0.25s ease-in-out !important;
   box-shadow: none !important;
 }
