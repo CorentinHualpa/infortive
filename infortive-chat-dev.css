@@ -200,7 +200,7 @@ button.vfrc-button._1nzwwii0,
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-end !important;
-  gap: 8px !important;
+  gap: 0px !important;
   width: 100% !important;
 }
 
@@ -244,7 +244,7 @@ button.vfrc-chat-input__voice-mode,
   cursor: pointer !important;
   padding: 0 !important;
   margin: 0 !important;
-  margin-bottom: 14px !important;
+  margin-bottom: 20px !important;
   transition: all 0.25s ease-in-out !important;
   box-shadow: none !important;
 }
