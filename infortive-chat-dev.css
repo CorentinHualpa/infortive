@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.53
+   Infortive × Voiceflow — Thème stable v9.54
    
-   v9.53 : + Bouton vocal empilé au-dessus du bouton Envoyer
+   v9.54 : + Bouton vocal positionné en absolute au-dessus 
+            du bouton Envoyer (fix superposition)
    ========================================================== */
 
 /* ==========================================================
@@ -208,6 +209,7 @@ div.vfrc-input-container {
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-end !important;
+  position: relative !important;
 }
 
 .vfrc-input-container:focus,
@@ -281,13 +283,12 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 /* ==========================================================
-   CONTENEUR ACTIONS : EMPILÉ VERTICALEMENT (micro + envoyer)
+   CONTENEUR ACTIONS : position relative pour empiler
    ========================================================== */
 .vfrc-chat-input__actions {
   display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
   flex: 0 0 auto !important;
   width: auto !important;
   padding-right: 0 !important;
@@ -295,16 +296,21 @@ button.vfrc-button:not(.vfrc-header--button) {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  gap: 6px !important;
   margin-left: 10px !important;
+  position: relative !important;
+  min-height: 90px !important;
+  min-width: 44px !important;
 }
 
 /* ==========================================================
-   BOUTON VOCAL (Voice Mode) - Rond, au-dessus du bouton Envoyer
+   BOUTON VOCAL - Position absolute AU-DESSUS du bouton Envoyer
    ========================================================== */
 .vfrc-chat-input__voice-mode,
 button.vfrc-chat-input__voice-mode,
 .ngo4890.vfrc-chat-input__voice-mode {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -320,8 +326,8 @@ button.vfrc-chat-input__voice-mode,
   padding: 0 !important;
   margin: 0 !important;
   transition: all 0.25s ease-in-out !important;
-  order: -1 !important;
   box-shadow: none !important;
+  z-index: 2 !important;
 }
 
 /* Icône SVG dans le bouton vocal */
@@ -366,7 +372,7 @@ button.vfrc-chat-input__voice-mode:hover {
 }
 
 /* ==========================================================
-   BOUTON ENVOYER - Sous le micro
+   BOUTON ENVOYER - Position absolute EN-DESSOUS du micro
    ========================================================== */
 #vfrc-send-message svg,
 .vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode) svg {
@@ -378,17 +384,20 @@ button.vfrc-chat-input__voice-mode:hover {
   content: "Envoyer";
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 10px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
 #vfrc-send-message,
 .vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode) {
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1px solid rgba(240, 131, 0, 0.25) !important;
   border-radius: 6px !important;
-  padding: 8px 0 !important;
+  padding: 8px 4px !important;
   color: rgba(240, 131, 0, 0.5) !important;
   box-shadow: none !important;
   transition: all 0.25s ease-in-out !important;
@@ -403,7 +412,7 @@ button.vfrc-chat-input__voice-mode:hover {
   user-select: none;
   flex-shrink: 0 !important;
   margin: 0 !important;
-  order: 1 !important;
+  z-index: 1 !important;
 }
 
 #vfrc-send-message:not([disabled]),
@@ -783,9 +792,9 @@ textarea._1gdvh9ta::placeholder {
   /* Bouton vocal mobile */
   .vfrc-chat-input__voice-mode,
   button.vfrc-chat-input__voice-mode {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
   }
 
   .vfrc-chat-input__voice-mode svg {
@@ -793,16 +802,23 @@ textarea._1gdvh9ta::placeholder {
     height: 16px !important;
   }
 
+  /* Actions conteneur mobile */
+  .vfrc-chat-input__actions {
+    min-height: 76px !important;
+    min-width: 38px !important;
+    margin-left: 8px !important;
+  }
+
   /* Bouton envoyer mobile */
   #vfrc-send-message,
   .vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode) {
-    width: 36px !important;
-    min-width: 36px !important;
+    width: 34px !important;
+    min-width: 34px !important;
   }
 
   #vfrc-send-message::after,
   .vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode)::after {
-    font-size: 10px !important;
+    font-size: 9px !important;
   }
 }
 
@@ -831,22 +847,28 @@ textarea._1gdvh9ta::placeholder {
   /* Bouton vocal très petit écran */
   .vfrc-chat-input__voice-mode,
   button.vfrc-chat-input__voice-mode {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  /* Actions conteneur très petit écran */
+  .vfrc-chat-input__actions {
+    min-height: 68px !important;
+    min-width: 34px !important;
   }
 
   /* Bouton envoyer très petit écran */
   #vfrc-send-message,
   .vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode) {
-    width: 32px !important;
-    min-width: 32px !important;
-    padding: 6px 0 !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    padding: 6px 2px !important;
   }
 
   #vfrc-send-message::after,
   .vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode)::after {
-    font-size: 9px !important;
+    font-size: 8px !important;
   }
 }
 
@@ -864,4 +886,3 @@ textarea._1gdvh9ta::placeholder {
   .vfrc-footer {
     padding: 4px 8px 4px 0 !important;
   }
-}
