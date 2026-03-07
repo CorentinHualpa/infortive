@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.51
+   Infortive × Voiceflow — Thème stable v9.52
    
-   v9.51 : Hauteur responsive + scrollbar fix + chevauchement fix
+   v9.52 : + Bouton vocal intégré harmonieusement
    ========================================================== */
 
 /* ==========================================================
@@ -19,7 +19,7 @@
 
 .vfrc-chat-dialog__container {
   flex: 1 !important;
-  min-height: 0 !important; /* Important pour flex */
+  min-height: 0 !important;
   overflow-y: auto !important;
 }
 
@@ -54,7 +54,7 @@
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
-  flex-shrink: 0 !important; /* Ne pas réduire le header */
+  flex-shrink: 0 !important;
 }
 
 .vfrc-header--button,
@@ -177,7 +177,7 @@ button.vfrc-button._1nzwwii0,
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
-  flex-shrink: 0 !important; /* Ne pas réduire le footer */
+  flex-shrink: 0 !important;
 }
 
 .vfrc-footer__content {
@@ -193,7 +193,7 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   ZONE INPUT CONTENEUR : TRANSPARENT
+   ZONE INPUT CONTENEUR : TRANSPARENT + FLEX ROW
    ========================================================== */
 .vfrc-input-container,
 ._1gdvh9t2,
@@ -205,6 +205,9 @@ div.vfrc-input-container {
   outline: none !important;
   box-shadow: none !important;
   padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
 }
 
 .vfrc-input-container:focus,
@@ -281,12 +284,12 @@ button.vfrc-button:not(.vfrc-header--button) {
    BOUTON ENVOYER
    ========================================================== */
 #vfrc-send-message svg,
-.vfrc-chat-input__send svg {
+.vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode) svg {
   display: none !important;
 }
 
 #vfrc-send-message::after,
-.vfrc-chat-input__send::after {
+.vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode)::after {
   content: "Envoyer";
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 600;
@@ -296,7 +299,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 #vfrc-send-message,
-.vfrc-chat-input__send {
+.vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode) {
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1px solid rgba(240, 131, 0, 0.25) !important;
   border-radius: 6px !important;
@@ -317,7 +320,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 #vfrc-send-message:not([disabled]),
-.vfrc-chat-input__send:not([disabled]) {
+.vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode):not([disabled]) {
   background: linear-gradient(135deg, #F18400, #d46f00) !important;
   border: none !important;
   color: #ffffff !important;
@@ -327,7 +330,7 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 #vfrc-send-message:not([disabled]):hover,
-.vfrc-chat-input__send:not([disabled]):hover {
+.vfrc-chat-input__send:not(.vfrc-chat-input__voice-mode):not([disabled]):hover {
   background: linear-gradient(135deg, #d46f00, #c56200) !important;
   box-shadow: 0 4px 12px rgba(241, 132, 0, 0.4) !important;
   transform: translateY(-1px) !important;
@@ -344,6 +347,80 @@ button.vfrc-button:not(.vfrc-header--button) {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+/* ==========================================================
+   BOUTON VOCAL (Voice Mode) - Intégration harmonieuse
+   ========================================================== */
+
+/* Bouton vocal : rond, cohérent avec le thème orange */
+.vfrc-chat-input__voice-mode,
+button.vfrc-chat-input__voice-mode,
+.ngo4890.vfrc-chat-input__voice-mode {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  flex-shrink: 0 !important;
+  background: rgba(240, 131, 0, 0.08) !important;
+  border: 1px solid rgba(240, 131, 0, 0.25) !important;
+  border-radius: 50% !important;
+  color: #F18400 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin-right: 10px !important;
+  margin-left: 0 !important;
+  transition: all 0.25s ease-in-out !important;
+  order: -1 !important;
+  box-shadow: none !important;
+}
+
+/* Icône SVG dans le bouton vocal */
+.vfrc-chat-input__voice-mode svg,
+.vfrc-chat-input__voice-mode-icon {
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  color: #F18400 !important;
+  fill: #F18400 !important;
+}
+
+/* Ne pas masquer le SVG du bouton vocal */
+.vfrc-chat-input__voice-mode svg {
+  display: block !important;
+}
+
+/* Hover bouton vocal */
+.vfrc-chat-input__voice-mode:hover,
+button.vfrc-chat-input__voice-mode:hover {
+  background: rgba(240, 131, 0, 0.15) !important;
+  border-color: #F18400 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Active / En cours d'enregistrement */
+.vfrc-chat-input__voice-mode:active,
+.vfrc-chat-input__voice-mode[data-active="true"],
+.vfrc-chat-input__voice-mode.active {
+  background: linear-gradient(135deg, #F18400, #d46f00) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(241, 132, 0, 0.3) !important;
+}
+
+.vfrc-chat-input__voice-mode:active svg,
+.vfrc-chat-input__voice-mode[data-active="true"] svg,
+.vfrc-chat-input__voice-mode.active svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* Empêcher le ::after "Envoyer" sur le bouton vocal */
+.vfrc-chat-input__voice-mode::after {
+  content: none !important;
+  display: none !important;
 }
 
 /* ==========================================================
@@ -488,282 +565,4 @@ button.vfrc-button:not(.vfrc-header--button) {
 }
 
 .vfrc-message li,
-.vfrc-message .markdown li,
-._11kfxpg0 li {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 14px !important;
-  font-weight: 400 !important;
-  line-height: 1.5 !important;
-  margin-bottom: 4px !important;
-  padding-left: 4px !important;
-  display: list-item !important;
-  position: relative !important;
-  list-style: none !important;
-}
-
-.vfrc-message li:last-child,
-.vfrc-message .markdown li:last-child,
-._11kfxpg0 li:last-child {
-  margin-bottom: 0 !important;
-}
-
-.vfrc-message .markdown ul li::before,
-.vfrc-message ul li::before,
-._11kfxpg0 ul li::before,
-.markdown ul li::before {
-  content: "" !important;
-  height: 4px !important;
-  width: 4px !important;
-  background-color: #1a1e23 !important;
-  border-radius: 50% !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 0.7em !important;
-  transform: translateX(-14px) !important;
-}
-
-/* ==========================================================
-   BULLES UTILISATEUR
-   ========================================================== */
-.vfrc-user-response > div,
-.vfrc-user-response .vfrc-message,
-._15emaa40 {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-  display: inline-block !important;
-  background: #073A59 !important;
-  color: #ffffff !important;
-  border-radius: 6px !important;
-  padding: 10px 14px !important;
-  max-width: 90%;
-}
-
-.vfrc-user-response > div *,
-.vfrc-user-response .vfrc-message *,
-._15emaa40 * {
-  color: #ffffff !important;
-  font-size: 14px !important;
-}
-
-.vfrc-message:not([class*="extension"]) { 
-  margin: 12px 0 !important;
-}
-
-.vfrc-user-response {
-  padding-left: 48px !important;
-  padding-right: 8px !important;
-}
-
-/* ==========================================================
-   TEXTAREA
-   ========================================================== */
-textarea.vfrc-chat-input,
-textarea._1gdvh9ta {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-weight: 400 !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-  width: 100% !important;
-  min-width: 200px !important;
-  min-height: 60px !important;
-  max-height: 300px !important;
-  overflow-y: auto !important;
-  resize: vertical !important;
-  background: rgba(217,217,217,0.35) !important;
-  border: none !important;
-  border-radius: 6px !important;
-  outline: none !important;
-  box-shadow: none !important;
-  padding: 10px 14px !important;
-  box-sizing: border-box !important;
-  flex: 1 1 auto !important;
-  margin-left: 0 !important;
-}
-
-textarea.vfrc-chat-input:focus,
-textarea.vfrc-chat-input:focus-visible,
-textarea._1gdvh9ta:focus,
-textarea._1gdvh9ta:focus-visible {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: rgba(217,217,217,0.35) !important;
-}
-
-textarea.vfrc-chat-input::placeholder,
-textarea._1gdvh9ta::placeholder {
-  color: #666666 !important;
-}
-
-/* ==========================================================
-   SCROLLBAR - FIX SELON SUPPORT VOICEFLOW
-   ========================================================== */
-
-/* Forcer l'affichage du scroll sur le bon conteneur */
-.vfrc-chat-dialog__container {
-  overflow-y: scroll !important;
-  scrollbar-width: thin !important; /* Firefox */
-  scrollbar-color: #F18400 transparent !important; /* Firefox */
-}
-
-/* Webkit (Chrome, Safari, Edge) - Cibler le bon conteneur */
-.vfrc-chat-dialog__container::-webkit-scrollbar {
-  width: 2px !important;
-  -webkit-appearance: none !important;
-  display: block !important;
-}
-
-.vfrc-chat-dialog__container::-webkit-scrollbar-thumb {
-  background: #F18400 !important;
-  border-radius: 999px !important;
-}
-
-.vfrc-chat-dialog__container::-webkit-scrollbar-track {
-  background: transparent !important;
-}
-
-/* Fallback sur autres conteneurs potentiels */
-.vfrc-chat--dialog {
-  overflow-y: scroll !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: #F18400 transparent !important;
-}
-
-.vfrc-chat--dialog::-webkit-scrollbar {
-  width: 2px !important;
-  -webkit-appearance: none !important;
-  display: block !important;
-}
-
-.vfrc-chat--dialog::-webkit-scrollbar-thumb {
-  background: #F18400 !important;
-  border-radius: 999px !important;
-}
-
-.vfrc-chat--dialog::-webkit-scrollbar-track {
-  background: transparent !important;
-}
-
-
-/* ==========================================================
-   RESPONSIVE MOBILE (< 640px)
-   ========================================================== */
-@media (max-width: 640px) {
-  
-  /* Masquer l'avatar */
-  .vfrc-avatar,
-  img.vfrc-avatar {
-    display: none !important;
-  }
-  
-  /* Réajuster les bulles agent */
-  .vfrc-system-response,
-  div.vfrc-system-response {
-    padding-left: 8px !important;
-  }
-  
-  /* Réajuster les boutons de choix */
-  .vfrc-button._1nzwwii0,
-  button.vfrc-button._1nzwwii0,
-  ._1nzwwii0._1o5z0oa0 {
-    margin-left: 8px !important;
-  }
-  
-  /* Réajuster le conteneur des boutons */
-  .vfrc-system-response--actions,
-  .vfrc-system-response--actions.g3dqfd6 {
-    margin-left: 0 !important;
-    width: calc(100% - 16px) !important;
-    max-width: calc(100% - 16px) !important;
-  }
-  
-  /* Footer compact */
-  .vfrc-footer {
-    padding: 6px 8px 6px 0 !important;
-  }
-  
-  .vfrc-footer__content {
-    margin-left: 8px !important;
-    width: calc(100% - 16px) !important;
-    max-width: calc(100% - 16px) !important;
-  }
-  
-  /* Réajuster les bulles utilisateur */
-  .vfrc-user-response {
-    padding-left: 8px !important;
-  }
-  
-  /* Header mobile */
-  div.vfrc-header--title,
-  .vfrc-header--title {
-    padding-left: 4px !important;
-    font-size: 18px !important;
-    padding-bottom: 8px !important;
-  }
-  
-  /* Textarea mobile plus compact */
-  textarea.vfrc-chat-input,
-  textarea._1gdvh9ta {
-    min-height: 50px !important;
-    padding: 8px 12px !important;
-  }
-  
-  /* Boutons plus compacts */
-  .vfrc-button:not(.vfrc-header--button),
-  button.vfrc-button:not(.vfrc-header--button) {
-    padding: 10px 14px !important;
-    font-size: 11px !important;
-  }
-}
-
-/* ==========================================================
-   RESPONSIVE TRÈS PETIT ÉCRAN (< 400px)
-   ========================================================== */
-@media (max-width: 400px) {
-  
-  div.vfrc-header--title,
-  .vfrc-header--title {
-    font-size: 16px !important;
-    padding-bottom: 6px !important;
-  }
-  
-  textarea.vfrc-chat-input,
-  textarea._1gdvh9ta {
-    min-height: 45px !important;
-    font-size: 11px !important;
-  }
-  
-  .vfrc-button:not(.vfrc-header--button) {
-    padding: 8px 12px !important;
-    font-size: 10px !important;
-  }
-  
-  #vfrc-send-message::after,
-  .vfrc-chat-input__send::after {
-    font-size: 10px !important;
-  }
-  
-  #vfrc-send-message,
-  .vfrc-chat-input__send {
-    min-width: 70px !important;
-    padding: 6px 10px !important;
-  }
-}
-
-/* ==========================================================
-   PAYSAGE MOBILE
-   ========================================================== */
-@media (max-height: 500px) and (orientation: landscape) {
-  
-  textarea.vfrc-chat-input,
-  textarea._1gdvh9ta {
-    min-height: 40px !important;
-    max-height: 100px !important;
-  }
-  
-  .vfrc-footer {
-    padding: 4px 8px 4px 0 !important;
-  }
-}
+.vfrc-mes
