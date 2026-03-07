@@ -234,8 +234,8 @@ button.vfrc-chat-input__voice-mode,
   align-items: center !important;
   justify-content: center !important;
   width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
+  height: 28px !important;
+  min-width: 28px !important;
   flex-shrink: 0 !important;
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1.5px solid rgba(240, 131, 0, 0.3) !important;
@@ -254,8 +254,8 @@ button.vfrc-chat-input__voice-mode,
 .vfrc-chat-input__voice-mode svg,
 .vfrc-chat-input__voice-mode-icon {
   display: block !important;
-  width: 14px !important;
-  height: 14px !important;
+  width: 12px !important;
+  height: 12px !important;
   color: #F18400 !important;
   fill: #F18400 !important;
 }
