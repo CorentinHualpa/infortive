@@ -1,9 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 /* ==========================================================
-   Infortive × Voiceflow — Thème stable v9.55
+   Infortive × Voiceflow — Thème stable v9.56
    
-   v9.55 : + Bouton vocal intégré à GAUCHE du textarea
-            Structure réelle : ._1gdvh9t0 > [vocal] + [input]
+   v9.56 : + Bouton vocal réduit (32px) et remonté (margin-bottom)
    ========================================================== */
 
 /* ==========================================================
@@ -201,7 +200,7 @@ button.vfrc-button._1nzwwii0,
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-end !important;
-  gap: 10px !important;
+  gap: 8px !important;
   width: 100% !important;
 }
 
@@ -226,7 +225,7 @@ button.vfrc-button._1nzwwii0,
 }
 
 /* ==========================================================
-   BOUTON VOCAL - Rond, à gauche du textarea
+   BOUTON VOCAL - Rond, petit, remonté au-dessus du bouton Envoyer
    ========================================================== */
 .vfrc-chat-input__voice-mode,
 button.vfrc-chat-input__voice-mode,
@@ -234,9 +233,9 @@ button.vfrc-chat-input__voice-mode,
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
   flex-shrink: 0 !important;
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1.5px solid rgba(240, 131, 0, 0.3) !important;
@@ -245,6 +244,7 @@ button.vfrc-chat-input__voice-mode,
   cursor: pointer !important;
   padding: 0 !important;
   margin: 0 !important;
+  margin-bottom: 14px !important;
   transition: all 0.25s ease-in-out !important;
   box-shadow: none !important;
 }
@@ -253,8 +253,8 @@ button.vfrc-chat-input__voice-mode,
 .vfrc-chat-input__voice-mode svg,
 .vfrc-chat-input__voice-mode-icon {
   display: block !important;
-  width: 18px !important;
-  height: 18px !important;
+  width: 14px !important;
+  height: 14px !important;
   color: #F18400 !important;
   fill: #F18400 !important;
 }
@@ -818,19 +818,20 @@ textarea._1gdvh9ta::placeholder {
   /* Bouton vocal mobile */
   .vfrc-chat-input__voice-mode,
   button.vfrc-chat-input__voice-mode {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    margin-bottom: 10px !important;
   }
 
   .vfrc-chat-input__voice-mode svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 12px !important;
+    height: 12px !important;
   }
 
   /* Gap réduit mobile */
   ._1gdvh9t0 {
-    gap: 8px !important;
+    gap: 6px !important;
   }
 }
 
@@ -870,13 +871,14 @@ textarea._1gdvh9ta::placeholder {
   /* Bouton vocal très petit écran */
   .vfrc-chat-input__voice-mode,
   button.vfrc-chat-input__voice-mode {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    margin-bottom: 8px !important;
   }
 
   ._1gdvh9t0 {
-    gap: 6px !important;
+    gap: 4px !important;
   }
 }
 
