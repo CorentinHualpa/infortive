@@ -233,9 +233,9 @@ button.vfrc-chat-input__voice-mode,
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 32px !important;
-  height: 28px !important;
-  min-width: 28px !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
   flex-shrink: 0 !important;
   background: rgba(240, 131, 0, 0.08) !important;
   border: 1.5px solid rgba(240, 131, 0, 0.3) !important;
