@@ -295,7 +295,7 @@ button.vfrc-chat-input__voice-mode:hover {
 /* Bouton mute microphone - même positionnement que le bouton vocal */
 .vfrc-chat-input__mute-microphone,
 button.vfrc-chat-input__mute-microphone {
-  margin-bottom: 14px !important;
+  margin-bottom: 18px !important;
   margin-right: -4px !important;
 }
 
