@@ -292,13 +292,13 @@ button.vfrc-chat-input__voice-mode:hover {
   display: none !important;
 }
 
-/* Bouton mute microphone - même positionnement que le bouton vocal */
-.vfrc-chat-input__mute-microphone,
-button.vfrc-chat-input__mute-microphone {
-  margin-bottom: 22px !important;
+/* Bouton mute microphone - spécificité renforcée */
+button.vfrc-chat-input__mute-microphone,
+.ngo4890.vfrc-chat-input__mute-microphone,
+.vfrc-chat-input__mute-microphone._1gdvh9tf {
+  margin-bottom: 18px !important;
   margin-right: -4px !important;
 }
-
 /* Ne pas masquer le SVG du bouton vocal */
 .vfrc-chat-input__voice-mode svg {
   display: block !important;
